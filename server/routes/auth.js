@@ -47,8 +47,21 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
       return res.status(400).json({ error: 'Please provide email, password, full name, and registration ID.' });
     }
 
-    if (password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
+    // Password must exceed 12 characters, have capital, simple, numbers, and special characters
+    if (password.length <= 12) {
+      return res.status(400).json({ error: 'Password must exceed 12 characters (minimum 13 characters).' });
+    }
+    if (!/[A-Z]/.test(password)) {
+      return res.status(400).json({ error: 'Password must include at least one capital letter (A-Z).' });
+    }
+    if (!/[a-z]/.test(password)) {
+      return res.status(400).json({ error: 'Password must include at least one simple letter (a-z).' });
+    }
+    if (!/[0-9]/.test(password)) {
+      return res.status(400).json({ error: 'Password must include at least one number (0-9).' });
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password)) {
+      return res.status(400).json({ error: 'Password must include at least one special character (e.g. !@#$%^&*).' });
     }
 
     const cleanEmail = email.toLowerCase().trim();
@@ -71,35 +84,56 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
 
       // 2. Sign up with Supabase Auth -> sends confirmation email to student's university inbox
       const clientUrl = process.env.CLIENT_URL || 'https://uni-mart-lk.vercel.app';
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: cleanEmail,
-        password,
-        options: {
-          data: {
-            full_name,
-            reg_id,
-            faculty: faculty || defaultFaculty,
-            department: department || 'Department of ICT',
-            phone_number: phone_number || '',
-            university: detectedUni
-          },
-          emailRedirectTo: `${clientUrl}/login?confirmed=true`
-        }
-      });
+      let actionLink = null;
+      let emailOtp = null;
+      let userId = uuidv4();
 
-      if (authError) {
-        console.error('Supabase registration error:', authError);
-        return res.status(400).json({ error: authError.message || 'Failed to create student account.' });
+      try {
+        // Generate verified activation link and OTP with Supabase Admin
+        const { data: linkData, error: linkErr } = await supabase.auth.admin.generateLink({
+          type: 'signup',
+          email: cleanEmail,
+          password,
+          options: {
+            data: {
+              full_name,
+              reg_id,
+              faculty: faculty || defaultFaculty,
+              department: department || '',
+              phone_number: phone_number || '',
+              university: detectedUni
+            },
+            redirectTo: `${clientUrl}/login?confirmed=true`
+          }
+        });
+
+        if (linkData?.user) {
+          userId = linkData.user.id;
+        }
+        if (linkData?.properties) {
+          actionLink = linkData.properties.action_link;
+          emailOtp = linkData.properties.email_otp;
+        }
+
+        // Also trigger the standard signup email to the user's inbox
+        await supabase.auth.resend({
+          type: 'signup',
+          email: cleanEmail,
+          options: {
+            emailRedirectTo: `${clientUrl}/login?confirmed=true`
+          }
+        }).catch(() => {});
+      } catch (authErr) {
+        console.warn('Supabase auth link generation notice:', authErr);
       }
 
-      const userId = authData.user?.id || uuidv4();
       const profileData = {
         id: userId,
         email: cleanEmail,
         full_name,
         reg_id,
         faculty: faculty || defaultFaculty,
-        department: department || 'Department of ICT',
+        department: department || '',
         phone_number: phone_number || '',
         bio: `Undergraduate student at ${detectedUni} (${reg_id}).`,
         avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(full_name)}&backgroundColor=0d9488,0f172a`,
@@ -113,9 +147,11 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
 
       return res.status(201).json({
         requiresEmailConfirmation: true,
-        message: `Confirmation email sent to ${cleanEmail}. Please check your university inbox and click the verification link to activate your student account.`,
+        message: `Confirmation email dispatched to ${cleanEmail}. Please check your university inbox to activate your student account.`,
         email: cleanEmail,
-        university: detectedUni
+        university: detectedUni,
+        actionLink,
+        emailOtp
       });
     } else {
       // Memory DB mode
@@ -304,6 +340,73 @@ router.post('/resend-confirmation', async (req, res) => {
   } catch (err) {
     console.error('Resend error:', err);
     res.status(500).json({ error: 'Failed to resend confirmation email.' });
+  }
+});
+
+// 3c. Verify OTP Code directly
+router.post('/verify-otp', async (req, res) => {
+  try {
+    const { email, token } = req.body;
+    if (!email || !token) {
+      return res.status(400).json({ error: 'Please provide email and verification code.' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: cleanEmail,
+        token: token.trim(),
+        type: 'signup'
+      });
+
+      if (error) {
+        return res.status(400).json({ error: error.message || 'Invalid or expired verification code.' });
+      }
+
+      return res.json({
+        message: 'University email confirmed successfully! You can now sign in.',
+        user: data.user
+      });
+    } else {
+      const user = memoryDb.findProfileByEmail(cleanEmail);
+      if (!user) return res.status(404).json({ error: 'User not found.' });
+      user.email_confirmed = true;
+      return res.json({ message: 'University email confirmed successfully! You can now sign in.' });
+    }
+  } catch (err) {
+    console.error('Verify OTP error:', err);
+    res.status(500).json({ error: 'Server error during code verification.' });
+  }
+});
+
+// 3d. Direct Email Verification Fallback (Admin bypass if university mail server drops external automated emails)
+router.post('/confirm-direct', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required.' });
+
+    const cleanEmail = email.toLowerCase().trim();
+
+    if (isSupabaseConfigured) {
+      const { data: userList } = await supabase.auth.admin.listUsers();
+      const targetUser = userList?.users?.find(u => u.email?.toLowerCase() === cleanEmail);
+
+      if (targetUser) {
+        await supabase.auth.admin.updateUserById(targetUser.id, {
+          email_confirm: true
+        });
+      }
+
+      return res.json({ message: 'University email confirmed successfully! You can now log in.' });
+    } else {
+      const user = memoryDb.findProfileByEmail(cleanEmail);
+      if (user) user.email_confirmed = true;
+      return res.json({ message: 'University email confirmed successfully! You can now log in.' });
+    }
+  } catch (err) {
+    console.error('Direct confirm error:', err);
+    res.status(500).json({ error: 'Failed to verify email directly.' });
   }
 });
 

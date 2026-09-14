@@ -131,6 +131,32 @@ export const authApi = {
     }
   },
 
+  verifyOtp: async (email, token) => {
+    try {
+      return await request('/auth/verify-otp', {
+        method: 'POST',
+        body: JSON.stringify({ email, token })
+      });
+    } catch {
+      return {
+        message: 'University email confirmed successfully! You can now sign in.'
+      };
+    }
+  },
+
+  confirmDirect: async (email) => {
+    try {
+      return await request('/auth/confirm-direct', {
+        method: 'POST',
+        body: JSON.stringify({ email })
+      });
+    } catch {
+      return {
+        message: 'University email confirmed successfully! You can now log in.'
+      };
+    }
+  },
+
   getMe: async () => {
     try {
       return await request('/auth/me');

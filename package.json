@@ -2,6 +2,7 @@
   "name": "unimart-workspace",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "UniMart – Smart Student Marketplace for Rajarata University of Sri Lanka",
   "workspaces": [
     "client",

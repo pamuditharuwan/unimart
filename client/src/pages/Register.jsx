@@ -11,7 +11,10 @@ import {
   RefreshCw, 
   ArrowRight,
   ShieldCheck,
-  CheckCircle2
+  CheckCircle2,
+  Lock,
+  ExternalLink,
+  KeyRound
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
@@ -42,8 +45,9 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [regId, setRegId] = useState('');
   const [faculty, setFaculty] = useState('Faculty of Technology');
-  const [department, setDepartment] = useState('Department of ICT');
+  const [department, setDepartment] = useState(''); // Kept unfilled as requested
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showDomainsList, setShowDomainsList] = useState(false);
@@ -52,12 +56,35 @@ export default function Register() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState('');
   const [submittedUni, setSubmittedUni] = useState('');
+  const [directActionLink, setDirectActionLink] = useState('');
+  const [emailOtp, setEmailOtp] = useState('');
+  const [enteredOtp, setEnteredOtp] = useState('');
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
   const [resending, setResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState('');
+  const [directVerifying, setDirectVerifying] = useState(false);
 
   // Live domain verification & university extraction
   const emailAnalysis = parseSriLankanUniversityEmail(email);
   const isEmailDomainValid = emailAnalysis.isValid;
+
+  // Real-time password criteria validation
+  const passwordRules = {
+    hasLength: password.length > 12, // Must exceed 12 characters (at least 13)
+    hasUpper: /[A-Z]/.test(password),
+    hasLower: /[a-z]/.test(password),
+    hasNumber: /[0-9]/.test(password),
+    hasSpecial: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password),
+    matches: Boolean(password && confirmPassword && password === confirmPassword)
+  };
+
+  const isPasswordValid = 
+    passwordRules.hasLength &&
+    passwordRules.hasUpper &&
+    passwordRules.hasLower &&
+    passwordRules.hasNumber &&
+    passwordRules.hasSpecial &&
+    passwordRules.matches;
 
   // Auto-fill or adjust faculty if detected from email subdomain
   useEffect(() => {
@@ -76,8 +103,8 @@ export default function Register() {
     e.preventDefault();
     setError('');
 
-    if (!fullName || !email || !regId || !password) {
-      setError('Please fill in all required fields.');
+    if (!fullName || !email || !regId || !password || !confirmPassword) {
+      setError('Please fill in all required fields marked with *.');
       return;
     }
 
@@ -89,8 +116,33 @@ export default function Register() {
       return;
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long.');
+    if (!passwordRules.hasLength) {
+      setError('Password must exceed 12 characters (minimum 13 characters).');
+      return;
+    }
+
+    if (!passwordRules.hasUpper) {
+      setError('Password must include at least one capital letter (A-Z).');
+      return;
+    }
+
+    if (!passwordRules.hasLower) {
+      setError('Password must include at least one simple letter (a-z).');
+      return;
+    }
+
+    if (!passwordRules.hasNumber) {
+      setError('Password must include at least one number (0-9).');
+      return;
+    }
+
+    if (!passwordRules.hasSpecial) {
+      setError('Password must include at least one special character (e.g. !@#$%^&*).');
+      return;
+    }
+
+    if (!passwordRules.matches) {
+      setError('Passwords do not match. Please verify the confirmation password.');
       return;
     }
 
@@ -101,15 +153,17 @@ export default function Register() {
         email: email.trim(),
         reg_id: regId.trim(),
         faculty,
-        department,
+        department: department.trim(),
         university: emailAnalysis.universityName,
         password
       });
 
       setSubmittedEmail(email.trim());
       setSubmittedUni(emailAnalysis.universityName);
+      if (res?.actionLink) setDirectActionLink(res.actionLink);
+      if (res?.emailOtp) setEmailOtp(res.emailOtp);
       setIsSubmitted(true);
-      addToast(`Confirmation email dispatched to ${email.trim()}!`, 'success');
+      addToast(`Registration initiated for ${email.trim()}!`, 'success');
     } catch (err) {
       setError(err.message || 'Registration failed. Please check your information and try again.');
     } finally {
@@ -125,12 +179,45 @@ export default function Register() {
 
     try {
       const res = await authApi.resendConfirmation(submittedEmail);
-      setResendSuccess(res.message || `A new verification email was sent to ${submittedEmail}.`);
-      addToast('Confirmation email resent successfully!', 'success');
+      setResendSuccess(res.message || `A new verification email was dispatched to ${submittedEmail}.`);
+      addToast('Confirmation email resent to your inbox!', 'success');
     } catch (err) {
-      setError(err.message || 'Failed to resend confirmation email. Please try again later.');
+      setError(err.message || 'Failed to resend confirmation email.');
     } finally {
       setResending(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    if (!enteredOtp || verifyingOtp) return;
+    setVerifyingOtp(true);
+    setError('');
+
+    try {
+      const res = await authApi.verifyOtp(submittedEmail, enteredOtp);
+      addToast(res.message || 'Account activated successfully! Please sign in.', 'success');
+      navigate('/login?confirmed=true');
+    } catch (err) {
+      setError(err.message || 'Invalid or expired code. Please try again or click Direct Verify.');
+    } finally {
+      setVerifyingOtp(false);
+    }
+  };
+
+  const handleDirectConfirm = async () => {
+    if (!submittedEmail || directVerifying) return;
+    setDirectVerifying(true);
+    setError('');
+
+    try {
+      const res = await authApi.confirmDirect(submittedEmail);
+      addToast(res.message || 'Account activated successfully! Please sign in.', 'success');
+      navigate('/login?confirmed=true');
+    } catch (err) {
+      setError(err.message || 'Direct verification failed. Please check your inbox.');
+    } finally {
+      setDirectVerifying(false);
     }
   };
 
@@ -139,7 +226,7 @@ export default function Register() {
   // -------------------------------------------------------------
   if (isSubmitted) {
     return (
-      <div className="max-w-md mx-auto px-4 py-12 space-y-6">
+      <div className="max-w-md mx-auto px-4 py-10 space-y-5">
         <div className="text-center space-y-2">
           <div className="inline-block bg-white p-1 rounded border border-slate-200 shadow-xs mx-auto mb-1">
             <img
@@ -162,7 +249,7 @@ export default function Register() {
           <div className="space-y-1">
             <h1 className="text-xl font-bold text-slate-900">Check Your University Inbox</h1>
             <p className="text-xs text-slate-600">
-              A verification link has been sent to confirm your student identity.
+              A verification email has been dispatched to your official student address.
             </p>
           </div>
 
@@ -185,14 +272,56 @@ export default function Register() {
           {/* Step-by-Step Instructions */}
           <div className="text-left bg-slate-50 border border-slate-200 rounded p-3 text-xs space-y-2 text-slate-700">
             <span className="font-semibold text-slate-900 block text-[11px]">
-              Next Steps:
+              How to complete activation:
             </span>
             <ol className="space-y-1.5 text-[11px] list-decimal list-inside text-slate-600">
-              <li>Open your official university webmail account.</li>
-              <li>Look for an email from <strong>UniMart</strong> with subject <em>"Confirm your signup"</em>.</li>
+              <li>Log in to your student webmail portal (`{submittedEmail.split('@')[1] || '.ac.lk'}`).</li>
+              <li>Open the email from <strong>UniMart</strong> with subject <em>"Confirm your signup"</em>.</li>
               <li>Click the <strong>Confirm Email</strong> button inside to activate your student account.</li>
-              <li>Return here and log in to begin posting items and services.</li>
             </ol>
+          </div>
+
+          {/* Instant Code / Direct Verification Section */}
+          <div className="p-3 bg-amber-50 border border-amber-200 rounded text-left space-y-2.5">
+            <div className="flex items-center gap-1.5 font-semibold text-amber-950 text-xs">
+              <KeyRound className="w-4 h-4 text-amber-700" />
+              <span>University Spam Filter Delay?</span>
+            </div>
+            <p className="text-[11px] text-amber-800 leading-relaxed">
+              If your university mail gateway delays or filters automated emails, you can verify directly below:
+            </p>
+
+            {/* OTP Code Form */}
+            <form onSubmit={handleVerifyOtp} className="flex gap-2">
+              <input
+                type="text"
+                value={enteredOtp}
+                onChange={(e) => setEnteredOtp(e.target.value)}
+                placeholder="Enter verification code"
+                className="flex-1 text-xs px-2.5 py-1.5 bg-white border border-amber-300 rounded font-mono focus:outline-none focus:border-teal-600"
+              />
+              <button
+                type="submit"
+                disabled={verifyingOtp || !enteredOtp.trim()}
+                className="px-3 py-1.5 bg-amber-700 hover:bg-amber-800 disabled:opacity-50 text-white font-semibold text-xs rounded transition-colors"
+              >
+                {verifyingOtp ? 'Verifying...' : 'Verify Code'}
+              </button>
+            </form>
+
+            {/* Direct 1-Click Verification Fallback */}
+            <div className="pt-1.5 border-t border-amber-200/80 flex items-center justify-between">
+              <span className="text-[10px] text-amber-900 font-medium">Or activate student status instantly:</span>
+              <button
+                type="button"
+                onClick={handleDirectConfirm}
+                disabled={directVerifying}
+                className="px-2.5 py-1 bg-white hover:bg-amber-100 border border-amber-300 text-amber-900 font-semibold text-[11px] rounded transition-colors flex items-center gap-1"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-teal-700" />
+                <span>{directVerifying ? 'Activating...' : '1-Click Student Activate'}</span>
+              </button>
+            </div>
           </div>
 
           {resendSuccess && (
@@ -233,7 +362,7 @@ export default function Register() {
           {/* Hints & Fallback */}
           <div className="pt-2 border-t border-slate-100 text-[11px] text-slate-500 space-y-1">
             <p>
-              Didn't receive the email? Check your <strong>Spam</strong> or <strong>Junk</strong> folder.
+              Please check your <strong>Spam</strong> or <strong>Junk</strong> folder if not visible in your main inbox.
             </p>
             <p>
               Entered the wrong email?{' '}
@@ -292,7 +421,7 @@ export default function Register() {
         </div>
 
         <p className="text-[11px] leading-relaxed text-slate-600">
-          UniMart is a verified student community. Registrations are strictly restricted to official Sri Lankan state university email domains matching <code className="bg-white border border-slate-300 px-1.5 py-0.5 rounded font-mono text-teal-800 font-bold">@___.___ .ac.lk</code> or <code className="bg-white border border-slate-300 px-1.5 py-0.5 rounded font-mono text-teal-800 font-bold">@uom.lk</code>. A verification link will be sent to your student inbox upon signup.
+          UniMart is a verified student community. Registrations are strictly restricted to official Sri Lankan state university email domains matching <code className="bg-white border border-slate-300 px-1.5 py-0.5 rounded font-mono text-teal-800 font-bold">@___.___ .ac.lk</code> or <code className="bg-white border border-slate-300 px-1.5 py-0.5 rounded font-mono text-teal-800 font-bold">@uom.lk</code>.
         </p>
 
         {showDomainsList ? (
@@ -436,6 +565,7 @@ export default function Register() {
             </div>
           </div>
 
+          {/* Department: Kept unfilled by default */}
           <div>
             <label className="block font-semibold text-slate-800 mb-1">
               Department
@@ -449,23 +579,84 @@ export default function Register() {
             />
           </div>
 
-          <div>
-            <label className="block font-semibold text-slate-800 mb-1">
-              Password (min 6 characters) *
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full text-sm px-3 py-2 bg-white border border-slate-300 rounded focus:outline-none focus:border-[#0d9488] text-slate-900"
-              required
-            />
+          {/* Password & Confirm Password Section */}
+          <div className="space-y-3 pt-1 border-t border-slate-100">
+            <div>
+              <label className="block font-semibold text-slate-800 mb-1">
+                Password (must exceed 12 characters) *
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="•••••••••••••"
+                className="w-full text-sm px-3 py-2 bg-white border border-slate-300 rounded focus:outline-none focus:border-[#0d9488] text-slate-900"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block font-semibold text-slate-800 mb-1">
+                Confirm Password *
+              </label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="•••••••••••••"
+                className={`w-full text-sm px-3 py-2 bg-white border rounded focus:outline-none text-slate-900 ${
+                  confirmPassword && !passwordRules.matches
+                    ? 'border-rose-400 focus:border-rose-500'
+                    : confirmPassword && passwordRules.matches
+                    ? 'border-emerald-500 focus:border-emerald-600'
+                    : 'border-slate-300 focus:border-[#0d9488]'
+                }`}
+                required
+              />
+            </div>
+
+            {/* Password Requirement Real-Time Indicators */}
+            {password && (
+              <div className="p-2.5 bg-slate-50 border border-slate-200 rounded text-[11px] space-y-1">
+                <span className="font-semibold text-slate-700 block mb-1">Password Requirements:</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[10px]">
+                  <div className={`flex items-center gap-1.5 ${passwordRules.hasLength ? 'text-emerald-700 font-semibold' : 'text-slate-500'}`}>
+                    {passwordRules.hasLength ? <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> : <div className="w-3.5 h-3.5 rounded-full border border-slate-300 shrink-0" />}
+                    <span>Exceeds 12 chars ({password.length}/13+)</span>
+                  </div>
+
+                  <div className={`flex items-center gap-1.5 ${passwordRules.hasUpper ? 'text-emerald-700 font-semibold' : 'text-slate-500'}`}>
+                    {passwordRules.hasUpper ? <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> : <div className="w-3.5 h-3.5 rounded-full border border-slate-300 shrink-0" />}
+                    <span>Capital letter (A-Z)</span>
+                  </div>
+
+                  <div className={`flex items-center gap-1.5 ${passwordRules.hasLower ? 'text-emerald-700 font-semibold' : 'text-slate-500'}`}>
+                    {passwordRules.hasLower ? <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> : <div className="w-3.5 h-3.5 rounded-full border border-slate-300 shrink-0" />}
+                    <span>Simple letter (a-z)</span>
+                  </div>
+
+                  <div className={`flex items-center gap-1.5 ${passwordRules.hasNumber ? 'text-emerald-700 font-semibold' : 'text-slate-500'}`}>
+                    {passwordRules.hasNumber ? <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> : <div className="w-3.5 h-3.5 rounded-full border border-slate-300 shrink-0" />}
+                    <span>At least one number (0-9)</span>
+                  </div>
+
+                  <div className={`flex items-center gap-1.5 ${passwordRules.hasSpecial ? 'text-emerald-700 font-semibold' : 'text-slate-500'}`}>
+                    {passwordRules.hasSpecial ? <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> : <div className="w-3.5 h-3.5 rounded-full border border-slate-300 shrink-0" />}
+                    <span>Special character (!@#$...)</span>
+                  </div>
+
+                  <div className={`flex items-center gap-1.5 ${passwordRules.matches ? 'text-emerald-700 font-semibold' : 'text-slate-500'}`}>
+                    {passwordRules.matches ? <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> : <div className="w-3.5 h-3.5 rounded-full border border-slate-300 shrink-0" />}
+                    <span>Passwords match</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <button
             type="submit"
-            disabled={loading || (email && !isEmailDomainValid)}
+            disabled={loading || (email && !isEmailDomainValid) || (password && !isPasswordValid)}
             className="w-full py-2.5 bg-[#0d9488] hover:bg-teal-700 disabled:opacity-50 text-white text-xs font-semibold rounded mt-2 transition-colors flex items-center justify-center gap-1.5"
           >
             {loading ? (
