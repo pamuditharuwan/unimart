@@ -7,6 +7,8 @@
 *Group 05 – Sudo Six*  
 *Supervisor: Mr. Nandika Tennakoon, Lecturer (Temp.)*
 
+🌐 **Live Deployment:** [https://uni-mart-lk.vercel.app/](https://uni-mart-lk.vercel.app/)
+
 ---
 
 ## 📌 Project Overview
