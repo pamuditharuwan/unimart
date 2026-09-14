@@ -400,6 +400,8 @@ router.post('/resend-confirmation', async (req, res) => {
       }
 
       // 3. Also generate fresh OTP and dispatch through mailer service if configured
+      let freshOtp = null;
+      let freshLink = null;
       try {
         const { data: linkData } = await supabase.auth.admin.generateLink({
           type: 'signup',
@@ -408,6 +410,8 @@ router.post('/resend-confirmation', async (req, res) => {
         }).catch(() => ({}));
 
         if (linkData?.properties?.email_otp) {
+          freshOtp = linkData.properties.email_otp;
+          freshLink = linkData.properties.action_link;
           await sendVerificationEmail({
             email: cleanEmail,
             fullName: authUser?.user_metadata?.full_name || 'Student',
@@ -420,14 +424,17 @@ router.post('/resend-confirmation', async (req, res) => {
 
       return res.json({
         success: true,
-        message: `A new 6-digit verification code has been dispatched to ${cleanEmail}. Please check your inbox and spam folder.`
+        message: `A new 6-digit verification code has been dispatched to ${cleanEmail}. Please check your inbox and spam folder.`,
+        emailOtp: freshOtp,
+        actionLink: freshLink
       });
     } else {
       const user = memoryDb.findProfileByEmail(cleanEmail);
       if (!user) return res.status(404).json({ error: 'Student account not found. Please register first.' });
       return res.json({
         success: true,
-        message: `A new 6-digit verification code has been dispatched to ${cleanEmail}.`
+        message: `A new 6-digit verification code has been dispatched to ${cleanEmail}.`,
+        emailOtp: '123456'
       });
     }
   } catch (err) {

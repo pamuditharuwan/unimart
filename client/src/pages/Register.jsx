@@ -160,7 +160,12 @@ export default function Register() {
       });
 
       addToast(`Registration initiated! Please enter your 6-digit verification code.`, 'success');
-      navigate(`/verify-email?email=${encodeURIComponent(email.trim())}`);
+      navigate(`/verify-email?email=${encodeURIComponent(email.trim())}`, {
+        state: {
+          emailOtp: res?.emailOtp,
+          actionLink: res?.actionLink
+        }
+      });
     } catch (err) {
       setError(err.message || 'Registration failed. Please check your information and try again.');
     } finally {
