@@ -122,11 +122,19 @@ export const authApi = {
     try {
       return await request('/auth/resend-confirmation', {
         method: 'POST',
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email: email.trim() })
       });
-    } catch {
+    } catch (err) {
+      const msg = err.message || '';
+      const isNetworkOrServerError = msg.includes('Failed to fetch') || 
+        msg.includes('NetworkError') || 
+        msg.includes('Load failed');
+
+      if (!isNetworkOrServerError) {
+        throw err;
+      }
       return {
-        message: `A new confirmation email has been dispatched to ${email}. Please check your inbox.`
+        message: `A new confirmation code has been dispatched to ${email}. Please check your inbox.`
       };
     }
   },
@@ -135,12 +143,35 @@ export const authApi = {
     try {
       return await request('/auth/verify-otp', {
         method: 'POST',
-        body: JSON.stringify({ email, token })
+        body: JSON.stringify({ email: email.trim(), token: token.trim() })
       });
-    } catch {
-      return {
-        message: 'University email confirmed successfully! You can now sign in.'
-      };
+    } catch (err) {
+      const msg = err.message || '';
+      const isNetworkOrServerError = msg.includes('Failed to fetch') || 
+        msg.includes('NetworkError') || 
+        msg.includes('Load failed');
+
+      if (!isNetworkOrServerError) {
+        // Real API rejection from backend (invalid code, expired, etc.)
+        throw err;
+      }
+
+      // Offline / Static mock fallback
+      const cleanEmail = email.toLowerCase().trim();
+      const profile = clientStore.profiles.find(p => p.email.toLowerCase() === cleanEmail);
+      if (profile) {
+        profile.email_confirmed = true;
+        clientStore.save('unimart_profiles_v2', clientStore.profiles);
+        const mockToken = 'mock_jwt_token_' + profile.id;
+        localStorage.setItem('unimart_token', mockToken);
+        localStorage.setItem('unimart_current_user', JSON.stringify(profile));
+        return {
+          message: 'University email confirmed successfully! You can now sign in.',
+          user: profile,
+          token: mockToken
+        };
+      }
+      throw new Error('Invalid verification code. Please check the digits and try again.');
     }
   },
 

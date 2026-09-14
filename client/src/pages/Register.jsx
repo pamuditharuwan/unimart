@@ -159,12 +159,8 @@ export default function Register() {
         password
       });
 
-      setSubmittedEmail(email.trim());
-      setSubmittedUni(emailAnalysis.universityName);
-      if (res?.actionLink) setDirectActionLink(res.actionLink);
-      if (res?.emailOtp) setEmailOtp(res.emailOtp);
-      setIsSubmitted(true);
-      addToast(`Registration initiated for ${email.trim()}!`, 'success');
+      addToast(`Registration initiated! Please enter your 6-digit verification code.`, 'success');
+      navigate(`/verify-email?email=${encodeURIComponent(email.trim())}`);
     } catch (err) {
       setError(err.message || 'Registration failed. Please check your information and try again.');
     } finally {

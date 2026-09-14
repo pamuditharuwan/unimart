@@ -16,6 +16,8 @@ import Messages from './pages/Messages';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import VerifyEmail from './pages/VerifyEmail';
+import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
   return (
@@ -29,10 +31,39 @@ export default function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/browse" element={<Browse />} />
                 <Route path="/listings/:id" element={<ListingDetail />} />
-                <Route path="/create-listing" element={<CreateListing />} />
-                <Route path="/edit-listing/:id" element={<EditListing />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/profile" element={<Profile />} />
+                <Route
+                  path="/create-listing"
+                  element={
+                    <ProtectedRoute>
+                      <CreateListing />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/edit-listing/:id"
+                  element={
+                    <ProtectedRoute>
+                      <EditListing />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/messages"
+                  element={
+                    <ProtectedRoute>
+                      <Messages />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/verify-email" element={<VerifyEmail />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="*" element={<Navigate to="/" replace />} />

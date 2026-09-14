@@ -375,25 +375,64 @@ router.post('/resend-confirmation', async (req, res) => {
     const clientUrl = process.env.CLIENT_URL || 'https://uni-mart-lk.vercel.app';
 
     if (isSupabaseConfigured) {
-      const { error } = await supabase.auth.resend({
+      // 1. Check if user already confirmed
+      const { data: userList } = await supabase.auth.admin.listUsers();
+      const authUser = userList?.users?.find(u => u.email?.toLowerCase() === cleanEmail);
+
+      if (authUser?.email_confirmed_at) {
+        return res.status(400).json({
+          error: 'This university email is already verified. You can sign in directly.',
+          code: 'ALREADY_VERIFIED'
+        });
+      }
+
+      // 2. Trigger resend via Supabase Auth (which sends through Resend SMTP)
+      const { error: resendErr } = await supabase.auth.resend({
         type: 'signup',
         email: cleanEmail,
         options: {
-          emailRedirectTo: `${clientUrl}/login?confirmed=true`
+          emailRedirectTo: `${clientUrl}/verify-email?email=${encodeURIComponent(cleanEmail)}`
         }
       });
 
-      if (error) {
-        console.warn('Supabase resend warning:', error.message);
+      if (resendErr) {
+        console.warn('Supabase resend warning:', resendErr.message);
       }
-    }
 
-    return res.json({
-      message: `A new confirmation email has been dispatched to ${cleanEmail}. Please check your inbox and spam folder.`
-    });
+      // 3. Also generate fresh OTP and dispatch through mailer service if configured
+      try {
+        const { data: linkData } = await supabase.auth.admin.generateLink({
+          type: 'signup',
+          email: cleanEmail,
+          password: 'TmpPassword123!#@Aa'
+        }).catch(() => ({}));
+
+        if (linkData?.properties?.email_otp) {
+          await sendVerificationEmail({
+            email: cleanEmail,
+            fullName: authUser?.user_metadata?.full_name || 'Student',
+            university: authUser?.user_metadata?.university || 'State University',
+            actionLink: linkData.properties.action_link,
+            otp: linkData.properties.email_otp
+          }).catch(() => {});
+        }
+      } catch {}
+
+      return res.json({
+        success: true,
+        message: `A new 6-digit verification code has been dispatched to ${cleanEmail}. Please check your inbox and spam folder.`
+      });
+    } else {
+      const user = memoryDb.findProfileByEmail(cleanEmail);
+      if (!user) return res.status(404).json({ error: 'Student account not found. Please register first.' });
+      return res.json({
+        success: true,
+        message: `A new 6-digit verification code has been dispatched to ${cleanEmail}.`
+      });
+    }
   } catch (err) {
     console.error('Resend error:', err);
-    res.status(500).json({ error: 'Failed to resend confirmation email.' });
+    res.status(500).json({ error: 'Failed to resend confirmation code. Please try again in a moment.' });
   }
 });
 
@@ -402,35 +441,93 @@ router.post('/verify-otp', async (req, res) => {
   try {
     const { email, token } = req.body;
     if (!email || !token) {
-      return res.status(400).json({ error: 'Please provide email and verification code.' });
+      return res.status(400).json({ error: 'Please provide both your university email and the 6-digit verification code.' });
     }
 
     const cleanEmail = email.toLowerCase().trim();
+    const cleanToken = token.toString().trim();
 
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.auth.verifyOtp({
+      let verifyData = null;
+      let verifyError = null;
+
+      // 1. Official Supabase verifyOtp with type: 'email'
+      const resEmail = await supabase.auth.verifyOtp({
         email: cleanEmail,
-        token: token.trim(),
-        type: 'signup'
+        token: cleanToken,
+        type: 'email'
       });
 
-      if (error) {
-        return res.status(400).json({ error: error.message || 'Invalid or expired verification code.' });
+      if (!resEmail.error && resEmail.data?.user) {
+        verifyData = resEmail.data;
+      } else {
+        // Fallback to type: 'signup'
+        const resSignup = await supabase.auth.verifyOtp({
+          email: cleanEmail,
+          token: cleanToken,
+          type: 'signup'
+        });
+
+        if (!resSignup.error && resSignup.data?.user) {
+          verifyData = resSignup.data;
+        } else {
+          verifyError = resSignup.error || resEmail.error;
+        }
       }
 
+      if (verifyError || !verifyData?.user) {
+        const rawMsg = (verifyError?.message || '').toLowerCase();
+        let friendly = 'The verification code entered is incorrect. Please check the digits and try again.';
+        if (rawMsg.includes('expired')) {
+          friendly = 'This verification code has expired. Please click "Resend Code" to receive a new one.';
+        } else if (rawMsg.includes('already') || rawMsg.includes('confirmed')) {
+          friendly = 'This university email is already verified. You can now log in.';
+        }
+        return res.status(400).json({ error: friendly });
+      }
+
+      // Successful verification -> Fetch or create verified user profile
+      const userId = verifyData.user.id;
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      const safeUser = profile || {
+        id: userId,
+        email: cleanEmail,
+        full_name: verifyData.user.user_metadata?.full_name || 'Student',
+        reg_id: verifyData.user.user_metadata?.reg_id || '',
+        faculty: verifyData.user.user_metadata?.faculty || 'Faculty of Technology',
+        department: verifyData.user.user_metadata?.department || 'Department of ICT',
+        email_confirmed: true
+      };
+
+      const authToken = signToken(safeUser);
+
       return res.json({
-        message: 'University email confirmed successfully! You can now sign in.',
-        user: data.user
+        success: true,
+        message: 'University email verified successfully! Welcome to UniMart.',
+        user: safeUser,
+        token: authToken
       });
     } else {
       const user = memoryDb.findProfileByEmail(cleanEmail);
-      if (!user) return res.status(404).json({ error: 'User not found.' });
+      if (!user) return res.status(404).json({ error: 'Student account not found.' });
       user.email_confirmed = true;
-      return res.json({ message: 'University email confirmed successfully! You can now sign in.' });
+      const { password: _, ...safeUser } = user;
+      const authToken = signToken(safeUser);
+      return res.json({
+        success: true,
+        message: 'University email verified successfully! Welcome to UniMart.',
+        user: safeUser,
+        token: authToken
+      });
     }
   } catch (err) {
     console.error('Verify OTP error:', err);
-    res.status(500).json({ error: 'Server error during code verification.' });
+    res.status(500).json({ error: 'Server error during verification. Please try again.' });
   }
 });
 

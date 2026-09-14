@@ -90,6 +90,27 @@ export function AuthProvider({ children }) {
     return res;
   };
 
+  const verifyOtp = async (email, otpToken) => {
+    const res = await authApi.verifyOtp(email, otpToken);
+    if (res.token && res.user) {
+      localStorage.setItem('unimart_token', res.token);
+      localStorage.setItem('unimart_current_user', JSON.stringify(res.user));
+      setToken(res.token);
+      setUser(res.user);
+    }
+    return res;
+  };
+
+  const refreshUser = async () => {
+    try {
+      const res = await authApi.getMe();
+      if (res.user) {
+        setUser(res.user);
+        localStorage.setItem('unimart_current_user', JSON.stringify(res.user));
+      }
+    } catch {}
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -102,7 +123,9 @@ export function AuthProvider({ children }) {
         register,
         logout,
         updateProfile,
-        deleteAccount
+        deleteAccount,
+        verifyOtp,
+        refreshUser
       }}
     >
       {children}
