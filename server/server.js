@@ -39,16 +39,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/listings', listingsRoutes);
-app.use('/api/categories', categoriesRoutes);
-app.use('/api/messages', messagesRoutes);
-app.use('/api/reviews', reviewsRoutes);
-app.use('/api/users', usersRoutes);
+// API Routes (supports both /api/* and rewritten /* paths)
+app.use(['/api/auth', '/auth'], authRoutes);
+app.use(['/api/listings', '/listings'], listingsRoutes);
+app.use(['/api/categories', '/categories'], categoriesRoutes);
+app.use(['/api/messages', '/messages'], messagesRoutes);
+app.use(['/api/reviews', '/reviews'], reviewsRoutes);
+app.use(['/api/users', '/users'], usersRoutes);
 
 // System Health & Info
-app.get('/api/health', (req, res) => {
+app.get(['/api/health', '/health'], (req, res) => {
   res.json({
     status: 'ok',
     app: 'UniMart - Smart Student Marketplace',

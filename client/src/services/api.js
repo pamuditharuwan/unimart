@@ -41,11 +41,14 @@ export const authApi = {
       });
       return res;
     } catch (err) {
-      // If the backend sent an explicit error response (e.g., 400 or 401 invalid credentials), rethrow it
+      // If the backend sent an explicit error response (e.g., 400 or 401 invalid credentials, 403 unconfirmed), rethrow it
       const msg = err.message || '';
-      const isNetworkError = msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('Load failed');
+      const isNetworkOrServerError = msg.includes('Failed to fetch') || 
+        msg.includes('NetworkError') || 
+        msg.includes('Load failed') ||
+        msg.includes('HTTP error 5');
       
-      if (!isNetworkError) {
+      if (!isNetworkOrServerError) {
         throw err;
       }
 
@@ -82,9 +85,12 @@ export const authApi = {
       return res;
     } catch (err) {
       const msg = err.message || '';
-      const isNetworkError = msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('Load failed');
+      const isNetworkOrServerError = msg.includes('Failed to fetch') || 
+        msg.includes('NetworkError') || 
+        msg.includes('Load failed') ||
+        msg.includes('HTTP error 5');
 
-      if (!isNetworkError) {
+      if (!isNetworkOrServerError) {
         throw err;
       }
 

@@ -19,8 +19,8 @@ import {
 
 dotenv.config();
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.SUPABASE_URL || 'https://onfqyksljrdzpebqzvty.supabase.co';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uZnF5a3NsanJkenBlYnF6dnR5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4OTM3ODE3OCwiZXhwIjoyMTA0OTU0MTc4fQ.FsczHAQU6jTf05xbPRp19Qg7JQDfsoCv0M2xkf0ulZU';
 
 export const isSupabaseConfigured = Boolean(
   supabaseUrl &&
