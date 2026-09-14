@@ -95,43 +95,7 @@ unimart_web/
 
 ---
 
-## 🚀 Quick Start (Local Development)
-
-### 1. Prerequisites
-- **Node.js**: v18.0.0 or higher (`v20.x` recommended)
-- **npm**: v9.x or higher
-
-### 2. Install Dependencies
-Run the installation command in both folders:
-```bash
-# In root folder:
-npm run install:all
-```
-*Or manually:*
-```bash
-cd server && npm install
-cd ../client && npm install
-```
-
-### 3. Run Development Servers
-Open two terminal windows:
-
-**Terminal 1 (Backend API - Port 5000):**
-```bash
-cd server
-npm run dev
-```
-
-**Terminal 2 (Frontend Client - Port 5173):**
-```bash
-cd client
-npm run dev
-```
-
-Visit **`http://localhost:5173`** in your browser.
-
-> **Note on Zero-Config Offline Mode:**
-> The server automatically boots with pre-seeded sample data (Arduino Uno, ESP32, sensor bundles, web design, video editing) if Supabase credentials are not yet configured in `server/.env`. This enables immediate evaluation without database setup blockers!
+configured in `server/.env`. This enables immediate evaluation without database setup blockers!
 
 ---
 
