@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AlertCircle, CheckCircle, Info, GraduationCap, Building2 } from 'lucide-react';
+import { AlertCircle, CheckCircle, Info, GraduationCap, Building2, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
-import { parseSriLankanUniversityEmail, SRI_LANKAN_UNIVERSITIES } from '../utils/universityDomains';
+import { parseSriLankanUniversityEmail, SRI_LANKAN_UNIVERSITIES, STATE_UNIVERSITIES_17 } from '../utils/universityDomains';
 
 const COMMON_FACULTIES = [
   'Faculty of Technology',
@@ -33,6 +33,7 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showDomainsList, setShowDomainsList] = useState(false);
 
   // Live domain verification & university extraction
   const emailAnalysis = parseSriLankanUniversityEmail(email);
@@ -109,22 +110,53 @@ export default function Register() {
       </div>
 
       {/* University Domain Rule Box */}
-      <div className="bg-slate-100 border border-slate-300 rounded p-3 text-xs text-slate-700">
-        <div className="flex items-center gap-1.5 font-bold text-slate-900 mb-1">
-          <GraduationCap className="w-4 h-4 text-teal-700" />
-          <span>Sri Lankan University Domain Policy</span>
+      <div className="bg-slate-100 border border-slate-300 rounded p-3 text-xs text-slate-700 space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 font-bold text-slate-900">
+            <GraduationCap className="w-4 h-4 text-teal-700" />
+            <span>Sri Lankan University Domain Policy</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowDomainsList(!showDomainsList)}
+            className="text-[11px] text-teal-700 hover:text-teal-800 font-semibold flex items-center gap-1"
+          >
+            <span>{showDomainsList ? 'Hide Domains (17)' : 'View All 17 Domains'}</span>
+            {showDomainsList ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+          </button>
         </div>
-        <p className="text-[11px] leading-relaxed text-slate-600 mb-2">
-          UniMart is a verified student community. Registrations are strictly restricted to official Sri Lankan university email domains matching the structure: <code className="bg-white border border-slate-300 px-1.5 py-0.5 rounded font-mono text-teal-800 font-bold">@___.___ .ac.lk</code>
+
+        <p className="text-[11px] leading-relaxed text-slate-600">
+          UniMart is a verified student community. Registrations are strictly restricted to official Sri Lankan state university email domains matching <code className="bg-white border border-slate-300 px-1.5 py-0.5 rounded font-mono text-teal-800 font-bold">@___.___ .ac.lk</code> or <code className="bg-white border border-slate-300 px-1.5 py-0.5 rounded font-mono text-teal-800 font-bold">@uom.lk</code>.
         </p>
-        <div className="text-[10px] text-slate-500 flex flex-wrap gap-1 font-mono">
-          <span className="bg-white border border-slate-200 px-1.5 py-0.5 rounded">@student.rjt.ac.lk</span>
-          <span className="bg-white border border-slate-200 px-1.5 py-0.5 rounded">@eng.pdn.ac.lk</span>
-          <span className="bg-white border border-slate-200 px-1.5 py-0.5 rounded">@itfac.mrt.ac.lk</span>
-          <span className="bg-white border border-slate-200 px-1.5 py-0.5 rounded">@sci.cmb.ac.lk</span>
-          <span className="bg-white border border-slate-200 px-1.5 py-0.5 rounded">@fot.sjp.ac.lk</span>
-          <span className="bg-white border border-slate-200 px-1.5 py-0.5 rounded">@stu.kln.ac.lk</span>
-        </div>
+
+        {showDomainsList ? (
+          <div className="bg-white border border-slate-300 rounded p-2.5 max-h-56 overflow-y-auto text-[11px] space-y-1 mt-2">
+            <div className="font-semibold text-slate-800 text-[11px] border-b border-slate-200 pb-1 flex justify-between">
+              <span>Official State University</span>
+              <span>Official Domain</span>
+            </div>
+            <div className="divide-y divide-slate-100">
+              {STATE_UNIVERSITIES_17.map(u => (
+                <div key={u.no} className="flex justify-between items-center py-1">
+                  <span className="text-slate-800 font-medium">{u.no}. {u.name}</span>
+                  <span className="font-mono text-teal-800 bg-teal-50 border border-teal-200 px-1.5 py-0.2 rounded text-[10px] ml-2 shrink-0 font-bold">
+                    {u.domain}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="text-[10px] text-slate-500 flex flex-wrap gap-1 font-mono">
+            <span className="bg-white border border-slate-200 px-1.5 py-0.5 rounded">@student.rjt.ac.lk</span>
+            <span className="bg-white border border-slate-200 px-1.5 py-0.5 rounded">@eng.pdn.ac.lk</span>
+            <span className="bg-white border border-slate-200 px-1.5 py-0.5 rounded">@uom.lk</span>
+            <span className="bg-white border border-slate-200 px-1.5 py-0.5 rounded">@sci.cmb.ac.lk</span>
+            <span className="bg-white border border-slate-200 px-1.5 py-0.5 rounded">@fot.sjp.ac.lk</span>
+            <span className="bg-white border border-slate-200 px-1.5 py-0.5 rounded">@stu.kln.ac.lk</span>
+          </div>
+        )}
       </div>
 
       {/* Form Card */}

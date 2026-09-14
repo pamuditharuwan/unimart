@@ -1,39 +1,49 @@
 // ==========================================================
 // UniMart: Sri Lankan University Email Domain Analyzer & Validator
-// Comprehensive domain structure parser for all Sri Lankan Higher
-// Education Institutions under the .ac.lk academic domain namespace.
+// Strictly enforces the 17 Official State Universities of Sri Lanka
 // ==========================================================
 
+export const STATE_UNIVERSITIES_17 = [
+  { no: 1, name: 'University of Colombo, Sri Lanka', domain: 'cmb.ac.lk', code: 'cmb' },
+  { no: 2, name: 'University of Peradeniya, Sri Lanka', domain: 'pdn.ac.lk', code: 'pdn' },
+  { no: 3, name: 'University of Sri Jayewardenepura, Sri Lanka', domain: 'sjp.ac.lk', code: 'sjp' },
+  { no: 4, name: 'University of Kelaniya, Sri Lanka', domain: 'kln.ac.lk', code: 'kln' },
+  { no: 5, name: 'University of Moratuwa, Sri Lanka', domain: 'uom.lk', code: 'uom' },
+  { no: 6, name: 'University of Jaffna, Sri Lanka', domain: 'jfn.ac.lk', code: 'jfn' },
+  { no: 7, name: 'University of Ruhuna, Sri Lanka', domain: 'ruh.ac.lk', code: 'ruh' },
+  { no: 8, name: 'Eastern University, Sri Lanka', domain: 'esn.ac.lk', code: 'esn' },
+  { no: 9, name: 'South Eastern University of Sri Lanka', domain: 'seu.ac.lk', code: 'seu' },
+  { no: 10, name: 'Rajarata University of Sri Lanka', domain: 'rjt.ac.lk', code: 'rjt' },
+  { no: 11, name: 'Sabaragamuwa University of Sri Lanka', domain: 'sab.ac.lk', code: 'sab' },
+  { no: 12, name: 'Wayamba University of Sri Lanka', domain: 'wyb.ac.lk', code: 'wyb' },
+  { no: 13, name: 'Uva Wellassa University of Sri Lanka', domain: 'uwu.ac.lk', code: 'uwu' },
+  { no: 14, name: 'University of the Visual & Performing Arts', domain: 'vpa.ac.lk', code: 'vpa' },
+  { no: 15, name: 'The Open University of Sri Lanka', domain: 'ou.ac.lk', code: 'ou' },
+  { no: 16, name: 'University of Vavuniya, Sri Lanka', domain: 'vau.ac.lk', code: 'vau' },
+  { no: 17, name: 'Gampaha Wickramarachchi University of Indigenous Medicine', domain: 'gwu.ac.lk', code: 'gwu' }
+];
+
 export const SRI_LANKAN_UNIVERSITIES = {
-  // UGC State Universities
-  rjt: 'Rajarata University of Sri Lanka',
-  cmb: 'University of Colombo',
-  pdn: 'University of Peradeniya',
-  mrt: 'University of Moratuwa',
-  sjp: 'University of Sri Jayewardenepura',
-  kln: 'University of Kelaniya',
-  ruh: 'University of Ruhuna',
-  wyb: 'Wayamba University of Sri Lanka',
-  sab: 'Sabaragamuwa University of Sri Lanka',
-  seu: 'South Eastern University of Sri Lanka',
+  // The 17 Official State Universities of Sri Lanka
+  cmb: 'University of Colombo, Sri Lanka',
+  pdn: 'University of Peradeniya, Sri Lanka',
+  sjp: 'University of Sri Jayewardenepura, Sri Lanka',
+  kln: 'University of Kelaniya, Sri Lanka',
+  uom: 'University of Moratuwa, Sri Lanka',
+  mrt: 'University of Moratuwa, Sri Lanka', // Moratuwa legacy code
+  jfn: 'University of Jaffna, Sri Lanka',
+  ruh: 'University of Ruhuna, Sri Lanka',
   esn: 'Eastern University, Sri Lanka',
-  jfn: 'University of Jaffna',
-  uwu: 'Uva Wellassa University',
+  seu: 'South Eastern University of Sri Lanka',
+  rjt: 'Rajarata University of Sri Lanka',
+  sab: 'Sabaragamuwa University of Sri Lanka',
+  wyb: 'Wayamba University of Sri Lanka',
+  uwu: 'Uva Wellassa University of Sri Lanka',
+  vpa: 'University of the Visual & Performing Arts',
   ou: 'The Open University of Sri Lanka',
   ousl: 'The Open University of Sri Lanka',
-  kdu: 'General Sir John Kotelawala Defence University',
-  vau: 'University of Vavuniya',
-  gwu: 'Gampaha Wickramarachchi University of Indigenous Medicine',
-  vpa: 'University of the Visual & Performing Arts',
-
-  // Non-State & Recognized Higher Education Institutes
-  nsbm: 'NSBM Green University',
-  sliit: 'Sri Lanka Institute of Information Technology',
-  iit: 'Informatics Institute of Technology',
-  sltc: 'Sri Lanka Technological Campus',
-  sliate: 'Sri Lanka Institute of Advanced Technological Education',
-  nibm: 'National Institute of Business Management',
-  cinec: 'CINEC Campus'
+  vau: 'University of Vavuniya, Sri Lanka',
+  gwu: 'Gampaha Wickramarachchi University of Indigenous Medicine'
 };
 
 export const FACULTY_MAP = {
@@ -119,14 +129,14 @@ export function parseSriLankanUniversityEmail(email) {
     return { isValid: false, error: 'Please enter a complete email address.' };
   }
 
-  // Check for Sri Lankan Academic TLD (.ac.lk) or recognized LK campus domain (e.g. sliit.lk)
+  // Check for Sri Lankan Academic TLD (.ac.lk) or University of Moratuwa (.uom.lk / uom.lk)
   const isAcLk = domain.endsWith('.ac.lk');
-  const isSliit = domain === 'sliit.lk' || domain.endsWith('.sliit.lk');
+  const isUom = domain === 'uom.lk' || domain.endsWith('.uom.lk');
 
-  if (!isAcLk && !isSliit) {
+  if (!isAcLk && !isUom) {
     return {
       isValid: false,
-      error: 'Registration is restricted to Sri Lankan university email domains (@___.___ .ac.lk).'
+      error: 'Registration is restricted to the 17 official Sri Lankan university student email domains.'
     };
   }
 
@@ -134,13 +144,18 @@ export function parseSriLankanUniversityEmail(email) {
   let uniCode = '';
   let subCode = '';
 
-  if (isAcLk) {
+  if (isUom) {
+    uniCode = 'uom';
+    if (domain !== 'uom.lk' && parts.length > 2) {
+      subCode = parts[0];
+    }
+  } else if (isAcLk) {
     const acIdx = parts.indexOf('ac');
     // Must have at least a university code before 'ac.lk' (e.g., [sub, uni, 'ac', 'lk'] or [uni, 'ac', 'lk'])
     if (acIdx < 1 || parts[acIdx + 1] !== 'lk') {
       return {
         isValid: false,
-        error: 'Invalid academic domain structure. Expected @___.___ .ac.lk format.'
+        error: 'Invalid academic domain structure. Expected @___.___ .ac.lk or @uom.lk format.'
       };
     }
 
@@ -148,20 +163,18 @@ export function parseSriLankanUniversityEmail(email) {
     if (acIdx > 1) {
       subCode = parts[acIdx - 2];
     }
-  } else if (isSliit) {
-    uniCode = 'sliit';
-    subCode = parts[0] !== 'sliit' ? parts[0] : '';
   }
 
-  if (!uniCode) {
+  // Strictly verify the university code against the 17 state universities
+  const knownUni = SRI_LANKAN_UNIVERSITIES[uniCode];
+  if (!knownUni) {
     return {
       isValid: false,
-      error: 'Could not identify university in domain. Expected @___.___ .ac.lk format.'
+      error: `Invalid university domain '${uniCode}'. Must belong to one of the 17 Sri Lankan state universities.`
     };
   }
 
-  const knownUni = SRI_LANKAN_UNIVERSITIES[uniCode];
-  const universityName = knownUni || `${uniCode.toUpperCase()} University (.ac.lk)`;
+  const universityName = knownUni;
   const facultyName = FACULTY_MAP[subCode] || (subCode ? subCode.toUpperCase() : '');
 
   return {
@@ -171,7 +184,7 @@ export function parseSriLankanUniversityEmail(email) {
     facultyCode: subCode,
     facultyName,
     domain,
-    isKnownInstitution: Boolean(knownUni)
+    isKnownInstitution: true
   };
 }
 

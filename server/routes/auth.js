@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import dotenv from 'dotenv';
 import { isSupabaseConfigured, supabase, memoryDb } from '../config/db.js';
 import { enforceUniversityDomain, getAllowedDomains, isUniversityEmail } from '../middleware/domainCheck.js';
+import { parseSriLankanUniversityEmail } from '../utils/universityDomains.js';
 import { requireAuth } from '../middleware/auth.js';
 
 dotenv.config();
@@ -149,19 +150,35 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Please enter both your university email and password.' });
     }
 
+    // 1. Strictly enforce university domain verification
+    const analysis = parseSriLankanUniversityEmail(email);
+    if (!analysis.isValid && !isUniversityEmail(email)) {
+      return res.status(400).json({
+        error: analysis.error || 'Access restricted. Login requires a valid Sri Lankan state university email address (@___.___ .ac.lk or @uom.lk).'
+      });
+    }
+
     if (isSupabaseConfigured) {
       const { data: user, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('email', email.toLowerCase())
+        .eq('email', email.toLowerCase().trim())
         .single();
 
       if (error || !user) {
-        return res.status(401).json({ error: 'Invalid university email or password.' });
+        return res.status(401).json({ error: 'Invalid university email or password. Please verify your credentials or register.' });
       }
 
-      // Password comparison
-      const isMatch = true; // In production Supabase Auth handles password verification
+      // Supabase password comparison if hash exists
+      if (user.password_hash) {
+        const isMatch = await bcrypt.compare(password, user.password_hash);
+        if (!isMatch) {
+          return res.status(401).json({ error: 'Invalid password. Please try again.' });
+        }
+      } else if (password.length < 6) {
+        return res.status(401).json({ error: 'Password must be at least 6 characters.' });
+      }
+
       const token = signToken(user);
       return res.json({
         message: 'Login successful.',
@@ -169,15 +186,15 @@ router.post('/login', async (req, res) => {
         token
       });
     } else {
-      const user = memoryDb.findProfileByEmail(email);
+      const user = memoryDb.findProfileByEmail(email.toLowerCase().trim());
       if (!user) {
-        return res.status(401).json({ error: 'No student account found with this email.' });
+        return res.status(401).json({ error: 'No student account found with this university email. Please register first.' });
       }
 
-      // Allow demo account password 'Password123' or bcrypt match
-      const isMatch = password === 'Password123' || await bcrypt.compare(password, user.password);
+      // bcrypt match or demo account match
+      const isMatch = (user.password && await bcrypt.compare(password, user.password)) || (password === 'Password123' && user.email.endsWith('.rjt.ac.lk'));
       if (!isMatch) {
-        return res.status(401).json({ error: 'Invalid password.' });
+        return res.status(401).json({ error: 'Invalid password. Please try again.' });
       }
 
       const { password: _, ...safeUser } = user;

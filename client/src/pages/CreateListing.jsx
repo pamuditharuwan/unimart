@@ -34,9 +34,9 @@ export default function CreateListing() {
   const [categoryId, setCategoryId] = useState('');
   const [price, setPrice] = useState('');
   const [priceType, setPriceType] = useState('fixed');
-  const [condition, setCondition] = useState('used_like_new');
-  const [location, setLocation] = useState('Faculty of Technology Electronics Lab 02');
-  const [imageUrl, setImageUrl] = useState(HARDWARE_IMAGE_PRESETS[0].url);
+  const [condition, setCondition] = useState('used_good');
+  const [location, setLocation] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [description, setDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -69,12 +69,8 @@ export default function CreateListing() {
 
     if (newType === 'skill') {
       setPriceType('per_project');
-      setImageUrl(SKILL_IMAGE_PRESETS[0].url);
-      setLocation('Online / FOT Study Area');
     } else {
       setPriceType('fixed');
-      setImageUrl(HARDWARE_IMAGE_PRESETS[0].url);
-      setLocation('Faculty of Technology Electronics Lab 02');
     }
   };
 

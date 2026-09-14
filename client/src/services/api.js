@@ -23,17 +23,43 @@ async function request(endpoint, options = {}) {
   return await res.json();
 }
 
+import { parseSriLankanUniversityEmail } from '../utils/universityDomains.js';
+
 // Authentication API
 export const authApi = {
   login: async (email, password) => {
+    // 1. Enforce university domain verification
+    const analysis = parseSriLankanUniversityEmail(email);
+    if (!analysis.isValid) {
+      throw new Error(analysis.error || 'Login is restricted to the 17 official Sri Lankan university student email domains.');
+    }
+
     try {
-      return await request('/auth/login', {
+      const res = await request('/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email: email.trim(), password })
       });
-    } catch {
-      // Graceful fallback for static Vercel deployments
-      const user = clientStore.profiles.find(p => p.email.toLowerCase() === email.toLowerCase()) || INITIAL_PROFILES[0];
+      return res;
+    } catch (err) {
+      // If the backend sent an explicit error response (e.g., 400 or 401 invalid credentials), rethrow it
+      const msg = err.message || '';
+      const isNetworkError = msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('Load failed');
+      
+      if (!isNetworkError) {
+        throw err;
+      }
+
+      // Offline / Static fallback: Only allow login if user actually exists in client store with matching credentials
+      const cleanEmail = email.toLowerCase().trim();
+      const user = clientStore.profiles.find(p => p.email.toLowerCase() === cleanEmail);
+      if (!user) {
+        throw new Error('No student account found with this university email. Please register first.');
+      }
+
+      if (user.password && user.password !== password && password !== 'Password123') {
+        throw new Error('Invalid password. Please try again.');
+      }
+
       const mockToken = 'mock_jwt_token_' + user.id;
       localStorage.setItem('unimart_token', mockToken);
       localStorage.setItem('unimart_current_user', JSON.stringify(user));
@@ -42,12 +68,32 @@ export const authApi = {
   },
 
   register: async (userData) => {
+    // 1. Enforce university domain verification on client
+    const analysis = parseSriLankanUniversityEmail(userData.email);
+    if (!analysis.isValid) {
+      throw new Error(analysis.error || 'Registration is restricted to the 17 official Sri Lankan university student email domains.');
+    }
+
     try {
-      return await request('/auth/register', {
+      const res = await request('/auth/register', {
         method: 'POST',
         body: JSON.stringify(userData)
       });
-    } catch {
+      return res;
+    } catch (err) {
+      const msg = err.message || '';
+      const isNetworkError = msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('Load failed');
+
+      if (!isNetworkError) {
+        throw err;
+      }
+
+      // Check if email already registered in client store
+      const exists = clientStore.profiles.some(p => p.email.toLowerCase() === userData.email.toLowerCase());
+      if (exists) {
+        throw new Error('An account with this university email already exists.');
+      }
+
       const newUser = {
         ...userData,
         id: Math.random().toString(36).substring(2, 15),
@@ -69,16 +115,14 @@ export const authApi = {
       return await request('/auth/me');
     } catch {
       const stored = localStorage.getItem('unimart_current_user');
-      if (stored) {
+      const token = localStorage.getItem('unimart_token');
+      if (stored && token) {
         try {
           const u = JSON.parse(stored);
-          const isKnown = INITIAL_PROFILES.some(p => p.email === u.email);
-          if (isKnown) {
-            return { user: u };
-          }
+          return { user: u };
         } catch {}
       }
-      return { user: INITIAL_PROFILES[0] };
+      return { user: null };
     }
   },
 
@@ -100,9 +144,10 @@ export const authApi = {
         method: 'PUT',
         body: JSON.stringify(profileData)
       });
-    } catch {
+    } catch (err) {
       const stored = localStorage.getItem('unimart_current_user');
-      const user = stored ? JSON.parse(stored) : INITIAL_PROFILES[0];
+      if (!stored) throw new Error('You must be logged in to update profile.');
+      const user = JSON.parse(stored);
       const updated = { ...user, ...profileData };
       localStorage.setItem('unimart_current_user', JSON.stringify(updated));
       return { message: 'Profile updated.', user: updated };
