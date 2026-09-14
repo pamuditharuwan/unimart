@@ -93,69 +93,6 @@ unimart_web/
 └── README.md                  # Project documentation & setup instructions
 ```
 
----
-
-configured in `server/.env`. This enables immediate evaluation without database setup blockers!
-
----
-
-## 🔑 Demo Accounts for Evaluation
-
-The login page (`/login`) includes **1-Click Quick Fill** buttons for immediate testing:
-
-| Student Name | University Email | Password | Role / Items |
-|---|---|---|---|
-| **Kavindu Perera** | `kavindu.p@student.rjt.ac.lk` | `Password123` | Hardware: Arduino Uno R3, Web Design Skill |
-| **Anuki De Silva** | `anuki.d@student.rjt.ac.lk` | `Password123` | Skills: Video Editing, Poster Graphic Design |
-| **Dinuka Fernando** | `dinuka.f@student.rjt.ac.lk` | `Password123` | Hardware: ESP32 NodeMCU, Sensor Bundle |
-
----
-
-## 🗄️ Supabase Cloud Database Setup (Optional for Production)
-
-To connect to a live Supabase PostgreSQL database:
-
-1. Create a project at [supabase.com](https://supabase.com).
-2. Navigate to the **SQL Editor** in your Supabase dashboard.
-3. Paste and run the contents of [`database/schema.sql`](./database/schema.sql) to create tables, indexes, and Row Level Security policies.
-4. Paste and run the contents of [`database/seed.sql`](./database/seed.sql) to populate initial campus categories, student accounts, and sample listings.
-5. In `server/.env`, set your project credentials:
-   ```env
-   SUPABASE_URL=https://your-project-id.supabase.co
-   SUPABASE_ANON_KEY=your-supabase-anon-key
-   SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
-   ```
-6. Restart `server.js`. The console will display: `✅ Connected to Supabase Cloud Database`.
-
----
-
-## 🌐 Production Deployment
-
-### Frontend (Vercel)
-1. Push this repository to your GitHub account (e.g. `https://github.com/<your-username>/unimart_web`).
-2. Go to [Vercel Dashboard](https://vercel.com) and click **Add New Project**.
-3. Set **Root Directory** to `client`.
-4. Build Command: `npm run build`
-5. Output Directory: `dist`
-6. Set Environment Variable:
-   - `VITE_API_URL`: Your deployed Render API URL (e.g. `https://unimart-api.onrender.com/api`)
-
-### Backend (Render)
-1. Go to [Render Dashboard](https://render.com) and create a new **Web Service**.
-2. Connect your GitHub repository.
-3. Set **Root Directory** to `server`.
-4. Build Command: `npm install`
-5. Start Command: `node server.js`
-6. Set Environment Variables in Render:
-   - `PORT`: `5000`
-   - `NODE_ENV`: `production`
-   - `JWT_SECRET`: A long random secret string
-   - `ALLOWED_DOMAINS`: `@student.rjt.ac.lk,@rjt.ac.lk,@fot.rjt.ac.lk`
-   - `CLIENT_URL`: Your deployed Vercel frontend URL
-   - `SUPABASE_URL`: (Your Supabase project URL)
-   - `SUPABASE_SERVICE_ROLE_KEY`: (Your Supabase service key)
-
----
 
 ## 👥 Project Team (Group 05 – Sudo Six)
 
