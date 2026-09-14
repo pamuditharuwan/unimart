@@ -8,7 +8,12 @@ import {
   MessageSquare,
   Mail,
   Phone,
-  X
+  X,
+  Trash2,
+  AlertTriangle,
+  ShieldAlert,
+  Settings,
+  ShieldCheck
 } from 'lucide-react';
 import { usersApi, listingsApi, reviewsApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -18,7 +23,7 @@ import ListingCard from '../components/ListingCard';
 export default function Profile() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user: currentUser, isAuthenticated, updateProfile } = useAuth();
+  const { user: currentUser, isAuthenticated, updateProfile, deleteAccount } = useAuth();
   const { addToast } = useToast();
 
   const queryUserId = searchParams.get('userId');
@@ -43,6 +48,12 @@ export default function Profile() {
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
+
+  // Delete Account State
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   useEffect(() => {
     if (!targetUserId && !isAuthenticated) {
@@ -134,6 +145,27 @@ export default function Profile() {
     }
   };
 
+  const handleDeleteAccount = async (e) => {
+    e.preventDefault();
+    if (deleteConfirmText.trim().toUpperCase() !== 'DELETE') {
+      setDeleteError('Please type DELETE to confirm account deletion.');
+      return;
+    }
+
+    setDeletingAccount(true);
+    setDeleteError('');
+    try {
+      await deleteAccount();
+      addToast('Your student account has been permanently deleted.', 'info');
+      setDeleteModalOpen(false);
+      navigate('/');
+    } catch (err) {
+      setDeleteError(err.message || 'Failed to delete account. Please try again.');
+    } finally {
+      setDeletingAccount(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-12 text-center text-xs text-slate-500">
@@ -200,12 +232,26 @@ export default function Profile() {
             </div>
 
             {isOwnProfile ? (
-              <button
-                onClick={() => setEditModalOpen(true)}
-                className="px-3 py-1.5 bg-[#0f172a] hover:bg-slate-800 text-white text-xs font-semibold rounded"
-              >
-                Edit Profile Info
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setEditModalOpen(true)}
+                  className="px-3 py-1.5 bg-[#0f172a] hover:bg-slate-800 text-white text-xs font-semibold rounded"
+                >
+                  Edit Profile Info
+                </button>
+                <button
+                  onClick={() => {
+                    setDeleteModalOpen(true);
+                    setDeleteConfirmText('');
+                    setDeleteError('');
+                  }}
+                  className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-xs font-semibold rounded flex items-center gap-1.5 transition-colors"
+                  title="Delete student account permanently"
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                  <span>Delete Account</span>
+                </button>
+              </div>
             ) : (
               <div className="flex items-center gap-2">
                 <Link
@@ -255,10 +301,95 @@ export default function Profile() {
         >
           Peer Reviews ({reviews.length})
         </button>
+        {isOwnProfile && (
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`px-3 py-2 text-xs font-bold border-b-2 flex items-center gap-1.5 ${
+              activeTab === 'settings'
+                ? 'border-rose-600 text-rose-700'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Settings className="w-3.5 h-3.5" />
+            <span>Profile Settings & Danger Zone</span>
+          </button>
+        )}
       </div>
 
       {/* Content */}
-      {activeTab === 'listings' ? (
+      {activeTab === 'settings' && isOwnProfile ? (
+        <div className="space-y-6">
+          {/* Account Overview Card */}
+          <div className="bg-white border border-slate-300 rounded p-6 shadow-xs space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <div>
+                <h2 className="text-sm font-bold text-slate-900">Student Account Details</h2>
+                <p className="text-xs text-slate-500">Verified Sri Lankan university student credentials.</p>
+              </div>
+              <button
+                onClick={() => setEditModalOpen(true)}
+                className="px-3 py-1.5 bg-[#0f172a] hover:bg-slate-800 text-white text-xs font-semibold rounded"
+              >
+                Edit Profile Info
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded space-y-1">
+                <span className="text-[11px] text-slate-500 font-semibold block uppercase tracking-wider">Full Name</span>
+                <span className="font-bold text-slate-900">{profile.full_name}</span>
+              </div>
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded space-y-1">
+                <span className="text-[11px] text-slate-500 font-semibold block uppercase tracking-wider">Registration ID</span>
+                <span className="font-mono font-bold text-slate-900">{profile.reg_id}</span>
+              </div>
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded space-y-1">
+                <span className="text-[11px] text-slate-500 font-semibold block uppercase tracking-wider">University Email</span>
+                <span className="font-mono font-bold text-slate-900">{profile.email}</span>
+              </div>
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded space-y-1">
+                <span className="text-[11px] text-slate-500 font-semibold block uppercase tracking-wider">Faculty & Department</span>
+                <span className="font-semibold text-slate-900">{profile.department || 'General'} &bull; {profile.faculty}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Danger Zone: Delete Account */}
+          <div className="bg-white border-2 border-rose-300/80 rounded p-6 shadow-xs space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-rose-50 border border-rose-200 flex items-center justify-center shrink-0">
+                <ShieldAlert className="w-5 h-5 text-rose-600" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-sm font-bold text-rose-900">Danger Zone: Delete Student Account</h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Permanently erase your UniMart account, student profile, all active marketplace listings, direct buyer/seller chat history, and ratings from the system.
+                </p>
+                <p className="text-[11px] text-rose-700 font-medium">
+                  Warning: Once deleted, this account and its data cannot be recovered.
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-rose-100 flex items-center justify-between flex-wrap gap-3">
+              <span className="text-xs text-slate-500">
+                Permanently wipe your account from UniMart database.
+              </span>
+              <button
+                onClick={() => {
+                  setDeleteModalOpen(true);
+                  setDeleteConfirmText('');
+                  setDeleteError('');
+                }}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs rounded flex items-center gap-1.5 transition-colors shadow-xs"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Delete Account</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : activeTab === 'listings' ? (
         listings.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {listings.map((item) => (
@@ -417,6 +548,80 @@ export default function Profile() {
                   className="px-4 py-1.5 bg-[#0d9488] hover:bg-teal-700 disabled:opacity-50 text-white font-semibold rounded"
                 >
                   {submittingReview ? 'Submitting...' : 'Submit Review'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Account Confirmation Modal */}
+      {deleteModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/70 flex items-center justify-center p-4 z-50">
+          <div className="bg-white border border-rose-300 rounded-lg p-6 max-w-md w-full text-xs space-y-4 shadow-xl">
+            <div className="flex items-center justify-between border-b border-rose-100 pb-3">
+              <div className="flex items-center gap-2 text-rose-700">
+                <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0" />
+                <h2 className="font-bold text-slate-900 text-sm">Delete Account Permanently</h2>
+              </div>
+              <button
+                onClick={() => setDeleteModalOpen(false)}
+                className="text-slate-400 hover:text-slate-700"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-2 text-slate-600 leading-relaxed">
+              <p className="font-semibold text-slate-800">
+                Are you sure you want to delete your student marketplace account?
+              </p>
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded text-rose-800 text-[11px] space-y-1">
+                <p className="font-semibold text-rose-900">The following data will be permanently wiped:</p>
+                <ul className="list-disc list-inside space-y-0.5 text-rose-700">
+                  <li>Your verified student profile & university registration ({profile.reg_id})</li>
+                  <li>All your active, pending, or completed product listings</li>
+                  <li>Your direct chat message conversations</li>
+                  <li>All ratings and reviews associated with your account</li>
+                </ul>
+              </div>
+              <p className="text-[11px] text-slate-600">
+                This action is <strong>irreversible</strong>. To confirm, please type <span className="font-mono font-bold text-rose-700 bg-rose-50 px-1 py-0.5 rounded border border-rose-200">DELETE</span> below:
+              </p>
+            </div>
+
+            <form onSubmit={handleDeleteAccount} className="space-y-3 pt-1">
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="Type DELETE to confirm"
+                className="w-full p-2.5 border border-rose-300 rounded text-xs font-mono font-semibold text-slate-900 focus:outline-none focus:border-rose-600 bg-white"
+                autoFocus
+              />
+
+              {deleteError && (
+                <div className="p-2 bg-rose-50 border border-rose-200 rounded text-rose-700 text-[11px]">
+                  {deleteError}
+                </div>
+              )}
+
+              <div className="pt-2 flex justify-end gap-2 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setDeleteModalOpen(false)}
+                  disabled={deletingAccount}
+                  className="px-3.5 py-1.5 border border-slate-300 rounded text-slate-700 hover:bg-slate-50 font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={deletingAccount || deleteConfirmText.trim().toUpperCase() !== 'DELETE'}
+                  className="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-semibold rounded flex items-center gap-1.5 transition-colors shadow-xs"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>{deletingAccount ? 'Deleting Account...' : 'Permanently Delete Account'}</span>
                 </button>
               </div>
             </form>

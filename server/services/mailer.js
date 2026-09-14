@@ -1,0 +1,114 @@
+// ==========================================================
+// UniMart: Student Email Dispatch Service (Nodemailer)
+// Supports custom SMTP (Gmail, Resend, Brevo, Uni SMTP)
+// ==========================================================
+import nodemailer from 'nodemailer';
+
+function getTransporter() {
+  const host = process.env.SMTP_HOST;
+  const port = parseInt(process.env.SMTP_PORT || '587', 10);
+  const user = process.env.SMTP_USER || process.env.GMAIL_USER;
+  const pass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
+
+  if (!user || !pass) {
+    return null;
+  }
+
+  if (process.env.GMAIL_USER && !process.env.SMTP_HOST) {
+    return nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user, pass }
+    });
+  }
+
+  return nodemailer.createTransport({
+    host: host || 'smtp.gmail.com',
+    port,
+    secure: port === 465,
+    auth: { user, pass }
+  });
+}
+
+export async function sendVerificationEmail({ email, fullName, university, actionLink, otp }) {
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.log(`ℹ️ [Mailer] SMTP not configured. Account activation link & OTP generated for instant web confirmation.`);
+    return { sent: false, reason: 'no_smtp_configured' };
+  }
+
+  const senderAddress = process.env.SMTP_FROM || `"UniMart Verification" <${process.env.SMTP_USER || process.env.GMAIL_USER}>`;
+  const subject = `Verify Your University Email – UniMart Student Marketplace`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 24px; }
+          .container { max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+          .header { background: #0d9488; color: #ffffff; padding: 24px; text-align: center; }
+          .header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+          .header p { margin: 4px 0 0 0; font-size: 12px; opacity: 0.9; }
+          .content { padding: 24px; }
+          .greeting { font-size: 15px; font-weight: 600; color: #0f172a; margin-bottom: 12px; }
+          .text { font-size: 13px; line-height: 1.6; color: #475569; margin-bottom: 20px; }
+          .btn-container { text-align: center; margin: 24px 0; }
+          .btn { display: inline-block; background: #0d9488; color: #ffffff !important; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-size: 14px; font-weight: 600; box-shadow: 0 2px 4px rgba(13,148,136,0.2); }
+          .otp-box { background: #f0fdfa; border: 1px dashed #0d9488; border-radius: 6px; padding: 16px; text-align: center; margin: 20px 0; }
+          .otp-code { font-family: monospace; font-size: 24px; font-weight: 700; color: #0f766e; letter-spacing: 4px; }
+          .otp-label { font-size: 11px; text-transform: uppercase; color: #0d9488; font-weight: 600; margin-bottom: 4px; }
+          .footer { padding: 16px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #94a3b8; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>UniMart</h1>
+            <p>Smart Student Marketplace &bull; Sri Lanka</p>
+          </div>
+          <div class="content">
+            <div class="greeting">Hello ${fullName || 'Undergraduate Student'},</div>
+            <div class="text">
+              Thank you for signing up for <strong>UniMart</strong> &ndash; the verified peer-to-peer campus marketplace for <strong>${university || 'Sri Lankan State Universities'}</strong>.
+              <br><br>
+              Please activate your student account by clicking the button below:
+            </div>
+            ${actionLink ? `
+              <div class="btn-container">
+                <a href="${actionLink}" class="btn" target="_blank">Activate Student Account</a>
+              </div>
+            ` : ''}
+            ${otp ? `
+              <div class="otp-box">
+                <div class="otp-label">Or enter this 6-digit code on UniMart</div>
+                <div class="otp-code">${otp}</div>
+              </div>
+            ` : ''}
+            <div class="text" style="font-size: 12px; color: #64748b;">
+              If the button doesn't work, copy and paste this verification URL into your browser:<br>
+              <a href="${actionLink}" style="color: #0d9488; word-break: break-all;">${actionLink}</a>
+            </div>
+          </div>
+          <div class="footer">
+            UniMart &bull; Built for Sri Lankan University Students &bull; ICT 1108
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  try {
+    const info = await transporter.sendMail({
+      from: senderAddress,
+      to: email,
+      subject,
+      html
+    });
+    console.log(`✅ [Mailer] Confirmation email dispatched successfully to ${email} (Message ID: ${info.messageId})`);
+    return { sent: true, messageId: info.messageId };
+  } catch (err) {
+    console.error(`❌ [Mailer] Failed to send email to ${email}:`, err.message);
+    return { sent: false, error: err.message };
+  }
+}

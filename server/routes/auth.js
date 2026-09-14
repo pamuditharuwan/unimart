@@ -10,8 +10,14 @@ import { isSupabaseConfigured, supabase, memoryDb } from '../config/db.js';
 import { enforceUniversityDomain, getAllowedDomains, isUniversityEmail } from '../middleware/domainCheck.js';
 import { parseSriLankanUniversityEmail } from '../utils/universityDomains.js';
 import { requireAuth } from '../middleware/auth.js';
+import { sendVerificationEmail } from '../services/mailer.js';
+import { createClient } from '@supabase/supabase-js';
 
 dotenv.config();
+
+const supabaseAnon = isSupabaseConfigured && process.env.SUPABASE_ANON_KEY
+  ? createClient(process.env.SUPABASE_URL || 'https://onfqyksljrdzpebqzvty.supabase.co', process.env.SUPABASE_ANON_KEY)
+  : null;
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'unimart_fallback_secret_key';
@@ -115,14 +121,26 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
           emailOtp = linkData.properties.email_otp;
         }
 
-        // Also trigger the standard signup email to the user's inbox
-        await supabase.auth.resend({
-          type: 'signup',
+        // Send university verification email via custom SMTP if configured
+        await sendVerificationEmail({
           email: cleanEmail,
-          options: {
-            emailRedirectTo: `${clientUrl}/login?confirmed=true`
-          }
-        }).catch(() => {});
+          fullName: full_name,
+          university: detectedUni,
+          actionLink,
+          otp: emailOtp
+        }).catch(mailErr => console.warn('Mailer dispatch notice:', mailErr.message));
+
+        // Also attempt standard Supabase Auth signup dispatch if available
+        if (supabaseAnon) {
+          supabaseAnon.auth.signUp({
+            email: cleanEmail,
+            password,
+            options: {
+              data: { full_name, reg_id, university: detectedUni },
+              emailRedirectTo: `${clientUrl}/login?confirmed=true`
+            }
+          }).catch(() => {});
+        }
       } catch (authErr) {
         console.warn('Supabase auth link generation notice:', authErr);
       }
@@ -389,11 +407,23 @@ router.post('/confirm-direct', async (req, res) => {
     const cleanEmail = email.toLowerCase().trim();
 
     if (isSupabaseConfigured) {
-      const { data: userList } = await supabase.auth.admin.listUsers();
-      const targetUser = userList?.users?.find(u => u.email?.toLowerCase() === cleanEmail);
+      let targetUserId = null;
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', cleanEmail)
+        .single();
 
-      if (targetUser) {
-        await supabase.auth.admin.updateUserById(targetUser.id, {
+      if (profile?.id) {
+        targetUserId = profile.id;
+      } else {
+        const { data: userList } = await supabase.auth.admin.listUsers();
+        const targetUser = userList?.users?.find(u => u.email?.toLowerCase() === cleanEmail);
+        if (targetUser) targetUserId = targetUser.id;
+      }
+
+      if (targetUserId) {
+        await supabase.auth.admin.updateUserById(targetUserId, {
           email_confirm: true
         });
       }
@@ -447,6 +477,52 @@ router.put('/profile', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('Update profile error:', error);
     res.status(500).json({ error: 'Server error updating profile.' });
+  }
+});
+
+// 6. Delete Account (Permanently removes student account, profile, listings, messages, reviews)
+router.delete('/account', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    console.log(`🗑️ Deleting user account: ${userId} (${req.user.email})`);
+
+    if (isSupabaseConfigured) {
+      // 1. Delete listings created by this user
+      await supabase.from('listings').delete().eq('user_id', userId);
+
+      // 2. Delete messages sent or received by this user
+      await supabase.from('messages').delete().or(`sender_id.eq.${userId},receiver_id.eq.${userId}`);
+
+      // 3. Delete reviews written by or given to this user
+      await supabase.from('reviews').delete().or(`reviewer_id.eq.${userId},reviewee_id.eq.${userId}`);
+
+      // 4. Delete profile
+      await supabase.from('profiles').delete().eq('id', userId);
+
+      // 5. Delete Supabase Auth user
+      try {
+        await supabase.auth.admin.deleteUser(userId);
+      } catch (authErr) {
+        console.warn('Supabase auth admin deleteUser warning:', authErr.message);
+      }
+
+      return res.json({
+        success: true,
+        message: 'Your student account and all associated marketplace data have been permanently deleted.'
+      });
+    } else {
+      memoryDb.deleteProfile(userId);
+      memoryDb.listings = memoryDb.listings.filter(l => l.user_id !== userId);
+      memoryDb.messages = memoryDb.messages.filter(m => m.sender_id !== userId && m.receiver_id !== userId);
+      memoryDb.reviews = memoryDb.reviews.filter(r => r.reviewer_id !== userId && r.reviewee_id !== userId);
+      return res.json({
+        success: true,
+        message: 'Your student account and all associated marketplace data have been permanently deleted.'
+      });
+    }
+  } catch (error) {
+    console.error('Delete account error:', error);
+    res.status(500).json({ error: 'Server error while deleting student account.' });
   }
 });
 

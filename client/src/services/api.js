@@ -201,6 +201,37 @@ export const authApi = {
     }
   },
 
+  deleteAccount: async () => {
+    try {
+      return await request('/auth/account', {
+        method: 'DELETE'
+      });
+    } catch (err) {
+      const msg = err.message || '';
+      const isNetworkOrServerError = msg.includes('Failed to fetch') || 
+        msg.includes('NetworkError') || 
+        msg.includes('Load failed') ||
+        msg.includes('HTTP error 5');
+
+      if (!isNetworkOrServerError) {
+        throw err;
+      }
+
+      // Fallback for mock store if running static/offline
+      const stored = localStorage.getItem('unimart_current_user');
+      if (stored) {
+        try {
+          const currentUser = JSON.parse(stored);
+          clientStore.profiles = clientStore.profiles.filter(p => p.id !== currentUser.id);
+          clientStore.listings = clientStore.listings.filter(l => l.user_id !== currentUser.id);
+          clientStore.save('unimart_profiles_v2', clientStore.profiles);
+          clientStore.save('unimart_listings_v2', clientStore.listings);
+        } catch {}
+      }
+      return { message: 'Account deleted successfully.' };
+    }
+  },
+
   getDemoAccounts: async () => {
     try {
       return await request('/demo-accounts');

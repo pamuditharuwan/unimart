@@ -14,7 +14,8 @@ import {
   CheckCircle2,
   Lock,
   ExternalLink,
-  KeyRound
+  KeyRound,
+  Zap
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
@@ -281,46 +282,60 @@ export default function Register() {
             </ol>
           </div>
 
-          {/* Instant Code / Direct Verification Section */}
-          <div className="p-3 bg-amber-50 border border-amber-200 rounded text-left space-y-2.5">
-            <div className="flex items-center gap-1.5 font-semibold text-amber-950 text-xs">
-              <KeyRound className="w-4 h-4 text-amber-700" />
-              <span>University Spam Filter Delay?</span>
+          {/* Instant 1-Click Activation & Direct Verification (Fixes University Spam Gateway Delays) */}
+          <div className="p-4 bg-teal-50/80 border-2 border-teal-600/30 rounded-lg text-left space-y-3">
+            <div className="flex items-center gap-2 font-bold text-teal-950 text-xs">
+              <Zap className="w-4 h-4 text-teal-700" />
+              <span>Email Not Arriving in Inbox? Activate Instantly</span>
             </div>
-            <p className="text-[11px] text-amber-800 leading-relaxed">
-              If your university mail gateway delays or filters automated emails, you can verify directly below:
+            <p className="text-[11px] text-teal-900/90 leading-relaxed">
+              Sri Lankan university email gateways (Microsoft 365 / Google Workspace) and Supabase rate limits may delay or filter automated emails. You can activate your student account immediately without waiting:
             </p>
 
-            {/* OTP Code Form */}
-            <form onSubmit={handleVerifyOtp} className="flex gap-2">
-              <input
-                type="text"
-                value={enteredOtp}
-                onChange={(e) => setEnteredOtp(e.target.value)}
-                placeholder="Enter verification code"
-                className="flex-1 text-xs px-2.5 py-1.5 bg-white border border-amber-300 rounded font-mono focus:outline-none focus:border-teal-600"
-              />
-              <button
-                type="submit"
-                disabled={verifyingOtp || !enteredOtp.trim()}
-                className="px-3 py-1.5 bg-amber-700 hover:bg-amber-800 disabled:opacity-50 text-white font-semibold text-xs rounded transition-colors"
-              >
-                {verifyingOtp ? 'Verifying...' : 'Verify Code'}
-              </button>
-            </form>
+            {/* Prominent 1-Click Instant Activation Button */}
+            <button
+              type="button"
+              onClick={handleDirectConfirm}
+              disabled={directVerifying}
+              className="w-full py-2.5 bg-[#0d9488] hover:bg-teal-700 text-white font-bold text-xs rounded-md transition-all flex items-center justify-center gap-2 shadow-xs disabled:opacity-60"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>{directVerifying ? 'Activating Student Account...' : '⚡ 1-Click Instant Student Activation'}</span>
+            </button>
 
-            {/* Direct 1-Click Verification Fallback */}
-            <div className="pt-1.5 border-t border-amber-200/80 flex items-center justify-between">
-              <span className="text-[10px] text-amber-900 font-medium">Or activate student status instantly:</span>
-              <button
-                type="button"
-                onClick={handleDirectConfirm}
-                disabled={directVerifying}
-                className="px-2.5 py-1 bg-white hover:bg-amber-100 border border-amber-300 text-amber-900 font-semibold text-[11px] rounded transition-colors flex items-center gap-1"
+            {directActionLink && (
+              <a
+                href={directActionLink}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full py-2 bg-white hover:bg-teal-50 border border-teal-300 text-teal-900 text-center font-semibold text-xs rounded flex items-center justify-center gap-1.5 transition-colors block"
               >
-                <ShieldCheck className="w-3.5 h-3.5 text-teal-700" />
-                <span>{directVerifying ? 'Activating...' : '1-Click Student Activate'}</span>
-              </button>
+                <span>Open Direct Verification Link</span>
+                <ExternalLink className="w-3.5 h-3.5 text-teal-700" />
+              </a>
+            )}
+
+            {/* OTP Code Form */}
+            <div className="pt-2 border-t border-teal-200/80">
+              <span className="text-[10px] text-teal-800 font-semibold block mb-1.5">
+                Or enter verification code:
+              </span>
+              <form onSubmit={handleVerifyOtp} className="flex gap-2">
+                <input
+                  type="text"
+                  value={enteredOtp}
+                  onChange={(e) => setEnteredOtp(e.target.value)}
+                  placeholder="Enter 6-digit code"
+                  className="flex-1 text-xs px-2.5 py-1.5 bg-white border border-teal-300 rounded font-mono focus:outline-none focus:border-teal-600"
+                />
+                <button
+                  type="submit"
+                  disabled={verifyingOtp || !enteredOtp.trim()}
+                  className="px-3 py-1.5 bg-[#0f172a] hover:bg-slate-800 disabled:opacity-50 text-white font-semibold text-xs rounded transition-colors"
+                >
+                  {verifyingOtp ? 'Verifying...' : 'Verify Code'}
+                </button>
+              </form>
             </div>
           </div>
 

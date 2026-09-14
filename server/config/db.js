@@ -75,6 +75,15 @@ class MemoryDatabase {
     return safeProfile;
   }
 
+  deleteProfile(id) {
+    const idx = this.profiles.findIndex(p => p.id === id);
+    if (idx !== -1) {
+      this.profiles.splice(idx, 1);
+      return true;
+    }
+    return false;
+  }
+
   // Listings methods
   getAllListings({ type, categoryId, condition, search, minPrice, maxPrice, sort, userId } = {}) {
     let results = [...this.listings];
