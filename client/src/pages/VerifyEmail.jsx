@@ -3,7 +3,7 @@
 // Official Supabase Auth 6-Digit OTP Verification Flow
 // ==========================================================
 import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams, useNavigate, useLocation, Link } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import {
   Mail,
   ShieldCheck,
@@ -24,20 +24,16 @@ import { parseSriLankanUniversityEmail } from '../utils/universityDomains';
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const location = useLocation();
   const { user, isAuthenticated, verifyOtp } = useAuth();
   const { addToast } = useToast();
 
-  const queryEmail = searchParams.get('email') || location.state?.email || user?.email || '';
-  const stateOtp = (location.state?.emailOtp || '').toString().slice(0, 6);
-  const [fallbackOtp, setFallbackOtp] = useState(stateOtp);
-  const [actionLink, setActionLink] = useState(location.state?.actionLink || '');
+  const queryEmail = searchParams.get('email') || user?.email || '';
   const [email, setEmail] = useState(queryEmail);
   const [isEditingEmail, setIsEditingEmail] = useState(!queryEmail);
   const [newEmailInput, setNewEmailInput] = useState(queryEmail);
 
-  // 6 separate digit boxes for OTP (prefill if 6 digits provided in navigation state)
-  const [otp, setOtp] = useState(stateOtp.length === 6 ? stateOtp.split('') : ['', '', '', '', '', '']);
+  // 6 separate digit boxes for OTP (user must type the code received in email inbox)
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const inputRefs = useRef([]);
 
   const [loading, setLoading] = useState(false);
@@ -222,13 +218,6 @@ export default function VerifyEmail() {
     try {
       const res = await authApi.resendConfirmation(email.trim());
       setResendMessage(res.message || `A fresh 6-digit code has been sent to ${email.trim()}.`);
-      if (res?.emailOtp) {
-        setFallbackOtp(res.emailOtp);
-        handlePasteValue(res.emailOtp, 0);
-      }
-      if (res?.actionLink) {
-        setActionLink(res.actionLink);
-      }
       setCountdown(60); // Reset 60s cooldown
       addToast('Verification code resent!', 'info');
     } catch (err) {
@@ -402,40 +391,6 @@ export default function VerifyEmail() {
 
         {!success && (
           <form onSubmit={handleVerify} className="space-y-6">
-            {/* Campus Webmail / Sandbox Instant Activation Helper */}
-            {fallbackOtp && (
-              <div className="p-3 bg-teal-50 border border-teal-200 rounded-lg text-xs space-y-2 text-left">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5 font-bold text-teal-950">
-                    <ShieldCheck className="w-4 h-4 text-teal-700 shrink-0" />
-                    <span>Official Activation Code:</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handlePasteValue(fallbackOtp, 0)}
-                    className="px-2.5 py-1 bg-teal-700 hover:bg-teal-800 text-white rounded font-bold text-xs transition-colors cursor-pointer shadow-xs shrink-0"
-                  >
-                    Auto-Fill Code ({fallbackOtp})
-                  </button>
-                </div>
-                <p className="text-[11px] text-teal-800 leading-relaxed">
-                  If university email filters or SMTP sandbox mode delay receipt in your student inbox, you can use this official code to activate immediately.
-                </p>
-              </div>
-            )}
-
-            {actionLink && (
-              <a
-                href={actionLink}
-                target="_blank"
-                rel="noreferrer"
-                className="w-full py-2 bg-white hover:bg-teal-50 border border-teal-300 text-teal-900 text-center font-semibold text-xs rounded-lg flex items-center justify-center gap-1.5 transition-colors"
-              >
-                <span>Open Direct Supabase Activation Link</span>
-                <ExternalLink className="w-3.5 h-3.5 text-teal-700" />
-              </a>
-            )}
-
             {/* 6-Digit OTP Box Grid */}
             <div className="space-y-2">
               <label className="block text-xs font-semibold text-slate-700 text-left">

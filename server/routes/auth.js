@@ -181,9 +181,7 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
         requiresEmailConfirmation: true,
         message: `Confirmation email dispatched to ${cleanEmail}. Please check your university inbox to activate your student account.`,
         email: cleanEmail,
-        university: detectedUni,
-        actionLink,
-        emailOtp
+        university: detectedUni
       });
     } else {
       // Memory DB mode
@@ -424,17 +422,14 @@ router.post('/resend-confirmation', async (req, res) => {
 
       return res.json({
         success: true,
-        message: `A new 6-digit verification code has been dispatched to ${cleanEmail}. Please check your inbox and spam folder.`,
-        emailOtp: freshOtp,
-        actionLink: freshLink
+        message: `A new 6-digit verification code has been dispatched to ${cleanEmail}. Please check your inbox and spam folder.`
       });
     } else {
       const user = memoryDb.findProfileByEmail(cleanEmail);
       if (!user) return res.status(404).json({ error: 'Student account not found. Please register first.' });
       return res.json({
         success: true,
-        message: `A new 6-digit verification code has been dispatched to ${cleanEmail}.`,
-        emailOtp: '123456'
+        message: `A new 6-digit verification code has been dispatched to ${cleanEmail}.`
       });
     }
   } catch (err) {
