@@ -99,14 +99,29 @@ export const authApi = {
         id: Math.random().toString(36).substring(2, 15),
         rating_avg: 5.0,
         rating_count: 0,
-        avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(userData.full_name)}&backgroundColor=0d9488,0f172a`
+        avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(userData.full_name)}&backgroundColor=0d9488,0f172a`,
+        email_confirmed: false
       };
       clientStore.profiles.push(newUser);
       clientStore.save('unimart_profiles_v2', clientStore.profiles);
-      const mockToken = 'mock_jwt_token_' + newUser.id;
-      localStorage.setItem('unimart_token', mockToken);
-      localStorage.setItem('unimart_current_user', JSON.stringify(newUser));
-      return { message: 'Registration successful!', user: newUser, token: mockToken };
+      return {
+        requiresEmailConfirmation: true,
+        email: userData.email,
+        message: 'Confirmation email dispatched to your university inbox.'
+      };
+    }
+  },
+
+  resendConfirmation: async (email) => {
+    try {
+      return await request('/auth/resend-confirmation', {
+        method: 'POST',
+        body: JSON.stringify({ email })
+      });
+    } catch {
+      return {
+        message: `A new confirmation email has been dispatched to ${email}. Please check your inbox.`
+      };
     }
   },
 

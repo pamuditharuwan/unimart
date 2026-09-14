@@ -1,14 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { AlertCircle, CheckCircle, GraduationCap, ChevronDown, ChevronUp } from 'lucide-react';
+import { 
+  AlertCircle, 
+  CheckCircle, 
+  GraduationCap, 
+  ChevronDown, 
+  ChevronUp, 
+  Mail, 
+  RefreshCw, 
+  CheckCircle2 
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
+import { authApi } from '../services/api';
 import { parseSriLankanUniversityEmail, STATE_UNIVERSITIES_17 } from '../utils/universityDomains';
 
 export default function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectPath = searchParams.get('redirect') || '/';
+  const isConfirmedParam = searchParams.get('confirmed') === 'true';
   const { login, isAuthenticated } = useAuth();
   const { addToast } = useToast();
 
@@ -16,6 +27,9 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isUnconfirmed, setIsUnconfirmed] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState('');
   const [showDomainsList, setShowDomainsList] = useState(false);
 
   // Live university domain verification
@@ -31,6 +45,8 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setIsUnconfirmed(false);
+    setResendSuccess('');
 
     if (!email || !password) {
       setError('Please enter your university email and password.');
@@ -51,9 +67,34 @@ export default function Login() {
       addToast('Signed in successfully.', 'success');
       navigate(redirectPath);
     } catch (err) {
-      setError(err.message || 'Invalid email or password. Please try again.');
+      const errMsg = err.message || '';
+      setError(errMsg || 'Invalid email or password. Please try again.');
+      
+      if (
+        errMsg.toLowerCase().includes('not verified') ||
+        errMsg.toLowerCase().includes('not confirmed') ||
+        errMsg.toLowerCase().includes('inbox')
+      ) {
+        setIsUnconfirmed(true);
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (!email || resending) return;
+    setResending(true);
+    setResendSuccess('');
+
+    try {
+      const res = await authApi.resendConfirmation(email.trim());
+      setResendSuccess(res.message || `A new verification email was dispatched to ${email}.`);
+      addToast('Confirmation email resent to your inbox!', 'success');
+    } catch (err) {
+      setError(err.message || 'Failed to resend confirmation email.');
+    } finally {
+      setResending(false);
     }
   };
 
@@ -70,16 +111,53 @@ export default function Login() {
         </div>
         <h1 className="text-xl font-bold text-slate-900">Student Portal Login</h1>
         <p className="text-xs text-slate-500">
-          Sign in with your official university student email
+          Sign in with your official university student credentials
         </p>
       </div>
+
+      {/* Confirmation Success Banner */}
+      {isConfirmedParam && (
+        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded text-emerald-900 text-xs flex items-center gap-2">
+          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+          <div>
+            <span className="font-bold block">Email Verified Successfully!</span>
+            <span className="text-[11px] text-emerald-700">
+              Your university student account is now activated. Please enter your password to sign in.
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Login Form Card */}
       <div className="bg-white border border-slate-300 rounded p-6 shadow-xs space-y-4">
         {error && (
-          <div className="p-2.5 bg-rose-50 border border-rose-200 rounded text-rose-800 text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{error}</span>
+          <div className="p-2.5 bg-rose-50 border border-rose-200 rounded text-rose-800 text-xs space-y-2">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 mt-0.5" />
+              <span className="leading-relaxed">{error}</span>
+            </div>
+
+            {isUnconfirmed && (
+              <div className="pt-1.5 border-t border-rose-200/60 flex items-center justify-between">
+                <span className="text-[11px] text-rose-700 font-medium">Need another activation link?</span>
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={resending}
+                  className="px-2 py-1 bg-rose-100 hover:bg-rose-200 text-rose-900 font-semibold text-[11px] rounded transition-colors flex items-center gap-1 disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3 h-3 ${resending ? 'animate-spin' : ''}`} />
+                  <span>{resending ? 'Sending...' : 'Resend Email'}</span>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {resendSuccess && (
+          <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded text-emerald-800 text-xs flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 shrink-0 text-emerald-600" />
+            <span>{resendSuccess}</span>
           </div>
         )}
 
@@ -144,9 +222,16 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading || (email && !isEmailDomainValid)}
-            className="w-full py-2 bg-[#0d9488] hover:bg-teal-700 disabled:opacity-50 text-white text-xs font-semibold rounded transition-colors"
+            className="w-full py-2.5 bg-[#0d9488] hover:bg-teal-700 disabled:opacity-50 text-white text-xs font-semibold rounded transition-colors flex items-center justify-center gap-1.5"
           >
-            {loading ? 'Checking credentials...' : 'Sign In'}
+            {loading ? (
+              <>
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                <span>Checking credentials...</span>
+              </>
+            ) : (
+              <span>Sign In</span>
+            )}
           </button>
         </form>
 

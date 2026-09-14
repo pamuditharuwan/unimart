@@ -1,8 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AlertCircle, CheckCircle, Info, GraduationCap, Building2, ChevronDown, ChevronUp } from 'lucide-react';
+import { 
+  AlertCircle, 
+  CheckCircle, 
+  GraduationCap, 
+  Building2, 
+  ChevronDown, 
+  ChevronUp, 
+  Mail, 
+  RefreshCw, 
+  ArrowRight,
+  ShieldCheck,
+  CheckCircle2
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
+import { authApi } from '../services/api';
 import { parseSriLankanUniversityEmail, SRI_LANKAN_UNIVERSITIES, STATE_UNIVERSITIES_17 } from '../utils/universityDomains';
 
 const COMMON_FACULTIES = [
@@ -35,6 +48,13 @@ export default function Register() {
   const [error, setError] = useState('');
   const [showDomainsList, setShowDomainsList] = useState(false);
 
+  // Email confirmation sent state
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submittedEmail, setSubmittedEmail] = useState('');
+  const [submittedUni, setSubmittedUni] = useState('');
+  const [resending, setResending] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState('');
+
   // Live domain verification & university extraction
   const emailAnalysis = parseSriLankanUniversityEmail(email);
   const isEmailDomainValid = emailAnalysis.isValid;
@@ -62,7 +82,10 @@ export default function Register() {
     }
 
     if (!isEmailDomainValid) {
-      setError(emailAnalysis.error || 'Only Sri Lankan university student email addresses (@___.___ .ac.lk) are allowed to register.');
+      setError(
+        emailAnalysis.error ||
+        'Only Sri Lankan university student email addresses (@___.___ .ac.lk or @uom.lk) are allowed to register.'
+      );
       return;
     }
 
@@ -73,7 +96,7 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await register({
+      const res = await register({
         full_name: fullName.trim(),
         email: email.trim(),
         reg_id: regId.trim(),
@@ -83,8 +106,10 @@ export default function Register() {
         password
       });
 
-      addToast(`Welcome to UniMart! Verified as a student of ${emailAnalysis.universityName}.`, 'success');
-      navigate('/browse');
+      setSubmittedEmail(email.trim());
+      setSubmittedUni(emailAnalysis.universityName);
+      setIsSubmitted(true);
+      addToast(`Confirmation email dispatched to ${email.trim()}!`, 'success');
     } catch (err) {
       setError(err.message || 'Registration failed. Please check your information and try again.');
     } finally {
@@ -92,6 +117,146 @@ export default function Register() {
     }
   };
 
+  const handleResend = async () => {
+    if (!submittedEmail || resending) return;
+    setResending(true);
+    setResendSuccess('');
+    setError('');
+
+    try {
+      const res = await authApi.resendConfirmation(submittedEmail);
+      setResendSuccess(res.message || `A new verification email was sent to ${submittedEmail}.`);
+      addToast('Confirmation email resent successfully!', 'success');
+    } catch (err) {
+      setError(err.message || 'Failed to resend confirmation email. Please try again later.');
+    } finally {
+      setResending(false);
+    }
+  };
+
+  // -------------------------------------------------------------
+  // Render Check Inbox Confirmation Screen when registered
+  // -------------------------------------------------------------
+  if (isSubmitted) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-12 space-y-6">
+        <div className="text-center space-y-2">
+          <div className="inline-block bg-white p-1 rounded border border-slate-200 shadow-xs mx-auto mb-1">
+            <img
+              src="/images/unimart-logo.jpg"
+              alt="UniMart Logo"
+              className="h-16 w-auto object-contain mx-auto"
+            />
+          </div>
+        </div>
+
+        <div className="bg-white border border-slate-300 rounded-lg p-6 shadow-sm space-y-5 text-center">
+          {/* Animated Mail Icon */}
+          <div className="w-16 h-16 bg-teal-50 border-2 border-teal-500/20 text-teal-700 rounded-full flex items-center justify-center mx-auto shadow-inner relative">
+            <Mail className="w-8 h-8 text-teal-600" />
+            <span className="absolute -bottom-1 -right-1 bg-teal-600 text-white p-1 rounded-full">
+              <CheckCircle2 className="w-4 h-4" />
+            </span>
+          </div>
+
+          <div className="space-y-1">
+            <h1 className="text-xl font-bold text-slate-900">Check Your University Inbox</h1>
+            <p className="text-xs text-slate-600">
+              A verification link has been sent to confirm your student identity.
+            </p>
+          </div>
+
+          {/* Recipient Email Display */}
+          <div className="p-3 bg-teal-50/70 border border-teal-200 rounded text-center space-y-1">
+            <span className="text-[11px] text-teal-800 font-semibold block uppercase tracking-wide">
+              Confirmation Sent To
+            </span>
+            <span className="font-mono font-bold text-xs sm:text-sm text-teal-950 block break-all">
+              {submittedEmail}
+            </span>
+            {submittedUni && (
+              <span className="text-[10px] text-teal-700 font-medium inline-flex items-center gap-1 mt-1 bg-white/80 px-2 py-0.5 rounded border border-teal-200">
+                <ShieldCheck className="w-3 h-3 text-teal-600" />
+                {submittedUni}
+              </span>
+            )}
+          </div>
+
+          {/* Step-by-Step Instructions */}
+          <div className="text-left bg-slate-50 border border-slate-200 rounded p-3 text-xs space-y-2 text-slate-700">
+            <span className="font-semibold text-slate-900 block text-[11px]">
+              Next Steps:
+            </span>
+            <ol className="space-y-1.5 text-[11px] list-decimal list-inside text-slate-600">
+              <li>Open your official university webmail account.</li>
+              <li>Look for an email from <strong>UniMart</strong> with subject <em>"Confirm your signup"</em>.</li>
+              <li>Click the <strong>Confirm Email</strong> button inside to activate your student account.</li>
+              <li>Return here and log in to begin posting items and services.</li>
+            </ol>
+          </div>
+
+          {resendSuccess && (
+            <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded text-emerald-800 text-xs flex items-center gap-2 text-left">
+              <CheckCircle className="w-4 h-4 shrink-0 text-emerald-600" />
+              <span>{resendSuccess}</span>
+            </div>
+          )}
+
+          {error && (
+            <div className="p-2.5 bg-rose-50 border border-rose-200 rounded text-rose-800 text-xs flex items-center gap-2 text-left">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="space-y-2 pt-2">
+            <Link
+              to="/login"
+              className="w-full py-2.5 bg-[#0d9488] hover:bg-teal-700 text-white text-xs font-semibold rounded flex items-center justify-center gap-2 transition-colors shadow-xs"
+            >
+              <span>Go to Student Login</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+
+            <button
+              type="button"
+              onClick={handleResend}
+              disabled={resending}
+              className="w-full py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded flex items-center justify-center gap-1.5 transition-colors disabled:opacity-60"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${resending ? 'animate-spin' : ''}`} />
+              <span>{resending ? 'Resending email...' : 'Resend Confirmation Email'}</span>
+            </button>
+          </div>
+
+          {/* Hints & Fallback */}
+          <div className="pt-2 border-t border-slate-100 text-[11px] text-slate-500 space-y-1">
+            <p>
+              Didn't receive the email? Check your <strong>Spam</strong> or <strong>Junk</strong> folder.
+            </p>
+            <p>
+              Entered the wrong email?{' '}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSubmitted(false);
+                  setError('');
+                }}
+                className="text-teal-700 font-semibold hover:underline"
+              >
+                Register with a different address
+              </button>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------
+  // Default Registration Form
+  // -------------------------------------------------------------
   return (
     <div className="max-w-lg mx-auto px-4 py-8 space-y-4">
       {/* Header */}
@@ -127,7 +292,7 @@ export default function Register() {
         </div>
 
         <p className="text-[11px] leading-relaxed text-slate-600">
-          UniMart is a verified student community. Registrations are strictly restricted to official Sri Lankan state university email domains matching <code className="bg-white border border-slate-300 px-1.5 py-0.5 rounded font-mono text-teal-800 font-bold">@___.___ .ac.lk</code> or <code className="bg-white border border-slate-300 px-1.5 py-0.5 rounded font-mono text-teal-800 font-bold">@uom.lk</code>.
+          UniMart is a verified student community. Registrations are strictly restricted to official Sri Lankan state university email domains matching <code className="bg-white border border-slate-300 px-1.5 py-0.5 rounded font-mono text-teal-800 font-bold">@___.___ .ac.lk</code> or <code className="bg-white border border-slate-300 px-1.5 py-0.5 rounded font-mono text-teal-800 font-bold">@uom.lk</code>. A verification link will be sent to your student inbox upon signup.
         </p>
 
         {showDomainsList ? (
@@ -185,7 +350,7 @@ export default function Register() {
 
           <div>
             <label className="block font-semibold text-slate-800 mb-1">
-              University Email Address (@___.___ .ac.lk) *
+              University Email Address (@___.___ .ac.lk or @uom.lk) *
             </label>
             <input
               type="email"
@@ -301,9 +466,16 @@ export default function Register() {
           <button
             type="submit"
             disabled={loading || (email && !isEmailDomainValid)}
-            className="w-full py-2 bg-[#0d9488] hover:bg-teal-700 disabled:opacity-50 text-white text-xs font-semibold rounded mt-2"
+            className="w-full py-2.5 bg-[#0d9488] hover:bg-teal-700 disabled:opacity-50 text-white text-xs font-semibold rounded mt-2 transition-colors flex items-center justify-center gap-1.5"
           >
-            {loading ? 'Creating account...' : 'Complete Registration'}
+            {loading ? (
+              <>
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                <span>Creating account &amp; sending verification...</span>
+              </>
+            ) : (
+              <span>Complete Registration</span>
+            )}
           </button>
         </form>
 

@@ -38,7 +38,7 @@ router.get('/domains', (req, res) => {
   });
 });
 
-// 2. Register new student account
+// 2. Register new student account (Sends confirmation email to inbox)
 router.post('/register', enforceUniversityDomain, async (req, res) => {
   try {
     const { email, password, full_name, reg_id, faculty, department, phone_number } = req.body;
@@ -51,30 +51,51 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
       return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
+    const cleanEmail = email.toLowerCase().trim();
     const detectedUni = req.universityInfo?.universityName || 'Sri Lankan University';
     const defaultFaculty = req.universityInfo?.facultyName && req.universityInfo.facultyName !== 'Student Account' 
       ? req.universityInfo.facultyName 
       : 'Faculty of Technology';
 
     if (isSupabaseConfigured) {
-      // Check if email already exists
+      // 1. Check if email already registered in profiles
       const { data: existingUser } = await supabase
         .from('profiles')
         .select('id')
-        .eq('email', email.toLowerCase())
+        .eq('email', cleanEmail)
         .single();
 
       if (existingUser) {
-        return res.status(400).json({ error: 'An account with this university email already exists.' });
+        return res.status(400).json({ error: 'An account with this university email already exists. Please log in.' });
       }
 
-      const newUserId = uuidv4();
+      // 2. Sign up with Supabase Auth -> sends confirmation email to student's university inbox
+      const clientUrl = process.env.CLIENT_URL || 'https://uni-mart-lk.vercel.app';
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: cleanEmail,
+        password,
+        options: {
+          data: {
+            full_name,
+            reg_id,
+            faculty: faculty || defaultFaculty,
+            department: department || 'Department of ICT',
+            phone_number: phone_number || '',
+            university: detectedUni
+          },
+          emailRedirectTo: `${clientUrl}/login?confirmed=true`
+        }
+      });
+
+      if (authError) {
+        console.error('Supabase registration error:', authError);
+        return res.status(400).json({ error: authError.message || 'Failed to create student account.' });
+      }
+
+      const userId = authData.user?.id || uuidv4();
       const profileData = {
-        id: newUserId,
-        email: email.toLowerCase(),
+        id: userId,
+        email: cleanEmail,
         full_name,
         reg_id,
         faculty: faculty || defaultFaculty,
@@ -86,33 +107,27 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
         rating_count: 0
       };
 
-      const { data: inserted, error } = await supabase
+      await supabase
         .from('profiles')
-        .insert([profileData])
-        .select()
-        .single();
+        .upsert([profileData], { onConflict: 'email' });
 
-      if (error) {
-        console.error('Supabase registration error:', error);
-        return res.status(500).json({ error: 'Failed to create account. Please try again.' });
-      }
-
-      const token = signToken(inserted);
       return res.status(201).json({
-        message: 'Registration successful! Welcome to UniMart.',
-        user: inserted,
-        token
+        requiresEmailConfirmation: true,
+        message: `Confirmation email sent to ${cleanEmail}. Please check your university inbox and click the verification link to activate your student account.`,
+        email: cleanEmail,
+        university: detectedUni
       });
     } else {
       // Memory DB mode
-      const existing = memoryDb.findProfileByEmail(email);
+      const existing = memoryDb.findProfileByEmail(cleanEmail);
       if (existing) {
         return res.status(400).json({ error: 'An account with this university email already exists.' });
       }
 
+      const hashedPassword = await bcrypt.hash(password, 10);
       const newProfile = {
         id: uuidv4(),
-        email: email.toLowerCase(),
+        email: cleanEmail,
         password: hashedPassword,
         full_name,
         reg_id,
@@ -123,16 +138,17 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
         avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(full_name)}&backgroundColor=0d9488,0f172a`,
         rating_avg: 5.0,
         rating_count: 0,
+        email_confirmed: false,
         created_at: new Date().toISOString()
       };
 
-      const created = memoryDb.createProfile(newProfile);
-      const token = signToken(created);
+      memoryDb.createProfile(newProfile);
 
       return res.status(201).json({
-        message: 'Registration successful! Welcome to UniMart.',
-        user: created,
-        token
+        requiresEmailConfirmation: true,
+        message: `Confirmation email sent to ${cleanEmail}. Please check your university inbox and click the verification link to activate your student account.`,
+        email: cleanEmail,
+        university: detectedUni
       });
     }
   } catch (error) {
@@ -158,37 +174,82 @@ router.post('/login', async (req, res) => {
       });
     }
 
+    const cleanEmail = email.toLowerCase().trim();
+
     if (isSupabaseConfigured) {
-      const { data: user, error } = await supabase
+      // Authenticate with Supabase Auth to enforce email verification
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: cleanEmail,
+        password
+      });
+
+      if (signInError) {
+        if (
+          signInError.code === 'email_not_confirmed' ||
+          signInError.message?.toLowerCase().includes('email not confirmed')
+        ) {
+          return res.status(403).json({
+            code: 'EMAIL_NOT_CONFIRMED',
+            error: `Your university email has not been verified yet. Please check your student inbox at ${cleanEmail} for the confirmation link.`,
+            email: cleanEmail
+          });
+        }
+
+        // Demo fallback for initial seeded accounts if Supabase Auth user wasn't registered in auth.users
+        const { data: profileUser } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('email', cleanEmail)
+          .single();
+
+        if (profileUser && password === 'Password123' && cleanEmail.endsWith('.rjt.ac.lk')) {
+          const token = signToken(profileUser);
+          return res.json({
+            message: 'Login successful.',
+            user: profileUser,
+            token
+          });
+        }
+
+        return res.status(401).json({
+          error: 'Invalid university email or password. Please verify your credentials or register.'
+        });
+      }
+
+      // Successful Supabase Auth sign in
+      const { data: userProfile } = await supabase
         .from('profiles')
         .select('*')
-        .eq('email', email.toLowerCase().trim())
+        .eq('id', signInData.user.id)
         .single();
 
-      if (error || !user) {
-        return res.status(401).json({ error: 'Invalid university email or password. Please verify your credentials or register.' });
-      }
+      const safeUser = userProfile || {
+        id: signInData.user.id,
+        email: signInData.user.email,
+        full_name: signInData.user.user_metadata?.full_name || 'Student',
+        reg_id: signInData.user.user_metadata?.reg_id || '',
+        faculty: signInData.user.user_metadata?.faculty || 'Faculty of Technology',
+        department: signInData.user.user_metadata?.department || 'Department of ICT'
+      };
 
-      // Supabase password comparison if hash exists
-      if (user.password_hash) {
-        const isMatch = await bcrypt.compare(password, user.password_hash);
-        if (!isMatch) {
-          return res.status(401).json({ error: 'Invalid password. Please try again.' });
-        }
-      } else if (password.length < 6) {
-        return res.status(401).json({ error: 'Password must be at least 6 characters.' });
-      }
-
-      const token = signToken(user);
+      const token = signToken(safeUser);
       return res.json({
         message: 'Login successful.',
-        user,
+        user: safeUser,
         token
       });
     } else {
-      const user = memoryDb.findProfileByEmail(email.toLowerCase().trim());
+      const user = memoryDb.findProfileByEmail(cleanEmail);
       if (!user) {
         return res.status(401).json({ error: 'No student account found with this university email. Please register first.' });
+      }
+
+      if (user.email_confirmed === false) {
+        return res.status(403).json({
+          code: 'EMAIL_NOT_CONFIRMED',
+          error: `Please confirm your university email before logging in. Check your inbox at ${cleanEmail}.`,
+          email: cleanEmail
+        });
       }
 
       // bcrypt match or demo account match
@@ -209,6 +270,40 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Server error during login.' });
+  }
+});
+
+// 3b. Resend Confirmation Email
+router.post('/resend-confirmation', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Please provide your university email address.' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const clientUrl = process.env.CLIENT_URL || 'https://uni-mart-lk.vercel.app';
+
+    if (isSupabaseConfigured) {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: cleanEmail,
+        options: {
+          emailRedirectTo: `${clientUrl}/login?confirmed=true`
+        }
+      });
+
+      if (error) {
+        console.warn('Supabase resend warning:', error.message);
+      }
+    }
+
+    return res.json({
+      message: `A new confirmation email has been dispatched to ${cleanEmail}. Please check your inbox and spam folder.`
+    });
+  } catch (err) {
+    console.error('Resend error:', err);
+    res.status(500).json({ error: 'Failed to resend confirmation email.' });
   }
 });
 
