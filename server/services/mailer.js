@@ -112,3 +112,101 @@ export async function sendVerificationEmail({ email, fullName, university, actio
     return { sent: false, error: err.message };
   }
 }
+
+export async function sendLoginNotificationEmail({ email, fullName, university, ip, userAgent }) {
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.log(`ℹ️ [Mailer] SMTP not configured. Skipped sending login notification email to ${email}.`);
+    return { sent: false, reason: 'no_smtp_configured' };
+  }
+
+  const senderAddress = process.env.SMTP_FROM || `"UniMart Security" <${process.env.SMTP_USER || process.env.GMAIL_USER}>`;
+  const subject = `Security Alert: New sign-in to your UniMart account`;
+  const nowStr = new Date().toLocaleString('en-US', {
+    timeZone: 'Asia/Colombo',
+    dateStyle: 'full',
+    timeStyle: 'medium'
+  });
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 24px; }
+          .container { max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+          .header { background: #0f172a; color: #ffffff; padding: 20px 24px; text-align: left; }
+          .header h1 { margin: 0; font-size: 20px; font-weight: 700; color: #5eead4; }
+          .header p { margin: 4px 0 0 0; font-size: 12px; color: #94a3b8; }
+          .content { padding: 24px; }
+          .greeting { font-size: 15px; font-weight: 600; color: #0f172a; margin-bottom: 12px; }
+          .text { font-size: 13px; line-height: 1.6; color: #475569; margin-bottom: 20px; }
+          .details-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin: 20px 0; font-size: 12px; }
+          .detail-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
+          .detail-row:last-child { border-bottom: none; }
+          .detail-label { font-weight: 600; color: #64748b; }
+          .detail-value { font-weight: 600; color: #0f172a; text-align: right; }
+          .alert-box { background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 12px; margin-top: 16px; font-size: 12px; color: #991b1b; }
+          .footer { padding: 16px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #94a3b8; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>UniMart Security Alert</h1>
+            <p>Smart Student Marketplace &bull; Sri Lanka</p>
+          </div>
+          <div class="content">
+            <div class="greeting">Hello ${fullName || 'Student'},</div>
+            <div class="text">
+              We noticed a new sign-in to your UniMart account registered under <strong>${email}</strong>.
+            </div>
+
+            <div class="details-card">
+              <div class="detail-row">
+                <span class="detail-label">Date & Time (Sri Lanka):</span>
+                <span class="detail-value">${nowStr}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">University / Institution:</span>
+                <span class="detail-value">${university || 'State University of Sri Lanka'}</span>
+              </div>
+              ${ip ? `
+              <div class="detail-row">
+                <span class="detail-label">IP Address:</span>
+                <span class="detail-value">${ip}</span>
+              </div>
+              ` : ''}
+            </div>
+
+            <div class="text" style="font-size: 12px; color: #64748b;">
+              If this was you, you can safely disregard this email.
+            </div>
+
+            <div class="alert-box">
+              <strong>Didn't sign in?</strong> If you did not perform this login, your account may be compromised. Please sign in immediately to change your password or delete your account in Profile Settings.
+            </div>
+          </div>
+          <div class="footer">
+            UniMart &bull; Verified Student Marketplace &bull; ICT 1108
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  try {
+    const info = await transporter.sendMail({
+      from: senderAddress,
+      to: email,
+      subject,
+      html
+    });
+    console.log(`✅ [Mailer] Login notification email dispatched to ${email} (Message ID: ${info.messageId})`);
+    return { sent: true, messageId: info.messageId };
+  } catch (err) {
+    console.error(`❌ [Mailer] Failed to send login notification to ${email}:`, err.message);
+    return { sent: false, error: err.message };
+  }
+}

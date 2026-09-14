@@ -10,7 +10,7 @@ import { isSupabaseConfigured, supabase, memoryDb } from '../config/db.js';
 import { enforceUniversityDomain, getAllowedDomains, isUniversityEmail } from '../middleware/domainCheck.js';
 import { parseSriLankanUniversityEmail } from '../utils/universityDomains.js';
 import { requireAuth } from '../middleware/auth.js';
-import { sendVerificationEmail } from '../services/mailer.js';
+import { sendVerificationEmail, sendLoginNotificationEmail } from '../services/mailer.js';
 import { createClient } from '@supabase/supabase-js';
 
 dotenv.config();
@@ -77,7 +77,7 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
       : 'Faculty of Technology';
 
     if (isSupabaseConfigured) {
-      // 1. Check if email already registered in profiles
+      // 1. Check if email already registered in profiles and Supabase Auth
       const { data: existingUser } = await supabase
         .from('profiles')
         .select('id')
@@ -85,7 +85,21 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
         .single();
 
       if (existingUser) {
-        return res.status(400).json({ error: 'An account with this university email already exists. Please log in.' });
+        // Verify if user actually exists in Supabase Auth
+        const { data: userList } = await supabase.auth.admin.listUsers();
+        const authUser = userList?.users?.find(u => u.email?.toLowerCase() === cleanEmail);
+
+        if (authUser) {
+          return res.status(400).json({
+            error: 'An account with this university email already exists. Please log in.',
+            code: 'ACCOUNT_EXISTS',
+            email: cleanEmail
+          });
+        } else {
+          // Orphaned profile row without corresponding auth user -> clean up old row to allow fresh registration
+          console.log(`Cleaning up orphaned profile ${existingUser.id} for ${cleanEmail}`);
+          await supabase.from('profiles').delete().eq('id', existingUser.id);
+        }
       }
 
       // 2. Sign up with Supabase Auth -> sends confirmation email to student's university inbox
@@ -287,6 +301,18 @@ router.post('/login', async (req, res) => {
       };
 
       const token = signToken(safeUser);
+
+      // Dispatch security notification email asynchronously to student's inbox
+      const clientIp = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
+      const userAgent = req.headers['user-agent'] || '';
+      sendLoginNotificationEmail({
+        email: cleanEmail,
+        fullName: safeUser.full_name,
+        university: safeUser.university || req.universityInfo?.universityName || 'Rajarata University of Sri Lanka',
+        ip: clientIp,
+        userAgent
+      }).catch(err => console.warn('Login notification email dispatch notice:', err.message));
+
       return res.json({
         message: 'Login successful.',
         user: safeUser,
@@ -314,6 +340,16 @@ router.post('/login', async (req, res) => {
 
       const { password: _, ...safeUser } = user;
       const token = signToken(safeUser);
+
+      const clientIp = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
+      const userAgent = req.headers['user-agent'] || '';
+      sendLoginNotificationEmail({
+        email: cleanEmail,
+        fullName: safeUser.full_name,
+        university: safeUser.university || req.universityInfo?.universityName || 'Rajarata University of Sri Lanka',
+        ip: clientIp,
+        userAgent
+      }).catch(err => console.warn('Login notification email dispatch notice:', err.message));
 
       return res.json({
         message: 'Login successful.',

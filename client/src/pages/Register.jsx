@@ -471,9 +471,20 @@ export default function Register() {
       {/* Form Card */}
       <div className="bg-white border border-slate-300 rounded p-6 shadow-xs space-y-4">
         {error && (
-          <div className="p-2.5 bg-rose-50 border border-rose-200 rounded text-rose-800 text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{error}</span>
+          <div className="p-3 bg-rose-50 border border-rose-200 rounded text-rose-800 text-xs flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+              <span>{error}</span>
+            </div>
+            {error.toLowerCase().includes('already exists') && (
+              <Link
+                to={`/login?email=${encodeURIComponent(email.trim())}`}
+                className="px-3 py-1 bg-[#0d9488] hover:bg-teal-700 text-white font-semibold rounded shrink-0 flex items-center gap-1 transition-colors text-[11px]"
+              >
+                <span>Log In Now</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            )}
           </div>
         )}
 

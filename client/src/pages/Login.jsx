@@ -20,10 +20,11 @@ export default function Login() {
   const [searchParams] = useSearchParams();
   const redirectPath = searchParams.get('redirect') || '/';
   const isConfirmedParam = searchParams.get('confirmed') === 'true';
+  const initialEmail = searchParams.get('email') || '';
   const { login, isAuthenticated } = useAuth();
   const { addToast } = useToast();
 
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
