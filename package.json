@@ -1,0 +1,26 @@
+{
+  "name": "unimart-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "UniMart – Smart Student Marketplace for Rajarata University of Sri Lanka",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "server": "npm --prefix server run dev",
+    "client": "npm --prefix client run dev",
+    "build": "npm run build --workspace=client",
+    "start": "node server/server.js"
+  },
+  "devDependencies": {
+    "vite": "^5.4.11"
+  },
+  "keywords": [
+    "unimart",
+    "campus-marketplace",
+    "rajarata-university"
+  ],
+  "author": "Group 05 (Sudo Six) - Faculty of Technology, RUSL",
+  "license": "MIT"
+}
