@@ -101,6 +101,17 @@ export function AuthProvider({ children }) {
     return res;
   };
 
+  const confirmDirect = async (email) => {
+    const res = await authApi.confirmDirect(email);
+    if (res.token && res.user) {
+      localStorage.setItem('unimart_token', res.token);
+      localStorage.setItem('unimart_current_user', JSON.stringify(res.user));
+      setToken(res.token);
+      setUser(res.user);
+    }
+    return res;
+  };
+
   const refreshUser = async () => {
     try {
       const res = await authApi.getMe();
@@ -125,6 +136,7 @@ export function AuthProvider({ children }) {
         updateProfile,
         deleteAccount,
         verifyOtp,
+        confirmDirect,
         refreshUser
       }}
     >

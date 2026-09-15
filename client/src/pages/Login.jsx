@@ -139,17 +139,25 @@ export default function Login() {
             </div>
 
             {isUnconfirmed && (
-              <div className="pt-1.5 border-t border-rose-200/60 flex items-center justify-between">
-                <span className="text-[11px] text-rose-700 font-medium">Need another activation link?</span>
-                <button
-                  type="button"
-                  onClick={handleResend}
-                  disabled={resending}
-                  className="px-2 py-1 bg-rose-100 hover:bg-rose-200 text-rose-900 font-semibold text-[11px] rounded transition-colors flex items-center gap-1 disabled:opacity-50"
-                >
-                  <RefreshCw className={`w-3 h-3 ${resending ? 'animate-spin' : ''}`} />
-                  <span>{resending ? 'Sending...' : 'Resend Email'}</span>
-                </button>
+              <div className="pt-2 border-t border-rose-200/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <span className="text-[11px] text-rose-700 font-medium">Account not activated yet?</span>
+                <div className="flex items-center gap-2">
+                  <Link
+                    to={`/verify-email?email=${encodeURIComponent(email)}`}
+                    className="px-2.5 py-1 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-[11px] rounded transition-colors"
+                  >
+                    Verify Email
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleResend}
+                    disabled={resending}
+                    className="px-2 py-1 bg-rose-100 hover:bg-rose-200 text-rose-900 font-semibold text-[11px] rounded transition-colors flex items-center gap-1 disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-3 h-3 ${resending ? 'animate-spin' : ''}`} />
+                    <span>{resending ? 'Sending...' : 'Resend Email'}</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>

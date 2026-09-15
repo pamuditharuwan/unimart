@@ -90,6 +90,26 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
         const authUser = userList?.users?.find(u => u.email?.toLowerCase() === cleanEmail);
 
         if (authUser) {
+          // If the student registered earlier but was not confirmed yet (e.g. if email was delayed), allow them to verify
+          if (!authUser.email_confirmed_at) {
+            if (supabaseAnon) {
+              await supabaseAnon.auth.resend({
+                type: 'signup',
+                email: cleanEmail,
+                options: {
+                  emailRedirectTo: `${process.env.CLIENT_URL || 'https://uni-mart-lk.vercel.app'}/login?confirmed=true`
+                }
+              }).catch(() => {});
+            }
+
+            return res.status(200).json({
+              requiresEmailConfirmation: true,
+              message: `Your student account is awaiting verification. Please check your inbox at ${cleanEmail} or enter your verification code.`,
+              email: cleanEmail,
+              university: detectedUni
+            });
+          }
+
           return res.status(400).json({
             error: 'An account with this university email already exists. Please log in.',
             code: 'ACCOUNT_EXISTS',
@@ -578,18 +598,22 @@ router.post('/confirm-direct', async (req, res) => {
 
     if (isSupabaseConfigured) {
       let targetUserId = null;
+      let targetAuthUser = null;
+
       const { data: profile } = await supabase
         .from('profiles')
-        .select('id')
+        .select('*')
         .eq('email', cleanEmail)
         .single();
 
       if (profile?.id) {
         targetUserId = profile.id;
-      } else {
-        const { data: userList } = await supabase.auth.admin.listUsers();
-        const targetUser = userList?.users?.find(u => u.email?.toLowerCase() === cleanEmail);
-        if (targetUser) targetUserId = targetUser.id;
+      }
+
+      const { data: userList } = await supabase.auth.admin.listUsers();
+      targetAuthUser = userList?.users?.find(u => u.email?.toLowerCase() === cleanEmail);
+      if (targetAuthUser) {
+        targetUserId = targetAuthUser.id;
       }
 
       if (targetUserId) {
@@ -598,11 +622,34 @@ router.post('/confirm-direct', async (req, res) => {
         });
       }
 
-      return res.json({ message: 'University email confirmed successfully! You can now log in.' });
+      const safeUser = profile || {
+        id: targetUserId || uuidv4(),
+        email: cleanEmail,
+        full_name: targetAuthUser?.user_metadata?.full_name || 'Student',
+        reg_id: targetAuthUser?.user_metadata?.reg_id || '',
+        faculty: targetAuthUser?.user_metadata?.faculty || 'Faculty of Technology',
+        department: targetAuthUser?.user_metadata?.department || '',
+        email_confirmed: true
+      };
+
+      const token = signToken(safeUser);
+      return res.json({
+        success: true,
+        message: 'University email confirmed successfully! Welcome to UniMart.',
+        user: safeUser,
+        token
+      });
     } else {
       const user = memoryDb.findProfileByEmail(cleanEmail);
       if (user) user.email_confirmed = true;
-      return res.json({ message: 'University email confirmed successfully! You can now log in.' });
+      const safeUser = user || { email: cleanEmail, full_name: 'Student', email_confirmed: true };
+      const token = signToken(safeUser);
+      return res.json({
+        success: true,
+        message: 'University email confirmed successfully! Welcome to UniMart.',
+        user: safeUser,
+        token
+      });
     }
   } catch (err) {
     console.error('Direct confirm error:', err);

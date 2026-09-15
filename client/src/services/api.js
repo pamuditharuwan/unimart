@@ -196,11 +196,25 @@ export const authApi = {
 
   confirmDirect: async (email) => {
     try {
-      return await request('/auth/confirm-direct', {
+      const res = await request('/auth/confirm-direct', {
         method: 'POST',
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email: email.trim() })
       });
+      if (res?.token && res?.user) {
+        localStorage.setItem('unimart_token', res.token);
+        localStorage.setItem('unimart_current_user', JSON.stringify(res.user));
+      }
+      return res;
     } catch {
+      const user = clientStore.profiles.find(p => p.email.toLowerCase() === email.toLowerCase());
+      if (user) {
+        user.email_confirmed = true;
+        clientStore.save('unimart_profiles_v2', clientStore.profiles);
+        const mockToken = 'mock_jwt_token_' + user.id;
+        localStorage.setItem('unimart_token', mockToken);
+        localStorage.setItem('unimart_current_user', JSON.stringify(user));
+        return { message: 'University email confirmed successfully! You can now log in.', user, token: mockToken };
+      }
       return {
         message: 'University email confirmed successfully! You can now log in.'
       };
