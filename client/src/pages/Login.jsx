@@ -209,6 +209,12 @@ export default function Login() {
               <label className="block text-xs font-semibold text-slate-800">
                 Password
               </label>
+              <Link
+                to={`/forgot-password${email && isEmailDomainValid ? `?email=${encodeURIComponent(email)}` : ''}`}
+                className="text-[11px] text-teal-700 hover:text-teal-800 hover:underline font-medium"
+              >
+                Forgot password?
+              </Link>
             </div>
             <input
               type="password"

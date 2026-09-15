@@ -210,3 +210,87 @@ export async function sendLoginNotificationEmail({ email, fullName, university, 
     return { sent: false, error: err.message };
   }
 }
+
+export async function sendPasswordResetEmail({ email, fullName, university, actionLink, otp }) {
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.log('[Mailer] SMTP not configured for password reset email.');
+    return { sent: false, reason: 'no_smtp_configured' };
+  }
+
+  const senderAddress = process.env.SMTP_FROM || `"UniMart Security" <${process.env.SMTP_USER || process.env.GMAIL_USER}>`;
+  const subject = `Reset Your UniMart Password - Student Account Recovery`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 24px; }
+          .container { max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+          .header { background: #0f172a; color: #ffffff; padding: 24px; text-align: center; }
+          .header h1 { margin: 0; font-size: 22px; font-weight: 700; color: #5eead4; letter-spacing: -0.5px; }
+          .header p { margin: 4px 0 0 0; font-size: 12px; color: #94a3b8; }
+          .content { padding: 24px; }
+          .greeting { font-size: 15px; font-weight: 600; color: #0f172a; margin-bottom: 12px; }
+          .text { font-size: 13px; line-height: 1.6; color: #475569; margin-bottom: 20px; }
+          .btn-container { text-align: center; margin: 24px 0; }
+          .btn { display: inline-block; background: #0d9488; color: #ffffff !important; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-size: 14px; font-weight: 600; box-shadow: 0 2px 4px rgba(13,148,136,0.2); }
+          .otp-box { background: #f0fdfa; border: 1px dashed #0d9488; border-radius: 6px; padding: 16px; text-align: center; margin: 20px 0; }
+          .otp-code { font-family: monospace; font-size: 24px; font-weight: 700; color: #0f766e; letter-spacing: 4px; }
+          .otp-label { font-size: 11px; text-transform: uppercase; color: #0d9488; font-weight: 600; margin-bottom: 4px; }
+          .alert-box { background: #fffbeb; border: 1px solid #fef3c7; border-radius: 6px; padding: 12px; margin-top: 20px; font-size: 12px; color: #92400e; }
+          .footer { padding: 16px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #94a3b8; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>UniMart Password Recovery</h1>
+            <p>Smart Student Marketplace Sri Lanka</p>
+          </div>
+          <div class="content">
+            <div class="greeting">Hello ${fullName || 'Student'},</div>
+            <div class="text">
+              We received a request to reset the password for your student account registered under <strong>${email}</strong> (${university || 'State University'}).
+              <br><br>
+              You can reset your password directly by clicking the button below:
+            </div>
+            ${actionLink ? `
+              <div class="btn-container">
+                <a href="${actionLink}" class="btn" target="_blank">Reset Student Password</a>
+              </div>
+            ` : ''}
+            ${otp ? `
+              <div class="otp-box">
+                <div class="otp-label">Or enter this 6-digit recovery code on UniMart</div>
+                <div class="otp-code">${otp}</div>
+              </div>
+            ` : ''}
+            <div class="alert-box">
+              <strong>Security Notice:</strong> This recovery link and code will expire in 1 hour. If you did not request a password reset, please disregard this message; your account remains secure.
+            </div>
+          </div>
+          <div class="footer">
+            UniMart &bull; Verified Student Marketplace &bull; ICT 1108
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  try {
+    const info = await transporter.sendMail({
+      from: senderAddress,
+      to: email,
+      subject,
+      html
+    });
+    console.log(`[Mailer] Password reset email dispatched to ${email} (ID: ${info.messageId})`);
+    return { sent: true, messageId: info.messageId };
+  } catch (err) {
+    console.error(`[Mailer] Failed to send password reset email to ${email}:`, err.message);
+    return { sent: false, error: err.message };
+  }
+}

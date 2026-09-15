@@ -175,6 +175,25 @@ export const authApi = {
     }
   },
 
+  forgotPassword: async (email) => {
+    return await request('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email: email.trim() })
+    });
+  },
+
+  resetPassword: async ({ email, token, newPassword, accessToken }) => {
+    return await request('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: email ? email.trim() : undefined,
+        token: token ? token.trim() : undefined,
+        newPassword,
+        accessToken
+      })
+    });
+  },
+
   confirmDirect: async (email) => {
     try {
       return await request('/auth/confirm-direct', {

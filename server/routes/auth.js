@@ -10,7 +10,7 @@ import { isSupabaseConfigured, supabase, memoryDb } from '../config/db.js';
 import { enforceUniversityDomain, getAllowedDomains, isUniversityEmail } from '../middleware/domainCheck.js';
 import { parseSriLankanUniversityEmail } from '../utils/universityDomains.js';
 import { requireAuth } from '../middleware/auth.js';
-import { sendVerificationEmail, sendLoginNotificationEmail } from '../services/mailer.js';
+import { sendVerificationEmail, sendLoginNotificationEmail, sendPasswordResetEmail } from '../services/mailer.js';
 import { createClient } from '@supabase/supabase-js';
 
 dotenv.config();
@@ -693,6 +693,166 @@ router.delete('/account', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('Delete account error:', error);
     res.status(500).json({ error: 'Server error while deleting student account.' });
+  }
+});
+
+
+// ==========================================================
+// 8. Forgot Password & Password Reset Flow
+// ==========================================================
+router.post('/forgot-password', enforceUniversityDomain, async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Please enter your university email address.' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const clientUrl = process.env.CLIENT_URL || 'https://uni-mart-lk.vercel.app';
+
+    if (isSupabaseConfigured) {
+      // 1. Verify user exists in Supabase
+      const { data: userList } = await supabase.auth.admin.listUsers();
+      const authUser = userList?.users?.find(u => u.email?.toLowerCase() === cleanEmail);
+
+      if (!authUser) {
+        return res.status(404).json({
+          error: 'No student account found with this university email. Please verify the address or register.'
+        });
+      }
+
+      // 2. Dispatch password recovery email via Supabase Auth (sent through custom Google SMTP)
+      if (supabaseAnon) {
+        const { error: resetErr } = await supabaseAnon.auth.resetPasswordForEmail(cleanEmail, {
+          redirectTo: `${clientUrl}/reset-password`
+        });
+        if (resetErr) {
+          console.warn('[Supabase resetPasswordForEmail notice]', resetErr.message);
+        }
+      }
+
+      // 3. If custom SMTP configured on Vercel, also generate recovery link and dispatch styled email
+      if (process.env.SMTP_USER || process.env.GMAIL_USER) {
+        try {
+          const { data: linkData } = await supabase.auth.admin.generateLink({
+            type: 'recovery',
+            email: cleanEmail,
+            options: {
+              redirectTo: `${clientUrl}/reset-password`
+            }
+          });
+          if (linkData?.properties) {
+            await sendPasswordResetEmail({
+              email: cleanEmail,
+              fullName: authUser.user_metadata?.full_name || 'Student',
+              university: authUser.user_metadata?.university || 'State University',
+              actionLink: linkData.properties.action_link,
+              otp: linkData.properties.email_otp
+            });
+          }
+        } catch (mErr) {
+          console.warn('[Mailer password reset notice]', mErr.message);
+        }
+      }
+
+      return res.json({
+        success: true,
+        message: `Password reset instructions and verification code have been dispatched to ${cleanEmail}. Please check your student inbox.`
+      });
+    } else {
+      // Memory DB fallback
+      const user = memoryDb.findProfileByEmail(cleanEmail);
+      if (!user) {
+        return res.status(404).json({ error: 'No student account found with this university email.' });
+      }
+      return res.json({
+        success: true,
+        message: `Password reset instructions dispatched to ${cleanEmail}.`
+      });
+    }
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    res.status(500).json({ error: 'Failed to process password reset request. Please try again.' });
+  }
+});
+
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { email, token, newPassword, accessToken } = req.body;
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ error: 'New password must be at least 6 characters.' });
+    }
+
+    if (isSupabaseConfigured) {
+      let targetUserId = null;
+
+      // Method A: Reset with accessToken (from clicking email recovery link)
+      if (accessToken) {
+        try {
+          const { data: userData, error: userErr } = await supabase.auth.getUser(accessToken);
+          if (!userErr && userData?.user) {
+            targetUserId = userData.user.id;
+          }
+        } catch {}
+      }
+
+      // Method B: Reset with email + 6-digit OTP token
+      if (!targetUserId && email && token) {
+        const cleanEmail = email.toLowerCase().trim();
+        const cleanToken = token.toString().trim();
+
+        const { data: verifyData, error: verifyErr } = await supabase.auth.verifyOtp({
+          email: cleanEmail,
+          token: cleanToken,
+          type: 'recovery'
+        });
+
+        if (!verifyErr && verifyData?.user) {
+          targetUserId = verifyData.user.id;
+        } else {
+          const rawMsg = (verifyErr?.message || '').toLowerCase();
+          let friendly = 'The recovery code entered is incorrect. Please check your email and try again.';
+          if (rawMsg.includes('expired')) {
+            friendly = 'This recovery code has expired. Please request a new password reset link.';
+          }
+          return res.status(400).json({ error: friendly });
+        }
+      }
+
+      if (!targetUserId) {
+        return res.status(400).json({
+          error: 'Invalid password reset request. Please provide a valid recovery code or open the link from your email.'
+        });
+      }
+
+      // Update password in Supabase Auth
+      const { error: updateErr } = await supabase.auth.admin.updateUserById(targetUserId, {
+        password: newPassword
+      });
+
+      if (updateErr) {
+        return res.status(400).json({ error: updateErr.message || 'Failed to update password.' });
+      }
+
+      return res.json({
+        success: true,
+        message: 'Your password has been successfully reset! You can now sign in with your new credentials.'
+      });
+    } else {
+      // Memory DB fallback
+      if (!email) return res.status(400).json({ error: 'Email is required.' });
+      const user = memoryDb.findProfileByEmail(email.toLowerCase().trim());
+      if (!user) return res.status(404).json({ error: 'Student account not found.' });
+      const hashed = await bcrypt.hash(newPassword, 10);
+      user.password = hashed;
+      return res.json({
+        success: true,
+        message: 'Your password has been successfully reset! You can now sign in with your new password.'
+      });
+    }
+  } catch (err) {
+    console.error('Reset password error:', err);
+    res.status(500).json({ error: 'Failed to reset password. Please try again.' });
   }
 });
 
