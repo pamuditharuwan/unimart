@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, ArrowLeft, RefreshCw, AlertCircle, CheckCircle, ShieldAlert, KeyRound } from 'lucide-react';
 import { authApi } from '../services/api';
@@ -82,7 +82,7 @@ export default function ForgotPassword() {
 
         {successMessage ? (
           <div className="space-y-4">
-            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded text-emerald-900 text-xs space-y-2">
+            <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded text-emerald-900 text-xs space-y-2">
               <div className="flex items-center gap-2 font-bold text-emerald-800">
                 <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span>Recovery Instructions Dispatched!</span>
@@ -92,13 +92,49 @@ export default function ForgotPassword() {
               </p>
             </div>
 
+            {/* 1-Minute Live Expiration Countdown Window */}
+            {countdown > 0 ? (
+              <div className="p-3 bg-teal-50/90 border border-teal-200 rounded text-teal-900 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 font-semibold text-xs text-teal-900">
+                    <RefreshCw className="w-3.5 h-3.5 text-teal-600 animate-spin" />
+                    <span>Link &amp; PIN Expiration Window</span>
+                  </div>
+                  <span className="font-mono font-bold text-xs text-teal-800 bg-teal-100 px-2 py-0.5 rounded border border-teal-300">
+                    00:{countdown < 10 ? `0${countdown}` : countdown}
+                  </span>
+                </div>
+                {/* Progress bar */}
+                <div className="w-full bg-teal-200/60 h-1.5 rounded-full overflow-hidden">
+                  <div
+                    className="bg-teal-600 h-full transition-all duration-1000 ease-linear rounded-full"
+                    style={{ width: `${(countdown / 60) * 100}%` }}
+                  />
+                </div>
+                <p className="text-[11px] text-teal-700 leading-relaxed">
+                  For your campus account safety, this recovery email link and 6-digit PIN expire strictly in <strong>1 minute (60s)</strong>.
+                </p>
+              </div>
+            ) : (
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded text-amber-900 text-xs space-y-1.5">
+                <div className="flex items-center gap-1.5 font-bold text-amber-800">
+                  <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>Recovery Link &amp; PIN Expired</span>
+                </div>
+                <p className="text-amber-700 text-[11px] leading-relaxed">
+                  The 1-minute security window has elapsed. The code and link in your email have expired. Please request a new code below.
+                </p>
+              </div>
+            )}
+
             <button
               type="button"
-              onClick={() => navigate(`/reset-password?email=${encodeURIComponent(email.trim())}`)}
-              className="w-full py-2.5 bg-[#0d9488] hover:bg-teal-700 text-white text-xs font-semibold rounded transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+              onClick={() => navigate(`/reset-password?email=${encodeURIComponent(email.trim())}&timeRemaining=${countdown}`)}
+              disabled={countdown === 0}
+              className="w-full py-2.5 bg-[#0d9488] hover:bg-teal-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-xs font-semibold rounded transition-colors flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
             >
               <KeyRound className="w-3.5 h-3.5" />
-              <span>Enter 6-Digit Code &amp; Reset Password</span>
+              <span>{countdown > 0 ? 'Enter 6-Digit Code & Reset Password' : 'Code Expired — Request Fresh Link'}</span>
             </button>
 
             <div className="text-center pt-2">
@@ -106,9 +142,12 @@ export default function ForgotPassword() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={loading || countdown > 0}
-                className="text-[11px] text-teal-700 hover:text-teal-800 font-semibold disabled:text-slate-400 disabled:cursor-not-allowed"
+                className="w-full py-2 px-3 border border-teal-600 hover:bg-teal-50 text-teal-800 text-xs font-semibold rounded disabled:border-slate-200 disabled:text-slate-400 disabled:bg-slate-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                {countdown > 0 ? `Resend code in ${countdown}s` : "Didn't receive email? Resend"}
+                <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+                <span>
+                  {countdown > 0 ? `Resend new code in ${countdown}s` : "Didn't receive or expired? Resend New Code"}
+                </span>
               </button>
             </div>
           </div>

@@ -13,7 +13,8 @@ import {
   AlertTriangle,
   ShieldAlert,
   Settings,
-  ShieldCheck
+  ShieldCheck,
+  LogOut
 } from 'lucide-react';
 import { usersApi, listingsApi, reviewsApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -23,8 +24,9 @@ import ListingCard from '../components/ListingCard';
 export default function Profile() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user: currentUser, isAuthenticated, updateProfile, deleteAccount } = useAuth();
+  const { user: currentUser, isAuthenticated, updateProfile, deleteAccount, logout } = useAuth();
   const { addToast } = useToast();
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
 
   const queryUserId = searchParams.get('userId');
   const isOwnProfile = !queryUserId || (currentUser && currentUser.id === queryUserId);
@@ -238,6 +240,14 @@ export default function Profile() {
                   className="px-3 py-1.5 bg-[#0f172a] hover:bg-slate-800 text-white text-xs font-semibold rounded"
                 >
                   Edit Profile Info
+                </button>
+                <button
+                  onClick={() => setLogoutModalOpen(true)}
+                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-xs font-semibold rounded flex items-center gap-1.5 transition-colors"
+                  title="Sign out of student account"
+                >
+                  <LogOut className="w-3.5 h-3.5 text-slate-600" />
+                  <span>Log Out</span>
                 </button>
                 <button
                   onClick={() => {
@@ -625,6 +635,47 @@ export default function Profile() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Logout Confirmation Modal */}
+      {logoutModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150">
+          <div className="bg-white text-slate-900 rounded-lg max-w-sm w-full p-5 shadow-xl border border-slate-200 space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 shrink-0">
+                <LogOut className="w-4 h-4" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-bold text-sm text-slate-900">Confirm Log Out</h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Are you sure you want to sign out of <span className="font-semibold text-slate-800">{currentUser?.full_name || 'your student account'}</span>?
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setLogoutModalOpen(false)}
+                className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  logout();
+                  addToast('You have been logged out successfully.', 'info');
+                  setLogoutModalOpen(false);
+                  navigate('/login');
+                }}
+                className="px-3.5 py-1.5 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded shadow-xs transition-colors flex items-center gap-1"
+              >
+                <LogOut className="w-3 h-3" />
+                <span>Yes, Log Out</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

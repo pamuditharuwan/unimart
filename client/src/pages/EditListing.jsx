@@ -13,12 +13,10 @@ export default function EditListing() {
 
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
-
-  // Form fields
   const [title, setTitle] = useState('');
   const [categoryId, setCategoryId] = useState('');
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const [customCategoryName, setCustomCategoryName] = useState('');
   const [itemType, setItemType] = useState('hardware');
   const [price, setPrice] = useState('');
   const [priceType, setPriceType] = useState('fixed');
@@ -27,14 +25,16 @@ export default function EditListing() {
   const [imageUrl, setImageUrl] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState('active');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate(`/login?redirect=/edit-listing/${id}`);
-      return;
-    }
-
     async function loadData() {
+      if (!isAuthenticated) {
+        navigate(`/login?redirect=/edit-listing/${id}`);
+        return;
+      }
+
       try {
         const [cats, listingData] = await Promise.all([
           categoriesApi.getAll(),
@@ -78,12 +78,37 @@ export default function EditListing() {
       return;
     }
 
+    if (isCustomCategory && !customCategoryName.trim()) {
+      setError('Please enter your custom category name.');
+      return;
+    }
+
+    if (!isCustomCategory && !categoryId) {
+      setError('Please select a category for your listing.');
+      return;
+    }
+
     setSubmitting(true);
     try {
+      let finalCategoryId = parseInt(categoryId, 10);
+      if (isCustomCategory && customCategoryName.trim()) {
+        const createdCat = await categoriesApi.create({
+          name: customCategoryName.trim(),
+          type: itemType
+        });
+        if (createdCat?.id) {
+          finalCategoryId = createdCat.id;
+          setCategories(prev => {
+            if (prev.some(c => c.id === createdCat.id)) return prev;
+            return [...prev, createdCat];
+          });
+        }
+      }
+
       const updates = {
         title: title.trim(),
         description: description.trim(),
-        category_id: parseInt(categoryId, 10),
+        category_id: finalCategoryId,
         price: parseFloat(price),
         price_type: priceType,
         condition: itemType === 'hardware' ? condition : null,
@@ -191,19 +216,77 @@ export default function EditListing() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block font-semibold text-slate-800 mb-1">Category *</label>
-              <select
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full text-xs p-2 bg-white border border-slate-300 rounded text-slate-900 focus:outline-none focus:border-[#0d9488]"
-                required
-              >
-                {filteredCategories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block font-semibold text-slate-800">Category *</label>
+                {!isCustomCategory && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCustomCategory(true);
+                      setCategoryId('__custom__');
+                    }}
+                    className="text-[11px] text-teal-700 hover:text-teal-800 hover:underline font-semibold cursor-pointer"
+                  >
+                    + Add Custom Category
+                  </button>
+                )}
+              </div>
+
+              {!isCustomCategory ? (
+                <select
+                  value={categoryId}
+                  onChange={(e) => {
+                    if (e.target.value === '__custom__') {
+                      setIsCustomCategory(true);
+                      setCategoryId('__custom__');
+                    } else {
+                      setCategoryId(e.target.value);
+                    }
+                  }}
+                  className="w-full text-xs p-2 bg-white border border-slate-300 rounded text-slate-900 focus:outline-none focus:border-[#0d9488]"
+                  required
+                >
+                  {filteredCategories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                  <option value="__custom__">✨ + Add Custom Category / Text...</option>
+                </select>
+              ) : (
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="text"
+                      value={customCategoryName}
+                      onChange={(e) => setCustomCategoryName(e.target.value)}
+                      placeholder={
+                        itemType === 'hardware'
+                          ? 'e.g. Embedded Linux & SBCs, Drone Components'
+                          : 'e.g. Mobile App Dev, UI/UX Design, Tutoring'
+                      }
+                      className="w-full text-xs p-2 bg-white border border-teal-500 rounded focus:outline-none focus:ring-1 focus:ring-teal-500 text-slate-900 shadow-xs"
+                      required
+                      autoFocus
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsCustomCategory(false);
+                        const firstMatching = categories.find(c => c.type === itemType);
+                        if (firstMatching) setCategoryId(firstMatching.id);
+                      }}
+                      className="px-2.5 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-[11px] font-medium rounded whitespace-nowrap cursor-pointer transition-colors"
+                      title="Back to standard categories"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-teal-700">
+                    This custom category will be added to the university catalog and visible in search filters.
+                  </p>
+                </div>
+              )}
             </div>
 
             {itemType === 'hardware' ? (

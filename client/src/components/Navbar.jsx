@@ -12,17 +12,26 @@ import {
   Wrench
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from './Toast';
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
+  const { addToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
     setMobileMenuOpen(false);
+  };
+
+  const confirmLogout = () => {
+    logout();
+    addToast('You have been logged out successfully.', 'info');
+    setShowLogoutModal(false);
+    navigate('/login');
   };
 
   const isActive = (path) => location.pathname === path;
@@ -132,7 +141,7 @@ export default function Navbar() {
                   </div>
                 </Link>
                 <button
-                  onClick={handleLogout}
+                  onClick={handleLogoutClick}
                   title="Log out"
                   className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded"
                 >
@@ -239,7 +248,7 @@ export default function Navbar() {
                 My Profile & Listings
               </Link>
               <button
-                onClick={handleLogout}
+                onClick={handleLogoutClick}
                 className="block w-full text-left py-1.5 text-rose-400"
               >
                 Log Out
@@ -263,6 +272,42 @@ export default function Navbar() {
               </Link>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150">
+          <div className="bg-white text-slate-900 rounded-lg max-w-sm w-full p-5 shadow-xl border border-slate-200 space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 shrink-0">
+                <LogOut className="w-4 h-4" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-bold text-sm text-slate-900">Confirm Log Out</h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Are you sure you want to sign out of <span className="font-semibold text-slate-800">{user?.full_name || 'your student account'}</span>? You will need your credentials to sign in again.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setShowLogoutModal(false)}
+                className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmLogout}
+                className="px-3.5 py-1.5 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded shadow-xs transition-colors flex items-center gap-1"
+              >
+                <LogOut className="w-3 h-3" />
+                <span>Yes, Log Out</span>
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </header>

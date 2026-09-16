@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   AlertCircle, 
@@ -8,7 +8,10 @@ import {
   ChevronUp, 
   Mail, 
   RefreshCw, 
-  CheckCircle2 
+  CheckCircle2,
+  LogOut,
+  ArrowRight,
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
@@ -21,7 +24,7 @@ export default function Login() {
   const redirectPath = searchParams.get('redirect') || '/';
   const isConfirmedParam = searchParams.get('confirmed') === 'true';
   const initialEmail = searchParams.get('email') || '';
-  const { login, isAuthenticated } = useAuth();
+  const { login, logout, user, isAuthenticated } = useAuth();
   const { addToast } = useToast();
 
   const [email, setEmail] = useState(initialEmail);
@@ -37,12 +40,6 @@ export default function Login() {
   const emailAnalysis = parseSriLankanUniversityEmail(email);
   const isEmailDomainValid = emailAnalysis.isValid;
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate(redirectPath);
-    }
-  }, [isAuthenticated, navigate, redirectPath]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -55,21 +52,21 @@ export default function Login() {
     }
 
     if (!isEmailDomainValid) {
-      setError(
-        emailAnalysis.error ||
-        'Login is strictly restricted to official Sri Lankan state university email domains (@___.___ .ac.lk or @uom.lk).'
-      );
+      const msg = emailAnalysis.error || 'Login is strictly restricted to official Sri Lankan state university email domains (@___.___ .ac.lk or @uom.lk).';
+      setError(msg);
+      addToast(msg, 'error');
       return;
     }
 
     setLoading(true);
     try {
-      await login(email.trim(), password);
-      addToast('Signed in successfully.', 'success');
+      const res = await login(email.trim(), password);
+      addToast(`Signed in successfully! Welcome back, ${res.user?.full_name || 'Student'}.`, 'success');
       navigate(redirectPath);
     } catch (err) {
       const errMsg = err.message || '';
       setError(errMsg || 'Invalid email or password. Please try again.');
+      addToast(errMsg || 'Invalid credentials.', 'error');
       
       if (
         errMsg.toLowerCase().includes('not verified') ||
@@ -125,6 +122,46 @@ export default function Login() {
             <span className="text-[11px] text-emerald-700">
               Your university student account is now activated. Please enter your password to sign in.
             </span>
+          </div>
+        </div>
+      )}
+
+      {/* Active Session Card */}
+      {isAuthenticated && user && (
+        <div className="bg-teal-50/80 border border-teal-200 rounded p-4 shadow-xs space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-[#0d9488] text-white flex items-center justify-center font-bold text-sm shrink-0">
+              {user.full_name ? user.full_name.charAt(0) : 'S'}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 text-teal-800 text-xs font-bold">
+                <ShieldCheck className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                <span>Active Student Session</span>
+              </div>
+              <p className="text-xs font-semibold text-slate-900 truncate">{user.full_name}</p>
+              <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 pt-1 border-t border-teal-200/60">
+            <button
+              type="button"
+              onClick={() => navigate(redirectPath)}
+              className="flex-1 py-1.5 bg-[#0d9488] hover:bg-teal-700 text-white text-xs font-semibold rounded flex items-center justify-center gap-1 transition-colors"
+            >
+              <span>Go to Marketplace</span>
+              <ArrowRight className="w-3 h-3" />
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                logout();
+                addToast('You have been logged out. You can now sign in with a different account.', 'info');
+              }}
+              className="px-3 py-1.5 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-medium rounded flex items-center gap-1 transition-colors"
+            >
+              <LogOut className="w-3 h-3 text-rose-500" />
+              <span>Log Out</span>
+            </button>
           </div>
         </div>
       )}

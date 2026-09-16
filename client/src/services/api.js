@@ -59,8 +59,13 @@ export const authApi = {
         throw new Error('No student account found with this university email. Please register first.');
       }
 
-      if (user.password && user.password !== password && password !== 'Password123') {
-        throw new Error('Invalid password. Please try again.');
+      const expectedPassword = user.password || 'Password123';
+      if (password !== expectedPassword) {
+        throw new Error('Invalid university email or password. Please verify your credentials.');
+      }
+
+      if (user.email_confirmed === false) {
+        throw new Error(`Your university email has not been verified yet. Please check your student inbox at ${cleanEmail}.`);
       }
 
       const mockToken = 'mock_jwt_token_' + user.id;
@@ -409,6 +414,22 @@ export const categoriesApi = {
       return clientStore.categories;
     } catch {
       return clientStore.categories;
+    }
+  },
+
+  create: async (categoryData) => {
+    try {
+      const res = await request('/categories', {
+        method: 'POST',
+        body: JSON.stringify(categoryData)
+      });
+      if (res && res.id) {
+        clientStore.addCategory(res);
+        return res;
+      }
+      return clientStore.addCategory(categoryData);
+    } catch {
+      return clientStore.addCategory(categoryData);
     }
   }
 };

@@ -19,6 +19,7 @@ export const INITIAL_PROFILES = [
   {
     id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     email: 'kavindu.p@student.rjt.ac.lk',
+    password: 'Password123',
     full_name: 'Kavindu Perera',
     reg_id: 'ICT/2024/001',
     faculty: 'Faculty of Technology',
@@ -32,6 +33,7 @@ export const INITIAL_PROFILES = [
   {
     id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
     email: 'anuki.d@student.rjt.ac.lk',
+    password: 'Password123',
     full_name: 'Anuki De Silva',
     reg_id: 'ICT/2024/002',
     faculty: 'Faculty of Technology',
@@ -45,6 +47,7 @@ export const INITIAL_PROFILES = [
   {
     id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     email: 'dinuka.f@student.rjt.ac.lk',
+    password: 'Password123',
     full_name: 'Dinuka Fernando',
     reg_id: 'ICT/2024/003',
     faculty: 'Faculty of Technology',
@@ -58,6 +61,7 @@ export const INITIAL_PROFILES = [
   {
     id: 'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44',
     email: 'chamari.j@student.rjt.ac.lk',
+    password: 'Password123',
     full_name: 'Chamari Jayasinghe',
     reg_id: 'ICT/2024/004',
     faculty: 'Faculty of Technology',
@@ -430,6 +434,294 @@ export const INITIAL_LISTINGS = [
     status: 'active',
     views: 37,
     created_at: '2026-09-12T10:00:00Z'
+  },
+  {
+    id: '10101010-aaaa-4444-aaaa-111111111111',
+    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
+    title: 'Digital Multimeter (XL830L) with Test Probes & 9V Battery',
+    description: 'Compact digital multimeter with yellow protective holster. Measures AC/DC voltage, DC current, resistance, diode test, and continuity buzzer. Essential for troubleshooting circuit prototypes, checking sensor voltages, and verifying breadboard wiring in ICT 1108 lab.',
+    category_id: 3,
+    item_type: 'hardware',
+    price: 1450.00,
+    price_type: 'fixed',
+    condition: 'used_like_new',
+    location: 'FOT Electronics Lab 02 or Main Canteen',
+    images: [
+      'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80'
+    ],
+    status: 'active',
+    views: 35,
+    created_at: '2026-09-12T11:00:00Z'
+  },
+  {
+    id: '10101010-bbbb-4444-bbbb-222222222222',
+    user_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    title: 'LoRa SX1278 433MHz Long Range Wireless Transceiver Module (Pair)',
+    description: 'Two SX1278 433MHz LoRa wireless transceiver modules with external spring antennas and pre-soldered header pins. Features SPI communication, ultra-long range (up to 3km line-of-sight), and low power consumption. Perfect for campus remote telemetry and agricultural IoT projects.',
+    category_id: 1,
+    item_type: 'hardware',
+    price: 2600.00,
+    price_type: 'fixed',
+    condition: 'brand_new',
+    location: 'ICT Department 2nd Floor Study Room',
+    images: [
+      'https://upload.wikimedia.org/wikipedia/commons/a/af/LoRa_Module.jpg'
+    ],
+    status: 'active',
+    views: 42,
+    created_at: '2026-09-12T13:30:00Z'
+  },
+  {
+    id: '10101010-cccc-4444-cccc-333333333333',
+    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
+    title: 'RFID-RC522 13.56MHz Reader/Writer Kit + S50 White Card & Keychain Tag',
+    description: 'MFRC522 RFID reader/writer module operating at 13.56MHz SPI interface. Includes one blank S50 RFID smart card and one blue keychain RFID fob. Tested with Arduino Uno and ESP32 for campus automated student attendance prototype.',
+    category_id: 2,
+    item_type: 'hardware',
+    price: 680.00,
+    price_type: 'fixed',
+    condition: 'brand_new',
+    location: 'Faculty Library Lobby',
+    images: [
+      'https://upload.wikimedia.org/wikipedia/commons/e/ec/RFID-RC522.jpg'
+    ],
+    status: 'active',
+    views: 58,
+    created_at: '2026-09-12T15:00:00Z'
+  },
+  {
+    id: '10101010-dddd-4444-dddd-444444444444',
+    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
+    title: '24MHz 8-Channel USB Logic Analyzer for Digital Protocol Debugging',
+    description: 'USB logic analyzer with 8 digital channels supporting up to 24MHz sampling rate. Compatible with PulseView and Saleae software on Windows/Linux. Decodes I2C, SPI, UART, and 1-Wire packets in real time. Comes with USB cable and 10-pin Dupont test clip cable.',
+    category_id: 3,
+    item_type: 'hardware',
+    price: 1950.00,
+    price_type: 'fixed',
+    condition: 'used_like_new',
+    location: 'FOT Electronics Workshop / Lab 02',
+    images: [
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Saleae_Logic_Analyzer.jpg/640px-Saleae_Logic_Analyzer.jpg'
+    ],
+    status: 'active',
+    views: 44,
+    created_at: '2026-09-13T09:30:00Z'
+  },
+  {
+    id: '10101010-eeee-4444-eeee-555555555555',
+    user_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    title: 'Adjustable 60W Temperature-Controlled Soldering Iron Kit with Stand & Solder',
+    description: 'Fast-heating 60W soldering iron with adjustable temperature dial (200°C - 450°C). Comes with metallic safety stand, cleaning sponge, 5 interchangeable tip profiles, and a spool of 0.8mm lead-free rosin core solder wire. Ideal for soldering headers onto PCBs and custom shields.',
+    category_id: 3,
+    item_type: 'hardware',
+    price: 2150.00,
+    price_type: 'fixed',
+    condition: 'used_good',
+    location: 'FOT Ground Floor Lobby / Canteen',
+    images: [
+      'https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=800&auto=format&fit=crop&q=80'
+    ],
+    status: 'active',
+    views: 39,
+    created_at: '2026-09-13T11:15:00Z'
+  },
+  {
+    id: '10101010-ffff-4444-ffff-666666666666',
+    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
+    title: 'MPU-6050 6-Axis Accelerometer & Gyroscope Motion Sensor Module (I2C)',
+    description: 'High precision 3-axis gyroscope and 3-axis accelerometer sensor with onboard Digital Motion Processor (DMP). Communicates over standard I2C. Headers pre-soldered for direct breadboard mounting. Perfect for gesture tracking, drone stabilization, or robotics balance projects.',
+    category_id: 2,
+    item_type: 'hardware',
+    price: 550.00,
+    price_type: 'fixed',
+    condition: 'brand_new',
+    location: 'FOT Computer Lab 01',
+    images: [
+      'https://upload.wikimedia.org/wikipedia/commons/2/23/MPU-6050.jpg'
+    ],
+    status: 'active',
+    views: 61,
+    created_at: '2026-09-13T14:40:00Z'
+  },
+  {
+    id: '20202020-aaaa-5555-aaaa-111111111111',
+    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
+    title: 'Custom PCB Layout Design & Schematic Capture in EasyEDA / Altium',
+    description: 'Designing professional double-sided printed circuit board layouts from your project schematics. Routing optimization, DRC verification, silkscreen labeling, and exporting manufacturing-ready Gerber files, drill files, and BOM. Ideal for 2nd/3rd year hardware projects.',
+    category_id: 5,
+    item_type: 'skill',
+    price: 2500.00,
+    price_type: 'per_project',
+    condition: null,
+    location: 'FOT Electronics Lab 02 or WhatsApp',
+    images: [
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=80'
+    ],
+    status: 'active',
+    views: 52,
+    created_at: '2026-09-12T12:00:00Z'
+  },
+  {
+    id: '20202020-bbbb-5555-bbbb-222222222222',
+    user_id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
+    title: '3D CAD Mechanical Enclosure & Component Modeling in SolidWorks / Fusion 360',
+    description: 'Custom 3D CAD design for project casing, sensor brackets, robot chassis, and snap-fit enclosures. Deliverables include editable STEP/IGES files and clean watertight STL files ready for 3D printing on campus.',
+    category_id: 6,
+    item_type: 'skill',
+    price: 3000.00,
+    price_type: 'per_project',
+    condition: null,
+    location: 'FOT Discussion Room / Online',
+    images: [
+      'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?w=800&auto=format&fit=crop&q=80'
+    ],
+    status: 'active',
+    views: 66,
+    created_at: '2026-09-12T14:15:00Z'
+  },
+  {
+    id: '20202020-cccc-5555-cccc-333333333333',
+    user_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    title: 'Embedded C & Arduino Code Debugging, Logic Optimization & Sensor Calibration',
+    description: 'Troubleshooting memory leaks, timer interrupt conflicts, I2C/SPI communication errors, and sensor reading fluctuations in your Arduino/ESP32 code. In-person code review and live debugging sessions available in the lab.',
+    category_id: 5,
+    item_type: 'skill',
+    price: 1200.00,
+    price_type: 'hourly',
+    condition: null,
+    location: 'FOT Computer Lab 02',
+    images: [
+      'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80'
+    ],
+    status: 'active',
+    views: 71,
+    created_at: '2026-09-13T08:45:00Z'
+  },
+  {
+    id: '20202020-dddd-5555-dddd-444444444444',
+    user_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    title: 'MATLAB & Simulink Mathematical Modeling & Dynamic System Simulation',
+    description: 'Assisting with MATLAB script automation, matrix operations, control systems analysis (Bode plots, root locus), and Simulink block diagram modeling for engineering coursework and assignment submissions.',
+    category_id: 5,
+    item_type: 'skill',
+    price: 2200.00,
+    price_type: 'per_project',
+    condition: null,
+    location: 'Faculty Library Study Area',
+    images: [
+      'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800&auto=format&fit=crop&q=80'
+    ],
+    status: 'active',
+    views: 48,
+    created_at: '2026-09-13T10:20:00Z'
+  },
+  {
+    id: '20202020-eeee-5555-eeee-555555555555',
+    user_id: 'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44',
+    title: 'Academic English Proofreading & Technical Style Editing for Project Reports',
+    description: 'Comprehensive grammar check, vocabulary enhancement, tense consistency, and academic flow refinement for undergraduate dissertations, project proposals, and research papers. Tracked changes returned in Microsoft Word.',
+    category_id: 5,
+    item_type: 'skill',
+    price: 1000.00,
+    price_type: 'hourly',
+    condition: null,
+    location: 'Library Lobby or Email Transfer',
+    images: [
+      'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&auto=format&fit=crop&q=80'
+    ],
+    status: 'active',
+    views: 59,
+    created_at: '2026-09-13T13:10:00Z'
+  },
+  {
+    id: '20202020-ffff-5555-ffff-666666666666',
+    user_id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
+    title: 'Mobile App UI Wireframing & Interactive Prototype in Figma for HCI Coursework',
+    description: 'Designing user-centric mobile screen wireframes, color themes, icon sets, and clickable user flow transitions in Figma. Meets HCI evaluation criteria and usability inspection standards.',
+    category_id: 6,
+    item_type: 'skill',
+    price: 2400.00,
+    price_type: 'per_project',
+    condition: null,
+    location: 'ICT Department Study Room',
+    images: [
+      'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=800&auto=format&fit=crop&q=80'
+    ],
+    status: 'active',
+    views: 63,
+    created_at: '2026-09-13T15:30:00Z'
+  },
+  {
+    id: '20202020-1111-5555-1111-777777777777',
+    user_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    title: 'Database ERD Design, 3NF Normalization & SQL Query Optimization',
+    description: 'Expert guidance on designing Entity-Relationship Diagrams (Crow\'s Foot notation in Draw.io), normalizing relational schemas to BCNF/3NF, writing complex PostgreSQL queries, and indexing for fast performance.',
+    category_id: 5,
+    item_type: 'skill',
+    price: 1800.00,
+    price_type: 'per_project',
+    condition: null,
+    location: 'FOT Computer Lab 02',
+    images: [
+      'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=800&auto=format&fit=crop&q=80'
+    ],
+    status: 'active',
+    views: 54,
+    created_at: '2026-09-13T17:00:00Z'
+  },
+  {
+    id: '20202020-2222-5555-2222-888888888888',
+    user_id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
+    title: 'Student Society Event Poster, Banner & Social Media Announcement Design',
+    description: 'High-impact promotional graphics for student batch trips, welcome ceremonies, tech hackathons, and webinars. Formatted for Instagram square, Facebook banner, and A3 print resolution.',
+    category_id: 6,
+    item_type: 'skill',
+    price: 1500.00,
+    price_type: 'per_project',
+    condition: null,
+    location: 'Campus Canteen or Drive link',
+    images: [
+      'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=800&auto=format&fit=crop&q=80'
+    ],
+    status: 'active',
+    views: 60,
+    created_at: '2026-09-14T09:15:00Z'
+  },
+  {
+    id: '20202020-3333-5555-3333-999999999999',
+    user_id: 'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44',
+    title: 'Academic Demonstration Video Voiceover Narration (Sinhala / English)',
+    description: 'Crisp, studio-grade voiceover narration for final project demo videos, academic walkthroughs, and conference teasers. Recorded with studio condenser microphone, noise gated, and normalized to standard broadcast loudness.',
+    category_id: 8,
+    item_type: 'skill',
+    price: 1500.00,
+    price_type: 'per_project',
+    condition: null,
+    location: 'Digital WAV/MP3 Delivery',
+    images: [
+      'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=800&auto=format&fit=crop&q=80'
+    ],
+    status: 'active',
+    views: 41,
+    created_at: '2026-09-14T11:45:00Z'
+  },
+  {
+    id: '20202020-4444-5555-4444-aaaaaaaaaaaa',
+    user_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    title: 'Git & GitHub Collaboration Mentoring, Merge Conflict Resolution & Branching',
+    description: 'One-on-one session to organize your group project repository: Git feature-branch workflows, setting up GitHub Projects sprint boards, resolving scary merge conflicts, and preparing clean commit histories for supervisor inspection.',
+    category_id: 5,
+    item_type: 'skill',
+    price: 800.00,
+    price_type: 'hourly',
+    condition: null,
+    location: 'ICT Department Open Lab',
+    images: [
+      'https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=800&auto=format&fit=crop&q=80'
+    ],
+    status: 'active',
+    views: 77,
+    created_at: '2026-09-14T14:00:00Z'
   }
 ];
 
@@ -477,48 +769,50 @@ export const INITIAL_REVIEWS = [
 
 class ClientStore {
   constructor() {
-    this.categories = INITIAL_CATEGORIES;
-    // Always refresh profiles to safe example accounts
-    const cachedProfiles = this.load('unimart_profiles_v2', null);
+    const cachedCategories = this.load('unimart_categories_v2', null);
+    if (!cachedCategories) {
+      this.categories = INITIAL_CATEGORIES;
+      this.save('unimart_categories_v2', this.categories);
+    } else {
+      const mergedCats = [...INITIAL_CATEGORIES];
+      cachedCategories.forEach(c => {
+        if (!mergedCats.some(mc => mc.id === c.id || mc.name.toLowerCase() === c.name.toLowerCase())) {
+          mergedCats.push(c);
+        }
+      });
+      this.categories = mergedCats;
+      this.save('unimart_categories_v2', this.categories);
+    }
+    // Synchronize profiles with latest password-enforced defaults
+    const cachedProfiles = this.load('unimart_profiles_v3', null);
     if (!cachedProfiles) {
       this.profiles = INITIAL_PROFILES;
-      this.save('unimart_profiles_v2', this.profiles);
-      // Clean up any legacy profile storage
-      try {
-        localStorage.removeItem('unimart_profiles');
-        const curr = localStorage.getItem('unimart_current_user');
-        if (curr) {
-          const u = JSON.parse(curr);
-          const isKnown = INITIAL_PROFILES.some(p => p.email === u.email);
-          if (!isKnown) {
-            localStorage.setItem('unimart_current_user', JSON.stringify(INITIAL_PROFILES[0]));
-          }
-        }
-      } catch {}
+      this.save('unimart_profiles_v3', this.profiles);
     } else {
-      this.profiles = cachedProfiles;
+      // Ensure seed profiles have updated passwords and data
+      const mergedProfiles = [...cachedProfiles];
+      INITIAL_PROFILES.forEach(ip => {
+        const idx = mergedProfiles.findIndex(p => p.email.toLowerCase() === ip.email.toLowerCase());
+        if (idx !== -1) {
+          mergedProfiles[idx] = { ...mergedProfiles[idx], password: ip.password };
+        } else {
+          mergedProfiles.push(ip);
+        }
+      });
+      this.profiles = mergedProfiles;
+      this.save('unimart_profiles_v3', this.profiles);
     }
 
-    // Initialize or synchronize listings with latest multi-source verified images
-    const cachedListings = this.load('unimart_listings_v4', null);
+    // Initialize or synchronize listings with latest additions
+    const cachedListings = this.load('unimart_listings_v5', null);
     if (!cachedListings) {
       this.listings = INITIAL_LISTINGS;
-      this.save('unimart_listings_v4', this.listings);
+      this.save('unimart_listings_v5', this.listings);
     } else {
-      // Sync images and titles from INITIAL_LISTINGS
-      this.listings = cachedListings.map(item => {
-        const seedMatch = INITIAL_LISTINGS.find(s => s.id === item.id);
-        if (seedMatch) {
-          return {
-            ...item,
-            images: seedMatch.images,
-            title: seedMatch.title,
-            description: seedMatch.description
-          };
-        }
-        return item;
-      });
-      this.save('unimart_listings_v4', this.listings);
+      // Keep any user-created listings, and ensure all seed listings are present and fresh
+      const nonSeedListings = cachedListings.filter(c => !INITIAL_LISTINGS.some(s => s.id === c.id));
+      this.listings = [...INITIAL_LISTINGS, ...nonSeedListings];
+      this.save('unimart_listings_v5', this.listings);
     }
 
     this.messages = this.load('unimart_messages', INITIAL_MESSAGES);
@@ -629,6 +923,26 @@ class ClientStore {
     this.listings = this.listings.filter(l => l.id !== id);
     this.save('unimart_listings_v4', this.listings);
     return true;
+  }
+
+  addCategory(categoryData) {
+    const cleanName = (categoryData.name || '').trim();
+    const slug = cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const existing = this.categories.find(c => c.name.toLowerCase() === cleanName.toLowerCase() || c.slug === slug);
+    if (existing) return existing;
+
+    const newId = this.categories.length ? Math.max(...this.categories.map(c => c.id)) + 1 : 1;
+    const newCat = {
+      id: categoryData.id || newId,
+      name: cleanName,
+      slug,
+      type: categoryData.type || 'hardware',
+      icon: categoryData.icon || (categoryData.type === 'skill' ? 'Code' : 'Cpu'),
+      description: categoryData.description || `Custom ${categoryData.type || 'academic'} category for ${cleanName}`
+    };
+    this.categories.push(newCat);
+    this.save('unimart_categories_v2', this.categories);
+    return newCat;
   }
 
   createMessage(msg) {

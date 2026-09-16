@@ -151,6 +151,246 @@ INSERT INTO public.listings (id, user_id, title, description, category_id, item_
     'ICT Department Common Room',
     ARRAY['https://images.pexels.com/photos/164938/pexels-photo-164938.jpeg?auto=compress&cs=tinysrgb&w=800'],
     'active'
+),
+-- Hardware Listing 5
+(
+    '10101010-aaaa-4444-aaaa-111111111111',
+    'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
+    'Digital Multimeter (XL830L) with Test Probes & 9V Battery',
+    'Compact digital multimeter with yellow protective holster. Measures AC/DC voltage, DC current, resistance, diode test, and continuity buzzer. Essential for troubleshooting circuit prototypes, checking sensor voltages, and verifying breadboard wiring in ICT 1108 lab.',
+    3,
+    'hardware',
+    1450.00,
+    'fixed',
+    'used_like_new',
+    'FOT Electronics Lab 02 or Main Canteen',
+    ARRAY['https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80'],
+    'active'
+),
+-- Hardware Listing 6
+(
+    '10101010-bbbb-4444-bbbb-222222222222',
+    'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    'LoRa SX1278 433MHz Long Range Wireless Transceiver Module (Pair)',
+    'Two SX1278 433MHz LoRa wireless transceiver modules with external spring antennas and pre-soldered header pins. Features SPI communication, ultra-long range (up to 3km line-of-sight), and low power consumption. Perfect for campus remote telemetry and agricultural IoT projects.',
+    1,
+    'hardware',
+    2600.00,
+    'fixed',
+    'brand_new',
+    'ICT Department 2nd Floor Study Room',
+    ARRAY['https://upload.wikimedia.org/wikipedia/commons/a/af/LoRa_Module.jpg'],
+    'active'
+),
+-- Hardware Listing 7
+(
+    '10101010-cccc-4444-cccc-333333333333',
+    'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
+    'RFID-RC522 13.56MHz Reader/Writer Kit + S50 White Card & Keychain Tag',
+    'MFRC522 RFID reader/writer module operating at 13.56MHz SPI interface. Includes one blank S50 RFID smart card and one blue keychain RFID fob. Tested with Arduino Uno and ESP32 for campus automated student attendance prototype.',
+    2,
+    'hardware',
+    680.00,
+    'fixed',
+    'brand_new',
+    'Faculty Library Lobby',
+    ARRAY['https://upload.wikimedia.org/wikipedia/commons/e/ec/RFID-RC522.jpg'],
+    'active'
+),
+-- Hardware Listing 8
+(
+    '10101010-dddd-4444-dddd-444444444444',
+    'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
+    '24MHz 8-Channel USB Logic Analyzer for Digital Protocol Debugging',
+    'USB logic analyzer with 8 digital channels supporting up to 24MHz sampling rate. Compatible with PulseView and Saleae software on Windows/Linux. Decodes I2C, SPI, UART, and 1-Wire packets in real time. Comes with USB cable and 10-pin Dupont test clip cable.',
+    3,
+    'hardware',
+    1950.00,
+    'fixed',
+    'used_like_new',
+    'FOT Electronics Workshop / Lab 02',
+    ARRAY['https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Saleae_Logic_Analyzer.jpg/640px-Saleae_Logic_Analyzer.jpg'],
+    'active'
+),
+-- Hardware Listing 9
+(
+    '10101010-eeee-4444-eeee-555555555555',
+    'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    'Adjustable 60W Temperature-Controlled Soldering Iron Kit with Stand & Solder',
+    'Fast-heating 60W soldering iron with adjustable temperature dial (200°C - 450°C). Comes with metallic safety stand, cleaning sponge, 5 interchangeable tip profiles, and a spool of 0.8mm lead-free rosin core solder wire. Ideal for soldering headers onto PCBs and custom shields.',
+    3,
+    'hardware',
+    2150.00,
+    'fixed',
+    'used_good',
+    'FOT Ground Floor Lobby / Canteen',
+    ARRAY['https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=800&auto=format&fit=crop&q=80'],
+    'active'
+),
+-- Hardware Listing 10
+(
+    '10101010-ffff-4444-ffff-666666666666',
+    'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
+    'MPU-6050 6-Axis Accelerometer & Gyroscope Motion Sensor Module (I2C)',
+    'High precision 3-axis gyroscope and 3-axis accelerometer sensor with onboard Digital Motion Processor (DMP). Communicates over standard I2C. Headers pre-soldered for direct breadboard mounting. Perfect for gesture tracking, drone stabilization, or robotics balance projects.',
+    2,
+    'hardware',
+    550.00,
+    'fixed',
+    'brand_new',
+    'FOT Computer Lab 01',
+    ARRAY['https://upload.wikimedia.org/wikipedia/commons/2/23/MPU-6050.jpg'],
+    'active'
+),
+-- Skill Listing 5
+(
+    '20202020-aaaa-5555-aaaa-111111111111',
+    'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
+    'Custom PCB Layout Design & Schematic Capture in EasyEDA / Altium',
+    'Designing professional double-sided printed circuit board layouts from your project schematics. Routing optimization, DRC verification, silkscreen labeling, and exporting manufacturing-ready Gerber files, drill files, and BOM. Ideal for 2nd/3rd year hardware projects.',
+    5,
+    'skill',
+    2500.00,
+    'per_project',
+    NULL,
+    'FOT Electronics Lab 02 or WhatsApp',
+    ARRAY['https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=80'],
+    'active'
+),
+-- Skill Listing 6
+(
+    '20202020-bbbb-5555-bbbb-222222222222',
+    'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
+    '3D CAD Mechanical Enclosure & Component Modeling in SolidWorks / Fusion 360',
+    'Custom 3D CAD design for project casing, sensor brackets, robot chassis, and snap-fit enclosures. Deliverables include editable STEP/IGES files and clean watertight STL files ready for 3D printing on campus.',
+    6,
+    'skill',
+    3000.00,
+    'per_project',
+    NULL,
+    'FOT Discussion Room / Online',
+    ARRAY['https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?w=800&auto=format&fit=crop&q=80'],
+    'active'
+),
+-- Skill Listing 7
+(
+    '20202020-cccc-5555-cccc-333333333333',
+    'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    'Embedded C & Arduino Code Debugging, Logic Optimization & Sensor Calibration',
+    'Troubleshooting memory leaks, timer interrupt conflicts, I2C/SPI communication errors, and sensor reading fluctuations in your Arduino/ESP32 code. In-person code review and live debugging sessions available in the lab.',
+    5,
+    'skill',
+    1200.00,
+    'hourly',
+    NULL,
+    'FOT Computer Lab 02',
+    ARRAY['https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80'],
+    'active'
+),
+-- Skill Listing 8
+(
+    '20202020-dddd-5555-dddd-444444444444',
+    'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    'MATLAB & Simulink Mathematical Modeling & Dynamic System Simulation',
+    'Assisting with MATLAB script automation, matrix operations, control systems analysis (Bode plots, root locus), and Simulink block diagram modeling for engineering coursework and assignment submissions.',
+    5,
+    'skill',
+    2200.00,
+    'per_project',
+    NULL,
+    'Faculty Library Study Area',
+    ARRAY['https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800&auto=format&fit=crop&q=80'],
+    'active'
+),
+-- Skill Listing 9
+(
+    '20202020-eeee-5555-eeee-555555555555',
+    'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44',
+    'Academic English Proofreading & Technical Style Editing for Project Reports',
+    'Comprehensive grammar check, vocabulary enhancement, tense consistency, and academic flow refinement for undergraduate dissertations, project proposals, and research papers. Tracked changes returned in Microsoft Word.',
+    5,
+    'skill',
+    1000.00,
+    'hourly',
+    NULL,
+    'Library Lobby or Email Transfer',
+    ARRAY['https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&auto=format&fit=crop&q=80'],
+    'active'
+),
+-- Skill Listing 10
+(
+    '20202020-ffff-5555-ffff-666666666666',
+    'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
+    'Mobile App UI Wireframing & Interactive Prototype in Figma for HCI Coursework',
+    'Designing user-centric mobile screen wireframes, color themes, icon sets, and clickable user flow transitions in Figma. Meets HCI evaluation criteria and usability inspection standards.',
+    6,
+    'skill',
+    2400.00,
+    'per_project',
+    NULL,
+    'ICT Department Study Room',
+    ARRAY['https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=800&auto=format&fit=crop&q=80'],
+    'active'
+),
+-- Skill Listing 11
+(
+    '20202020-1111-5555-1111-777777777777',
+    'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    'Database ERD Design, 3NF Normalization & SQL Query Optimization',
+    'Expert guidance on designing Entity-Relationship Diagrams (Crow\'s Foot notation in Draw.io), normalizing relational schemas to BCNF/3NF, writing complex PostgreSQL queries, and indexing for fast performance.',
+    5,
+    'skill',
+    1800.00,
+    'per_project',
+    NULL,
+    'FOT Computer Lab 02',
+    ARRAY['https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=800&auto=format&fit=crop&q=80'],
+    'active'
+),
+-- Skill Listing 12
+(
+    '20202020-2222-5555-2222-888888888888',
+    'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
+    'Student Society Event Poster, Banner & Social Media Announcement Design',
+    'High-impact promotional graphics for student batch trips, welcome ceremonies, tech hackathons, and webinars. Formatted for Instagram square, Facebook banner, and A3 print resolution.',
+    6,
+    'skill',
+    1500.00,
+    'per_project',
+    NULL,
+    'Campus Canteen or Drive link',
+    ARRAY['https://images.unsplash.com/photo-1626785774573-4b799315345d?w=800&auto=format&fit=crop&q=80'],
+    'active'
+),
+-- Skill Listing 13
+(
+    '20202020-3333-5555-3333-999999999999',
+    'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44',
+    'Academic Demonstration Video Voiceover Narration (Sinhala / English)',
+    'Crisp, studio-grade voiceover narration for final project demo videos, academic walkthroughs, and conference teasers. Recorded with studio condenser microphone, noise gated, and normalized to standard broadcast loudness.',
+    8,
+    'skill',
+    1500.00,
+    'per_project',
+    NULL,
+    'Digital WAV/MP3 Delivery',
+    ARRAY['https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=800&auto=format&fit=crop&q=80'],
+    'active'
+),
+-- Skill Listing 14
+(
+    '20202020-4444-5555-4444-aaaaaaaaaaaa',
+    'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    'Git & GitHub Collaboration Mentoring, Merge Conflict Resolution & Branching',
+    'One-on-one session to organize your group project repository: Git feature-branch workflows, setting up GitHub Projects sprint boards, resolving scary merge conflicts, and preparing clean commit histories for supervisor inspection.',
+    5,
+    'skill',
+    800.00,
+    'hourly',
+    NULL,
+    'ICT Department Open Lab',
+    ARRAY['https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=800&auto=format&fit=crop&q=80'],
+    'active'
 )
 ON CONFLICT (id) DO NOTHING;
 

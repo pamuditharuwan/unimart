@@ -187,6 +187,25 @@ class MemoryDatabase {
     return this.categories;
   }
 
+  addCategory(categoryData) {
+    const cleanName = (categoryData.name || '').trim();
+    const slug = cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const existing = this.categories.find(c => c.name.toLowerCase() === cleanName.toLowerCase() || c.slug === slug);
+    if (existing) return existing;
+
+    const newId = this.categories.length ? Math.max(...this.categories.map(c => c.id)) + 1 : 1;
+    const newCat = {
+      id: newId,
+      name: cleanName,
+      slug,
+      type: categoryData.type || 'hardware',
+      icon: categoryData.icon || (categoryData.type === 'skill' ? 'Code' : 'Cpu'),
+      description: categoryData.description || `Custom ${categoryData.type || 'academic'} category for ${cleanName}`
+    };
+    this.categories.push(newCat);
+    return newCat;
+  }
+
   // Messages
   getUserConversations(userId) {
     const userMessages = this.messages.filter(

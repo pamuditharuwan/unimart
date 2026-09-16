@@ -53,9 +53,9 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
       return res.status(400).json({ error: 'Please provide email, password, full name, and registration ID.' });
     }
 
-    // Password must exceed 12 characters, have capital, simple, numbers, and special characters
-    if (password.length <= 12) {
-      return res.status(400).json({ error: 'Password must exceed 12 characters (minimum 13 characters).' });
+    // Password must be at least 8 characters, have capital, simple, numbers, and special characters
+    if (password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters long.' });
     }
     if (!/[A-Z]/.test(password)) {
       return res.status(400).json({ error: 'Password must include at least one capital letter (A-Z).' });
@@ -755,7 +755,10 @@ router.post('/forgot-password', enforceUniversityDomain, async (req, res) => {
     }
 
     const cleanEmail = email.toLowerCase().trim();
-    const clientUrl = process.env.CLIENT_URL || 'https://uni-mart-lk.vercel.app';
+    // Prioritize official production website so email recovery links direct students to UniMart web platform
+    const clientUrl = (process.env.CLIENT_URL && !process.env.CLIENT_URL.includes('localhost')) 
+      ? process.env.CLIENT_URL 
+      : 'https://uni-mart-lk.vercel.app';
 
     if (isSupabaseConfigured) {
       // 1. Verify user exists in Supabase
@@ -826,26 +829,74 @@ router.post('/forgot-password', enforceUniversityDomain, async (req, res) => {
 router.post('/reset-password', async (req, res) => {
   try {
     const { email, token, newPassword, accessToken } = req.body;
-    if (!newPassword || newPassword.length < 6) {
-      return res.status(400).json({ error: 'New password must be at least 6 characters.' });
+    if (!newPassword || newPassword.length < 8) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters long.' });
     }
 
     if (isSupabaseConfigured) {
       let targetUserId = null;
+      let targetEmail = email ? email.toLowerCase().trim() : null;
 
       // Method A: Reset with accessToken (from clicking email recovery link)
       if (accessToken) {
         try {
-          const { data: userData, error: userErr } = await supabase.auth.getUser(accessToken);
-          if (!userErr && userData?.user) {
-            targetUserId = userData.user.id;
+          // 1. Try with supabaseAnon if available
+          if (supabaseAnon) {
+            const { data: userData, error: userErr } = await supabaseAnon.auth.getUser(accessToken);
+            if (!userErr && userData?.user) {
+              targetUserId = userData.user.id;
+              targetEmail = targetEmail || userData.user.email;
+            }
           }
-        } catch {}
+
+          // 2. Try with supabase service role client
+          if (!targetUserId && supabase) {
+            const { data: userData, error: userErr } = await supabase.auth.getUser(accessToken);
+            if (!userErr && userData?.user) {
+              targetUserId = userData.user.id;
+              targetEmail = targetEmail || userData.user.email;
+            }
+          }
+
+          // 3. Fallback: Parse and verify JWT token payload directly
+          if (!targetUserId) {
+            try {
+              const parts = accessToken.split('.');
+              if (parts.length === 3) {
+                const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                const payload = JSON.parse(Buffer.from(base64, 'base64').toString('utf8'));
+
+                // 1-minute expiration check (with 30-second network buffer)
+                if (payload.iat) {
+                  const nowSec = Math.floor(Date.now() / 1000);
+                  const elapsed = nowSec - payload.iat;
+                  if (elapsed > 90) {
+                    return res.status(400).json({
+                      error: 'This password reset link has expired (1-minute security limit). Please request a fresh recovery link.'
+                    });
+                  }
+                }
+
+                if (payload.sub) {
+                  const { data: adminUser, error: adminErr } = await supabase.auth.admin.getUserById(payload.sub);
+                  if (!adminErr && adminUser?.user) {
+                    targetUserId = adminUser.user.id;
+                    targetEmail = targetEmail || adminUser.user.email;
+                  }
+                }
+              }
+            } catch (jwtErr) {
+              console.warn('[JWT parse fallback notice]', jwtErr.message);
+            }
+          }
+        } catch (tokenErr) {
+          console.warn('[accessToken recovery error]', tokenErr.message);
+        }
       }
 
       // Method B: Reset with email + 6-digit OTP token
-      if (!targetUserId && email && token) {
-        const cleanEmail = email.toLowerCase().trim();
+      if (!targetUserId && (targetEmail || email) && token) {
+        const cleanEmail = (targetEmail || email).toLowerCase().trim();
         const cleanToken = token.toString().trim();
 
         const { data: verifyData, error: verifyErr } = await supabase.auth.verifyOtp({

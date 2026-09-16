@@ -71,7 +71,7 @@ export default function Register() {
 
   // Real-time password criteria validation
   const passwordRules = {
-    hasLength: password.length > 12, // Must exceed 12 characters (at least 13)
+    hasLength: password.length >= 8, // Minimum 8 characters
     hasUpper: /[A-Z]/.test(password),
     hasLower: /[a-z]/.test(password),
     hasNumber: /[0-9]/.test(password),
@@ -118,7 +118,7 @@ export default function Register() {
     }
 
     if (!passwordRules.hasLength) {
-      setError('Password must exceed 12 characters (minimum 13 characters).');
+      setError('Password must be at least 8 characters long.');
       return;
     }
 
@@ -605,13 +605,13 @@ export default function Register() {
           <div className="space-y-3 pt-1 border-t border-slate-100">
             <div>
               <label className="block font-semibold text-slate-800 mb-1">
-                Password (must exceed 12 characters) *
+                Password (minimum 8 characters) *
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="•••••••••••••"
+                placeholder="••••••••"
                 className="w-full text-sm px-3 py-2 bg-white border border-slate-300 rounded focus:outline-none focus:border-[#0d9488] text-slate-900"
                 required
               />
@@ -625,7 +625,7 @@ export default function Register() {
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="•••••••••••••"
+                placeholder="••••••••"
                 className={`w-full text-sm px-3 py-2 bg-white border rounded focus:outline-none text-slate-900 ${
                   confirmPassword && !passwordRules.matches
                     ? 'border-rose-400 focus:border-rose-500'
@@ -644,7 +644,7 @@ export default function Register() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[10px]">
                   <div className={`flex items-center gap-1.5 ${passwordRules.hasLength ? 'text-emerald-700 font-semibold' : 'text-slate-500'}`}>
                     {passwordRules.hasLength ? <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> : <div className="w-3.5 h-3.5 rounded-full border border-slate-300 shrink-0" />}
-                    <span>Exceeds 12 chars ({password.length}/13+)</span>
+                    <span>At least 8 chars ({password.length}/8+)</span>
                   </div>
 
                   <div className={`flex items-center gap-1.5 ${passwordRules.hasUpper ? 'text-emerald-700 font-semibold' : 'text-slate-500'}`}>

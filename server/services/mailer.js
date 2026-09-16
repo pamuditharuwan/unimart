@@ -269,7 +269,7 @@ export async function sendPasswordResetEmail({ email, fullName, university, acti
               </div>
             ` : ''}
             <div class="alert-box">
-              <strong>Security Notice:</strong> This recovery link and code will expire in 1 hour. If you did not request a password reset, please disregard this message; your account remains secure.
+              <strong>Security Notice:</strong> This recovery link and 6-digit code will expire in 1 minute (60 seconds). If you did not request a password reset, please disregard this message; your account remains secure.
             </div>
           </div>
           <div class="footer">
