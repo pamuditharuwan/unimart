@@ -193,9 +193,9 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
           }
         }
 
-        // Always dispatch real verification email via Nodemailer
-        try {
-          if (!actionLink || !emailOtp) {
+        // Ensure a 6-digit verification code is generated
+        if (!emailOtp) {
+          try {
             const { data: linkData } = await supabase.auth.admin.generateLink({
               type: 'signup',
               email: cleanEmail,
@@ -204,11 +204,23 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
                 redirectTo: `${clientUrl}/login?confirmed=true`
               }
             }).catch(() => ({}));
-            if (linkData?.properties) {
-              actionLink = linkData.properties.action_link;
+            if (linkData?.properties?.email_otp) {
               emailOtp = linkData.properties.email_otp;
+              actionLink = linkData.properties.action_link;
             }
-          }
+          } catch {}
+        }
+
+        if (!emailOtp) {
+          emailOtp = Math.floor(100000 + Math.random() * 900000).toString();
+        }
+
+        if (!actionLink) {
+          actionLink = `${clientUrl}/verify-email?email=${encodeURIComponent(cleanEmail)}&code=${emailOtp}`;
+        }
+
+        // Always dispatch real verification email via Nodemailer
+        try {
           console.log(`\n========================================\n📧 [SENDING VERIFICATION EMAIL]\nTo: ${cleanEmail}\nOTP Code: ${emailOtp}\n========================================\n`);
           await sendVerificationEmail({
             email: cleanEmail,

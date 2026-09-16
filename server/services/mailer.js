@@ -3,12 +3,15 @@
 // Supports custom SMTP (Gmail, Resend, Brevo, Uni SMTP)
 // ==========================================================
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+dotenv.config();
 
 function getTransporter() {
   const host = process.env.SMTP_HOST;
   const port = parseInt(process.env.SMTP_PORT || '587', 10);
   const user = process.env.SMTP_USER || process.env.GMAIL_USER;
-  const pass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
+  const rawPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
+  const pass = rawPass ? rawPass.replace(/\s+/g, '') : '';
 
   if (!user || !pass) {
     return null;
