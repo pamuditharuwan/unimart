@@ -86,71 +86,27 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
       : 'Faculty of Technology';
 
     if (isSupabaseConfigured) {
-      // 1. Check if email already registered in profiles and Supabase Auth
-      const { data: existingUser } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', cleanEmail)
-        .single();
+      // 1. Check if user already exists in Supabase Auth
+      const { data: userList } = await supabase.auth.admin.listUsers();
+      const authUser = userList?.users?.find(u => u.email?.toLowerCase() === cleanEmail);
 
-      if (existingUser) {
-        // Verify if user actually exists in Supabase Auth
-        const { data: userList } = await supabase.auth.admin.listUsers();
-        const authUser = userList?.users?.find(u => u.email?.toLowerCase() === cleanEmail);
-
-        const authPassword = toSupabasePassword(password);
-        if (authUser) {
-          // If already confirmed, inform the user to sign in
-          if (authUser.email_confirmed_at) {
-            return res.status(400).json({
-              error: 'An account with this university email is already registered and verified. Please sign in.',
-              code: 'ACCOUNT_EXISTS',
-              email: cleanEmail
-            });
-          }
-
-          // If awaiting verification, dispatch a fresh 6-digit code to their email
-          const emailOtp = Math.floor(100000 + Math.random() * 900000).toString();
-          pendingVerificationOtps.set(cleanEmail, {
-            otp: emailOtp,
-            userId: authUser.id,
-            password: authPassword,
-            expiresAt: Date.now() + 15 * 60 * 1000
-          });
-
-          console.log(`\n========================================\n📧 [RESENDING VERIFICATION EMAIL]\nTo: ${cleanEmail}\nOTP Code: ${emailOtp}\n========================================\n`);
-
-          await sendVerificationEmail({
-            email: cleanEmail,
-            fullName: full_name || authUser?.user_metadata?.full_name || 'Student',
-            university: detectedUni,
-            otp: emailOtp
-          });
-
-          return res.status(200).json({
-            requiresEmailConfirmation: true,
-            message: `A verification code has been dispatched to ${cleanEmail}. Please enter the code to complete registration.`,
-            email: cleanEmail,
-            university: detectedUni
-          });
-        } else {
-          // Orphaned profile row without corresponding auth user -> clean up old row to allow fresh registration
-          console.log(`Cleaning up orphaned profile ${existingUser.id} for ${cleanEmail}`);
-          await supabase.from('profiles').delete().eq('id', existingUser.id);
-        }
-      }
-
-      // 2. Register with Supabase Auth (email_confirm: false until verified with 6-digit code)
-      const clientUrl = process.env.CLIENT_URL || 'https://uni-mart-lk.vercel.app';
-      let userId = uuidv4();
       const authPassword = toSupabasePassword(password);
-      const emailOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      let userId = uuidv4();
 
-      try {
-        const { data: adminUser, error: adminErr } = await supabase.auth.admin.createUser({
-          email: cleanEmail,
+      if (authUser) {
+        // If already confirmed, inform the user to sign in
+        if (authUser.email_confirmed_at) {
+          return res.status(400).json({
+            error: 'An account with this university email is already registered and verified. Please sign in.',
+            code: 'ACCOUNT_EXISTS',
+            email: cleanEmail
+          });
+        }
+
+        // Account exists but awaiting verification: update credentials & metadata
+        userId = authUser.id;
+        await supabase.auth.admin.updateUserById(authUser.id, {
           password: authPassword,
-          email_confirm: false,
           user_metadata: {
             full_name,
             reg_id,
@@ -159,16 +115,35 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
             phone_number: phone_number || '',
             university: detectedUni
           }
-        });
+        }).catch(err => console.warn('[Supabase update note]', err?.message));
+      } else {
+        // Register new user with Supabase Auth (email_confirm: false until verified with 6-digit code)
+        try {
+          const { data: adminUser, error: adminErr } = await supabase.auth.admin.createUser({
+            email: cleanEmail,
+            password: authPassword,
+            email_confirm: false,
+            user_metadata: {
+              full_name,
+              reg_id,
+              faculty: faculty || defaultFaculty,
+              department: department || '',
+              phone_number: phone_number || '',
+              university: detectedUni
+            }
+          });
 
-        if (adminUser?.user) {
-          userId = adminUser.user.id;
-        } else {
-          console.warn('[Supabase admin create note]', adminErr?.message);
+          if (adminUser?.user) {
+            userId = adminUser.user.id;
+          } else {
+            console.warn('[Supabase admin create note]', adminErr?.message);
+          }
+        } catch (authErr) {
+          console.warn('Supabase auth registration notice:', authErr);
         }
-      } catch (authErr) {
-        console.warn('Supabase auth registration notice:', authErr);
       }
+
+      const emailOtp = Math.floor(100000 + Math.random() * 900000).toString();
 
       const profileData = {
         id: userId,

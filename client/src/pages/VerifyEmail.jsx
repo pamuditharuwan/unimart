@@ -24,7 +24,7 @@ import { parseSriLankanUniversityEmail } from '../utils/universityDomains';
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user, isAuthenticated, verifyOtp } = useAuth();
+  const { user, isAuthenticated, verifyOtp, logout } = useAuth();
   const { addToast } = useToast();
 
   const queryEmail = searchParams.get('email') || user?.email || '';
@@ -56,16 +56,12 @@ export default function VerifyEmail() {
   // University domain validation for displayed email
   const emailAnalysis = parseSriLankanUniversityEmail(email);
 
-  // If already authenticated and verified, redirect to home
+  // Clear any stale previous session from other accounts (e.g. dummy accounts)
   useEffect(() => {
-    if (isAuthenticated && user && user.email_confirmed !== false && !success) {
-      // User is already verified
-      const timer = setTimeout(() => {
-        navigate('/');
-      }, 1000);
-      return () => clearTimeout(timer);
+    if (email && user && user.email?.toLowerCase() !== email.toLowerCase()) {
+      if (logout) logout();
     }
-  }, [isAuthenticated, user, navigate, success]);
+  }, [email, user, logout]);
 
   // Handle countdown timer
   useEffect(() => {

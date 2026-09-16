@@ -17,20 +17,6 @@ export const INITIAL_CATEGORIES = [
 
 export const INITIAL_PROFILES = [
   {
-    id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-    email: 'kavindu.p@student.rjt.ac.lk',
-    password: 'Password123',
-    full_name: 'Kavindu Perera',
-    reg_id: 'ICT/2024/001',
-    faculty: 'Faculty of Technology',
-    department: 'Department of ICT',
-    bio: 'BICT undergraduate at Rajarata University. Building embedded IoT prototypes and full-stack web applications.',
-    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    phone_number: '0712345678',
-    rating_avg: 4.9,
-    rating_count: 12
-  },
-  {
     id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
     email: 'anuki.d@student.rjt.ac.lk',
     password: 'Password123',
@@ -77,7 +63,7 @@ export const INITIAL_PROFILES = [
 export const INITIAL_LISTINGS = [
   {
     id: '11111111-1111-1111-1111-111111111111',
-    user_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     title: 'Arduino Uno R3 Original + 830-Point Breadboard & Jumpers',
     description: 'Gently used original Arduino Uno R3 development board tested in ICT 1108 lab coursework. Package includes blue high-speed USB cable, a full-sized 830-point solderless breadboard, and 65 male-to-male flexible jumper wires. Tested and fully functional. Can test together in the lab before taking it!',
     category_id: 1,
@@ -131,7 +117,7 @@ export const INITIAL_LISTINGS = [
   },
   {
     id: '44444444-4444-4444-4444-444444444444',
-    user_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     title: '0.96 inch I2C OLED Display Module (128x64 Blue/Yellow)',
     description: 'Crisp 0.96 inch graphic OLED screen with 4-pin I2C interface (VCC, GND, SCL, SDA). Pre-soldered header pins, ready for instant breadboard use. Compatible with Adafruit SSD1306 and U8g2 libraries.',
     category_id: 4,
@@ -149,7 +135,7 @@ export const INITIAL_LISTINGS = [
   },
   {
     id: '55555555-5555-5555-5555-555555555555',
-    user_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     title: 'Modern Responsive Web Design & Coursework Frontend Coding',
     description: 'Offering front-end web development services for undergraduate projects, student societies, or personal portfolios. Built using modern React.js, Tailwind CSS, or clean HTML5/CSS3. Fast turnaround, clean code, and fully mobile-friendly.',
     category_id: 5,
@@ -221,7 +207,7 @@ export const INITIAL_LISTINGS = [
   },
   {
     id: 'aaaa1111-aaaa-1111-aaaa-111111111111',
-    user_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     title: 'Raspberry Pi 4 Model B (4GB RAM) with Aluminum Armor Case & Fan',
     description: 'Fully functional Raspberry Pi 4 Model B 4GB version used for a semester IoT edge AI project. Includes passive/active aluminum dual-fan armor heatsink case, official 5.1V 3A USB-C power supply, and 32GB SanDisk Ultra MicroSD card pre-loaded with Raspberry Pi OS. Perfect for computer vision or home automation coursework.',
     category_id: 1,
@@ -275,7 +261,7 @@ export const INITIAL_LISTINGS = [
   },
   {
     id: 'dddd4444-dddd-4444-dddd-444444444444',
-    user_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     title: 'MB-102 Breadboard Power Supply (3.3V/5V) + 9V DC Battery Connector',
     description: 'Plug-in dual voltage power supply module for standard 830-point and 400-point breadboards. Independent power rails switchable between 3.3V, 5V, or OFF via jumpers. Includes 9V DC battery snap connector with barrel jack.',
     category_id: 3,
@@ -311,7 +297,7 @@ export const INITIAL_LISTINGS = [
   },
   {
     id: 'ffff6666-ffff-6666-ffff-666666666666',
-    user_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     title: 'STM32F103C8T6 ARM Cortex-M3 "Blue Pill" Board + ST-Link V2 Programmer',
     description: 'Original 72MHz 32-bit ARM Cortex-M3 microcontroller development board with pre-soldered header pins. Includes ST-Link V2 USB debugger/programmer and 4-pin SWD jumper cable. Can be programmed with Arduino IDE, Keil, or STM32CubeIDE.',
     category_id: 1,
@@ -347,7 +333,7 @@ export const INITIAL_LISTINGS = [
   },
   {
     id: 'bbbb8888-bbbb-8888-bbbb-888888888888',
-    user_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     title: 'LaTeX & Overleaf Formatting for Final Year Research Papers (IEEE Standard)',
     description: 'Professional LaTeX document formatting for research papers, dissertation chapters, and technical symposium submissions following standard IEEE double-column format. Includes BibTeX bibliography compilation, equation formatting, and figure placement.',
     category_id: 5,
@@ -455,7 +441,7 @@ export const INITIAL_LISTINGS = [
   },
   {
     id: '10101010-bbbb-4444-bbbb-222222222222',
-    user_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     title: 'LoRa SX1278 433MHz Long Range Wireless Transceiver Module (Pair)',
     description: 'Two SX1278 433MHz LoRa wireless transceiver modules with external spring antennas and pre-soldered header pins. Features SPI communication, ultra-long range (up to 3km line-of-sight), and low power consumption. Perfect for campus remote telemetry and agricultural IoT projects.',
     category_id: 1,
@@ -509,7 +495,7 @@ export const INITIAL_LISTINGS = [
   },
   {
     id: '10101010-eeee-4444-eeee-555555555555',
-    user_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     title: 'Adjustable 60W Temperature-Controlled Soldering Iron Kit with Stand & Solder',
     description: 'Fast-heating 60W soldering iron with adjustable temperature dial (200°C - 450°C). Comes with metallic safety stand, cleaning sponge, 5 interchangeable tip profiles, and a spool of 0.8mm lead-free rosin core solder wire. Ideal for soldering headers onto PCBs and custom shields.',
     category_id: 3,
@@ -581,7 +567,7 @@ export const INITIAL_LISTINGS = [
   },
   {
     id: '20202020-cccc-5555-cccc-333333333333',
-    user_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     title: 'Embedded C & Arduino Code Debugging, Logic Optimization & Sensor Calibration',
     description: 'Troubleshooting memory leaks, timer interrupt conflicts, I2C/SPI communication errors, and sensor reading fluctuations in your Arduino/ESP32 code. In-person code review and live debugging sessions available in the lab.',
     category_id: 5,
@@ -599,7 +585,7 @@ export const INITIAL_LISTINGS = [
   },
   {
     id: '20202020-dddd-5555-dddd-444444444444',
-    user_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     title: 'MATLAB & Simulink Mathematical Modeling & Dynamic System Simulation',
     description: 'Assisting with MATLAB script automation, matrix operations, control systems analysis (Bode plots, root locus), and Simulink block diagram modeling for engineering coursework and assignment submissions.',
     category_id: 5,
@@ -653,7 +639,7 @@ export const INITIAL_LISTINGS = [
   },
   {
     id: '20202020-1111-5555-1111-777777777777',
-    user_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     title: 'Database ERD Design, 3NF Normalization & SQL Query Optimization',
     description: 'Expert guidance on designing Entity-Relationship Diagrams (Crow\'s Foot notation in Draw.io), normalizing relational schemas to BCNF/3NF, writing complex PostgreSQL queries, and indexing for fast performance.',
     category_id: 5,
@@ -707,7 +693,7 @@ export const INITIAL_LISTINGS = [
   },
   {
     id: '20202020-4444-5555-4444-aaaaaaaaaaaa',
-    user_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     title: 'Git & GitHub Collaboration Mentoring, Merge Conflict Resolution & Branching',
     description: 'One-on-one session to organize your group project repository: Git feature-branch workflows, setting up GitHub Projects sprint boards, resolving scary merge conflicts, and preparing clean commit histories for supervisor inspection.',
     category_id: 5,
@@ -729,15 +715,15 @@ export const INITIAL_MESSAGES = [
   {
     id: '99999999-9999-9999-9999-999999999991',
     sender_id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
-    receiver_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    receiver_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     listing_id: '11111111-1111-1111-1111-111111111111',
-    content: 'Hi Kavindu, is the Arduino Uno board still available? Can we meet at the FOT Electronics Lab tomorrow around 1:00 PM?',
+    content: 'Hi Dinuka, is the Arduino Uno board still available? Can we meet at the FOT Electronics Lab tomorrow around 1:00 PM?',
     is_read: true,
     created_at: '2026-09-12T07:15:00Z'
   },
   {
     id: '99999999-9999-9999-9999-999999999992',
-    sender_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    sender_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     receiver_id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
     listing_id: '11111111-1111-1111-1111-111111111111',
     content: 'Hi Anuki! Yes, it is available. 1:00 PM at Lab 02 works great for me. You can test it on a lab PC before paying.',
@@ -750,7 +736,7 @@ export const INITIAL_REVIEWS = [
   {
     id: '88888888-9999-9999-9999-999999999991',
     reviewer_id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
-    reviewee_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    reviewee_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     listing_id: '11111111-1111-1111-1111-111111111111',
     rating: 5,
     comment: 'Great experience! The Arduino board was in mint condition and worked right away in our embedded systems lab assignment. Super friendly peer!',
@@ -769,6 +755,17 @@ export const INITIAL_REVIEWS = [
 
 class ClientStore {
   constructor() {
+    // Purge any stored Kavindu dummy account from browser localStorage
+    try {
+      const storedUser = localStorage.getItem('unimart_current_user');
+      if (storedUser && (storedUser.includes('kavindu') || storedUser.includes('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'))) {
+        localStorage.removeItem('unimart_current_user');
+        localStorage.removeItem('unimart_token');
+      }
+      localStorage.removeItem('unimart_profiles_v2');
+      localStorage.removeItem('unimart_profiles_v3');
+    } catch {}
+
     const cachedCategories = this.load('unimart_categories_v2', null);
     if (!cachedCategories) {
       this.categories = INITIAL_CATEGORIES;
@@ -783,14 +780,16 @@ class ClientStore {
       this.categories = mergedCats;
       this.save('unimart_categories_v2', this.categories);
     }
+
     // Synchronize profiles with latest password-enforced defaults
-    const cachedProfiles = this.load('unimart_profiles_v3', null);
+    const cachedProfiles = this.load('unimart_profiles_v4', null);
     if (!cachedProfiles) {
       this.profiles = INITIAL_PROFILES;
-      this.save('unimart_profiles_v3', this.profiles);
+      this.save('unimart_profiles_v4', this.profiles);
     } else {
-      // Ensure seed profiles have updated passwords and data
-      const mergedProfiles = [...cachedProfiles];
+      // Filter out any legacy dummy profiles
+      const cleaned = cachedProfiles.filter(p => !p.email?.includes('kavindu') && p.id !== 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
+      const mergedProfiles = [...cleaned];
       INITIAL_PROFILES.forEach(ip => {
         const idx = mergedProfiles.findIndex(p => p.email.toLowerCase() === ip.email.toLowerCase());
         if (idx !== -1) {
@@ -800,19 +799,18 @@ class ClientStore {
         }
       });
       this.profiles = mergedProfiles;
-      this.save('unimart_profiles_v3', this.profiles);
+      this.save('unimart_profiles_v4', this.profiles);
     }
 
     // Initialize or synchronize listings with latest additions
-    const cachedListings = this.load('unimart_listings_v5', null);
+    const cachedListings = this.load('unimart_listings_v6', null);
     if (!cachedListings) {
       this.listings = INITIAL_LISTINGS;
-      this.save('unimart_listings_v5', this.listings);
+      this.save('unimart_listings_v6', this.listings);
     } else {
-      // Keep any user-created listings, and ensure all seed listings are present and fresh
       const nonSeedListings = cachedListings.filter(c => !INITIAL_LISTINGS.some(s => s.id === c.id));
       this.listings = [...INITIAL_LISTINGS, ...nonSeedListings];
-      this.save('unimart_listings_v5', this.listings);
+      this.save('unimart_listings_v6', this.listings);
     }
 
     this.messages = this.load('unimart_messages', INITIAL_MESSAGES);

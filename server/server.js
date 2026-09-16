@@ -64,13 +64,6 @@ app.get(['/api/health', '/health'], (req, res) => {
 app.get('/api/demo-accounts', (req, res) => {
   const accounts = [
     {
-      name: 'Kavindu Perera',
-      reg_id: 'ICT/2024/001',
-      email: 'kavindu.p@student.rjt.ac.lk',
-      password: 'Password123',
-      role: 'Hardware & Web Design Listings'
-    },
-    {
       name: 'Anuki De Silva',
       reg_id: 'ICT/2024/002',
       email: 'anuki.d@student.rjt.ac.lk',

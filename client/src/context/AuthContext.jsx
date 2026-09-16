@@ -28,20 +28,31 @@ export function AuthProvider({ children }) {
         console.warn('Could not load domain list from server:', err);
       }
 
+      // Automatically wipe any legacy demo dummy account from local storage
+      const storedUser = localStorage.getItem('unimart_current_user');
+      if (storedUser && (storedUser.includes('kavindu') || storedUser.includes('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'))) {
+        localStorage.removeItem('unimart_current_user');
+        localStorage.removeItem('unimart_token');
+      }
+
       const storedToken = localStorage.getItem('unimart_token');
       if (storedToken) {
         try {
           const res = await authApi.getMe();
-          if (res.user) {
+          if (res.user && !res.user.email?.includes('kavindu')) {
             setUser(res.user);
           } else {
             localStorage.removeItem('unimart_token');
+            localStorage.removeItem('unimart_current_user');
             setToken(null);
+            setUser(null);
           }
         } catch (err) {
           console.warn('Session expired or invalid:', err);
           localStorage.removeItem('unimart_token');
+          localStorage.removeItem('unimart_current_user');
           setToken(null);
+          setUser(null);
         }
       }
       setLoading(false);
@@ -54,6 +65,7 @@ export function AuthProvider({ children }) {
     const res = await authApi.login(email, password);
     if (res.token && res.user) {
       localStorage.setItem('unimart_token', res.token);
+      localStorage.setItem('unimart_current_user', JSON.stringify(res.user));
       setToken(res.token);
       setUser(res.user);
     }
@@ -61,9 +73,11 @@ export function AuthProvider({ children }) {
   };
 
   const register = async (userData) => {
+    logout();
     const res = await authApi.register(userData);
     if (res.token && res.user) {
       localStorage.setItem('unimart_token', res.token);
+      localStorage.setItem('unimart_current_user', JSON.stringify(res.user));
       setToken(res.token);
       setUser(res.user);
     }
@@ -72,6 +86,7 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     localStorage.removeItem('unimart_token');
+    localStorage.removeItem('unimart_current_user');
     setToken(null);
     setUser(null);
   };

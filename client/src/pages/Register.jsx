@@ -39,7 +39,7 @@ const COMMON_FACULTIES = [
 
 export default function Register() {
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { register, logout } = useAuth();
   const { addToast } = useToast();
 
   const [fullName, setFullName] = useState('');
@@ -144,6 +144,10 @@ export default function Register() {
 
     setLoading(true);
     try {
+      if (logout) logout();
+      localStorage.removeItem('unimart_token');
+      localStorage.removeItem('unimart_current_user');
+
       const res = await register({
         full_name: fullName.trim(),
         email: email.trim(),
@@ -417,7 +421,7 @@ export default function Register() {
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              placeholder="e.g. Kavindu Perera"
+              placeholder="e.g. Pamuditha Ruwan"
               className="w-full text-sm px-3 py-2 bg-white border border-slate-300 rounded focus:outline-none focus:border-[#0d9488] text-slate-900"
               required
             />
