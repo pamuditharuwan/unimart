@@ -34,14 +34,11 @@ export default function Footer() {
               <div className="flex items-center gap-2 text-white font-bold text-base">
                 <span>UniMart</span>
                 <span className="text-[10px] bg-slate-800 text-teal-300 border border-slate-700 px-1.5 py-0.5 rounded font-mono">
-                  Group 05 &bull; Sudo Six
+                  Group 05
                 </span>
               </div>
               <p className="text-slate-400 text-xs leading-relaxed">
-                Web application developed for ICT 1108: Skill Development Project I (BICT Honors). A simple platform for Faculty of Technology undergraduates to buy/sell lab hardware and offer student digital services.
-              </p>
-              <p className="text-slate-500 font-mono text-[11px]">
-                Faculty of Technology &bull; Rajarata University of Sri Lanka
+                A campus marketplace for university students to buy and sell academic hardware components and offer digital services. Campus hand-to-hand exchange only.
               </p>
             </div>
           </div>
@@ -80,7 +77,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 pt-4 border-t border-slate-800 text-[11px] text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p>&copy; {new Date().getFullYear()} UniMart &bull; Sudo Six. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} UniMart. All rights reserved.</p>
         </div>
       </div>
     </footer>

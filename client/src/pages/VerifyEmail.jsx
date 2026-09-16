@@ -476,12 +476,13 @@ export default function VerifyEmail() {
       {/* Helpful Campus Mail Advice */}
       <div className="bg-slate-100 border border-slate-200 rounded-lg p-4 text-xs text-slate-600 space-y-2">
         <span className="font-semibold text-slate-800 block text-[11px]">
-          Tips for university email delivery:
+          Tips if you didn't receive the code:
         </span>
         <ul className="list-disc list-inside space-y-1 text-[11px] text-slate-600">
-          <li>Check your university webmail (Microsoft 365 Outlook or Google Workspace).</li>
+          <li>Check your university webmail inbox — <a href="https://outlook.office.com" target="_blank" rel="noopener noreferrer" className="text-teal-700 hover:underline font-semibold">Open Outlook Webmail ↗</a></li>
           <li>Look in your <strong>Junk</strong> or <strong>Spam</strong> folder if not in primary inbox.</li>
-          <li>The email subject is: <strong>"Confirm your signup"</strong>. Enter the 6-digit code or click the confirmation link.</li>
+          <li>The email subject is: <strong>"Confirm your signup"</strong>. Enter the 6-digit code shown.</li>
+          <li>University mail servers may occasionally delay or filter automated emails. Try clicking <strong>Resend Code</strong> above after 60 seconds.</li>
         </ul>
         <div className="pt-2 text-center">
           <Link to="/login" className="text-teal-700 hover:underline font-semibold text-[11px]">

@@ -91,7 +91,7 @@ export async function sendVerificationEmail({ email, fullName, university, actio
             </div>
           </div>
           <div class="footer">
-            UniMart &bull; Built for Sri Lankan University Students &bull; ICT 1108
+            UniMart &bull; Built for Sri Lankan University Students
           </div>
         </div>
       </body>

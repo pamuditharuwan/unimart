@@ -6,6 +6,7 @@ import {
   Eye,
   Star,
   MessageSquare,
+  Phone,
   Info,
   ArrowLeft,
   Trash2
@@ -284,6 +285,22 @@ export default function ListingDetail() {
               <p className="text-slate-600 italic border-l-2 border-slate-300 pl-2">
                 "{listing.seller.bio}"
               </p>
+            )}
+
+            {/* Contact Phone */}
+            {listing.contact_phone && (
+              <div className="flex items-center gap-2 p-2 bg-teal-50 border border-teal-200 rounded">
+                <Phone className="w-3.5 h-3.5 text-teal-700 shrink-0" />
+                <div>
+                  <span className="text-teal-800 font-semibold block">Contact Number</span>
+                  <a
+                    href={`tel:${listing.contact_phone}`}
+                    className="text-teal-700 hover:text-teal-900 hover:underline font-mono"
+                  >
+                    {listing.contact_phone}
+                  </a>
+                </div>
+              </div>
             )}
           </div>
 

@@ -247,11 +247,11 @@ export default function Home() {
         )}
       </div>
 
-      {/* Student Assignment Info Box */}
+      {/* About UniMart Info Box */}
       <div className="bg-slate-100 border border-slate-300 rounded p-4 text-xs text-slate-600">
-        <h3 className="font-bold text-slate-800 text-xs mb-1">About UniMart (Course Project)</h3>
+        <h3 className="font-bold text-slate-800 text-xs mb-1">About UniMart</h3>
         <p className="leading-relaxed">
-          This system was built by <strong>Group 05 (Sudo Six)</strong> for <strong>ICT 1108: Skill Development Project I</strong>, Department of Information &amp; Communication Technology, Faculty of Technology, Rajarata University of Sri Lanka. Key features include a single unified account model, university email domain verification (@___.___ .ac.lk), face-to-face campus exchange without online payment gateways, and direct peer ratings.
+          UniMart is a student marketplace built by <strong>Group 05</strong>. Key features include university email domain verification, a campus-only hand-to-hand exchange model (no online payment gateways), direct peer ratings, and a unified account system for buyers and sellers.
         </p>
       </div>
     </div>

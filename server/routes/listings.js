@@ -148,7 +148,8 @@ router.post('/', requireAuth, async (req, res) => {
       price_type,
       condition,
       location,
-      images
+      images,
+      contact_phone
     } = req.body;
 
     if (!title || !description || !category_id || !item_type || price === undefined) {
@@ -180,6 +181,7 @@ router.post('/', requireAuth, async (req, res) => {
       ],
       status: 'active',
       views: 0,
+      contact_phone: contact_phone?.trim() || null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };

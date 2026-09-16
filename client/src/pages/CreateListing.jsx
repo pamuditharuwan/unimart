@@ -38,6 +38,7 @@ export default function CreateListing() {
   const [priceType, setPriceType] = useState('fixed');
   const [condition, setCondition] = useState('used_good');
   const [location, setLocation] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [description, setDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -123,6 +124,7 @@ export default function CreateListing() {
         price_type: priceType,
         condition: itemType === 'hardware' ? condition : null,
         location: location.trim(),
+        contact_phone: contactPhone.trim() || null,
         images: [imageUrl.trim()]
       };
 
@@ -353,6 +355,21 @@ export default function CreateListing() {
                 required
               />
             </div>
+          </div>
+
+          {/* Contact Phone */}
+          <div>
+            <label className="block font-semibold text-slate-800 mb-1">
+              Contact Phone Number <span className="text-slate-400 font-normal">(optional)</span>
+            </label>
+            <input
+              type="tel"
+              value={contactPhone}
+              onChange={(e) => setContactPhone(e.target.value)}
+              placeholder="e.g. 071 234 5678"
+              className="w-full text-xs p-2 bg-white border border-slate-300 rounded focus:outline-none focus:border-[#0d9488] text-slate-900"
+            />
+            <p className="text-[11px] text-slate-400 mt-0.5">Buyers can reach you directly. Leave blank to use in-app messaging only.</p>
           </div>
 
           {/* Image & Presets */}
