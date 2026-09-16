@@ -399,9 +399,15 @@ router.post('/resend-confirmation', async (req, res) => {
     const clientUrl = process.env.CLIENT_URL || 'https://uni-mart-lk.vercel.app';
 
     if (isSupabaseConfigured) {
-      // 1. Check if user already confirmed
+      // 1. Check if user already confirmed or registered
       const { data: userList } = await supabase.auth.admin.listUsers();
       const authUser = userList?.users?.find(u => u.email?.toLowerCase() === cleanEmail);
+
+      if (!authUser) {
+        return res.status(404).json({
+          error: 'No registration was found for this university email. Please create your student account first.'
+        });
+      }
 
       if (authUser?.email_confirmed_at) {
         return res.status(400).json({
@@ -410,17 +416,21 @@ router.post('/resend-confirmation', async (req, res) => {
         });
       }
 
-      // 2. Trigger resend via Supabase Auth (which sends through Resend SMTP)
-      const { error: resendErr } = await supabase.auth.resend({
+      // 2. Trigger resend via Supabase Auth (dispatches to university student inbox)
+      const { error: resendErr } = await (supabaseAnon || supabase).auth.resend({
         type: 'signup',
         email: cleanEmail,
         options: {
-          emailRedirectTo: `${clientUrl}/verify-email?email=${encodeURIComponent(cleanEmail)}`
+          emailRedirectTo: `${clientUrl}/login?confirmed=true`
         }
       });
 
       if (resendErr) {
         console.warn('Supabase resend warning:', resendErr.message);
+        const low = resendErr.message.toLowerCase();
+        if (low.includes('rate') || low.includes('security') || low.includes('second')) {
+          return res.status(429).json({ error: resendErr.message });
+        }
       }
 
       // 3. Also generate fresh OTP and dispatch through mailer service if configured
@@ -543,8 +553,13 @@ router.post('/verify-otp', async (req, res) => {
         return res.status(400).json({ error: friendly });
       }
 
-      // Successful verification -> Fetch or create verified user profile
+      // Successful verification -> Update profile and fetch verified user profile
       const userId = verifyData.user.id;
+      await supabase
+        .from('profiles')
+        .update({ email_confirmed: true })
+        .eq('id', userId);
+
       const { data: profile } = await supabase
         .from('profiles')
         .select('*')

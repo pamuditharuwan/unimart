@@ -24,7 +24,7 @@ import { parseSriLankanUniversityEmail } from '../utils/universityDomains';
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user, isAuthenticated, verifyOtp, confirmDirect } = useAuth();
+  const { user, isAuthenticated, verifyOtp } = useAuth();
   const { addToast } = useToast();
 
   const queryEmail = searchParams.get('email') || user?.email || '';
@@ -37,7 +37,6 @@ export default function VerifyEmail() {
   const inputRefs = useRef([]);
 
   const [loading, setLoading] = useState(false);
-  const [directVerifying, setDirectVerifying] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
@@ -218,33 +217,19 @@ export default function VerifyEmail() {
 
     try {
       const res = await authApi.resendConfirmation(email.trim());
-      setResendMessage(res.message || `A fresh 6-digit code has been sent to ${email.trim()}.`);
+      setResendMessage(res.message || `A fresh 6-digit verification code has been dispatched to ${email.trim()}.`);
       setCountdown(60); // Reset 60s cooldown
-      addToast('Verification code resent!', 'info');
+      addToast('Verification code resent to your inbox!', 'info');
     } catch (err) {
-      setError(err.message || 'Failed to resend verification code. Please try again in a few moments.');
+      const errMsg = err.message || '';
+      if (errMsg.toLowerCase().includes('already') || errMsg.toLowerCase().includes('confirmed')) {
+        setError('This email is already verified. Redirecting you to login...');
+        setTimeout(() => navigate('/login?confirmed=true'), 1500);
+      } else {
+        setError(errMsg || 'Failed to resend verification code. Please try again in a few moments.');
+      }
     } finally {
       setResending(false);
-    }
-  };
-
-  // Direct instant verification (Bypass email delivery delay / university firewall blockage)
-  const handleDirectVerify = async () => {
-    if (!email || directVerifying) return;
-    setDirectVerifying(true);
-    setError('');
-
-    try {
-      const res = await (confirmDirect ? confirmDirect(email.trim()) : authApi.confirmDirect(email.trim()));
-      setSuccess(true);
-      addToast(res.message || 'Student account activated successfully! Welcome to UniMart.', 'success');
-      setTimeout(() => {
-        navigate('/');
-      }, 1200);
-    } catch (err) {
-      setError(err.message || 'Direct verification failed. Please try entering the code or contacting support.');
-    } finally {
-      setDirectVerifying(false);
     }
   };
 
@@ -486,39 +471,6 @@ export default function VerifyEmail() {
             </button>
           </div>
         )}
-
-        {/* Direct Instant Verification Fallback */}
-        {!success && (
-          <div className="pt-2 border-t border-slate-100 text-left">
-            <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 space-y-2">
-              <div className="flex items-center gap-1.5 text-slate-800 font-semibold text-xs">
-                <ShieldCheck className="w-4 h-4 text-teal-600 shrink-0" />
-                <span>Email delayed by university firewall?</span>
-              </div>
-              <p className="text-[11px] text-slate-600 leading-relaxed">
-                Some university mail servers delay or block external automated messages. You can activate your student account directly:
-              </p>
-              <button
-                type="button"
-                onClick={handleDirectVerify}
-                disabled={directVerifying || loading}
-                className="w-full py-2 px-3 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white font-bold text-xs rounded-md shadow-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:cursor-not-allowed"
-              >
-                {directVerifying ? (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    <span>Activating Student Account...</span>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Instant Student Verification</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Helpful Campus Mail Advice */}
@@ -529,7 +481,7 @@ export default function VerifyEmail() {
         <ul className="list-disc list-inside space-y-1 text-[11px] text-slate-600">
           <li>Check your university webmail (Microsoft 365 Outlook or Google Workspace).</li>
           <li>Look in your <strong>Junk</strong> or <strong>Spam</strong> folder if not in primary inbox.</li>
-          <li>The email subject is: <strong>"Confirm your signup"</strong> or <strong>"Verify Your University Email"</strong>.</li>
+          <li>The email subject is: <strong>"Confirm your signup"</strong>. Enter the 6-digit code or click the confirmation link.</li>
         </ul>
         <div className="pt-2 text-center">
           <Link to="/login" className="text-teal-700 hover:underline font-semibold text-[11px]">

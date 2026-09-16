@@ -57,13 +57,8 @@ export default function Register() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState('');
   const [submittedUni, setSubmittedUni] = useState('');
-  const [directActionLink, setDirectActionLink] = useState('');
-  const [emailOtp, setEmailOtp] = useState('');
-  const [enteredOtp, setEnteredOtp] = useState('');
-  const [verifyingOtp, setVerifyingOtp] = useState(false);
   const [resending, setResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState('');
-  const [directVerifying, setDirectVerifying] = useState(false);
 
   // Live domain verification & university extraction
   const emailAnalysis = parseSriLankanUniversityEmail(email);
@@ -185,38 +180,7 @@ export default function Register() {
     }
   };
 
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    if (!enteredOtp || verifyingOtp) return;
-    setVerifyingOtp(true);
-    setError('');
 
-    try {
-      const res = await authApi.verifyOtp(submittedEmail, enteredOtp);
-      addToast(res.message || 'Account activated successfully! Please sign in.', 'success');
-      navigate('/login?confirmed=true');
-    } catch (err) {
-      setError(err.message || 'Invalid or expired code. Please try again or click Direct Verify.');
-    } finally {
-      setVerifyingOtp(false);
-    }
-  };
-
-  const handleDirectConfirm = async () => {
-    if (!submittedEmail || directVerifying) return;
-    setDirectVerifying(true);
-    setError('');
-
-    try {
-      const res = await authApi.confirmDirect(submittedEmail);
-      addToast(res.message || 'Account activated successfully! Please sign in.', 'success');
-      navigate('/login?confirmed=true');
-    } catch (err) {
-      setError(err.message || 'Direct verification failed. Please check your inbox.');
-    } finally {
-      setDirectVerifying(false);
-    }
-  };
 
   // -------------------------------------------------------------
   // Render Check Inbox Confirmation Screen when registered
@@ -278,61 +242,21 @@ export default function Register() {
             </ol>
           </div>
 
-          {/* Instant 1-Click Activation & Direct Verification (Fixes University Spam Gateway Delays) */}
-          <div className="p-4 bg-teal-50/80 border-2 border-teal-600/30 rounded-lg text-left space-y-3">
-            <div className="flex items-center gap-2 font-bold text-teal-950 text-xs">
-              <Zap className="w-4 h-4 text-teal-700" />
-              <span>Email Not Arriving in Inbox? Activate Instantly</span>
-            </div>
-            <p className="text-[11px] text-teal-900/90 leading-relaxed">
-              Sri Lankan university email gateways (Microsoft 365 / Google Workspace) and Supabase rate limits may delay or filter automated emails. You can activate your student account immediately without waiting:
+          {/* Direct Verification Code Input Link */}
+          <div className="p-4 bg-teal-50 border border-teal-200 rounded-lg text-left space-y-2">
+            <span className="text-xs font-semibold text-teal-950 block">
+              Received your 6-digit verification code?
+            </span>
+            <p className="text-[11px] text-teal-800 leading-relaxed">
+              Enter your code on the verification page to activate your student account.
             </p>
-
-            {/* Prominent 1-Click Instant Activation Button */}
-            <button
-              type="button"
-              onClick={handleDirectConfirm}
-              disabled={directVerifying}
-              className="w-full py-2.5 bg-[#0d9488] hover:bg-teal-700 text-white font-bold text-xs rounded-md transition-all flex items-center justify-center gap-2 shadow-xs disabled:opacity-60"
+            <Link
+              to={`/verify-email?email=${encodeURIComponent(submittedEmail)}`}
+              className="w-full py-2.5 bg-[#0d9488] hover:bg-teal-700 text-white font-bold text-xs rounded-md flex items-center justify-center gap-2 transition-all shadow-xs"
             >
-              <ShieldCheck className="w-4 h-4" />
-              <span>{directVerifying ? 'Activating Student Account...' : '⚡ 1-Click Instant Student Activation'}</span>
-            </button>
-
-            {directActionLink && (
-              <a
-                href={directActionLink}
-                target="_blank"
-                rel="noreferrer"
-                className="w-full py-2 bg-white hover:bg-teal-50 border border-teal-300 text-teal-900 text-center font-semibold text-xs rounded flex items-center justify-center gap-1.5 transition-colors block"
-              >
-                <span>Open Direct Verification Link</span>
-                <ExternalLink className="w-3.5 h-3.5 text-teal-700" />
-              </a>
-            )}
-
-            {/* OTP Code Form */}
-            <div className="pt-2 border-t border-teal-200/80">
-              <span className="text-[10px] text-teal-800 font-semibold block mb-1.5">
-                Or enter verification code:
-              </span>
-              <form onSubmit={handleVerifyOtp} className="flex gap-2">
-                <input
-                  type="text"
-                  value={enteredOtp}
-                  onChange={(e) => setEnteredOtp(e.target.value)}
-                  placeholder="Enter 6-digit code"
-                  className="flex-1 text-xs px-2.5 py-1.5 bg-white border border-teal-300 rounded font-mono focus:outline-none focus:border-teal-600"
-                />
-                <button
-                  type="submit"
-                  disabled={verifyingOtp || !enteredOtp.trim()}
-                  className="px-3 py-1.5 bg-[#0f172a] hover:bg-slate-800 disabled:opacity-50 text-white font-semibold text-xs rounded transition-colors"
-                >
-                  {verifyingOtp ? 'Verifying...' : 'Verify Code'}
-                </button>
-              </form>
-            </div>
+              <span>Enter 6-Digit Verification Code</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
 
           {resendSuccess && (
