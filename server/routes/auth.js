@@ -41,6 +41,9 @@ function toSupabasePassword(p) {
   return p.length < 12 ? `${p}_UniMart2026` : p;
 }
 
+// In-memory store for pending 6-digit verification codes
+const pendingVerificationOtps = new Map();
+
 // 1. Get Allowed University Domains
 router.get('/domains', (req, res) => {
   res.json({
@@ -97,48 +100,38 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
 
         const authPassword = toSupabasePassword(password);
         if (authUser) {
-          // Auto-confirm existing student account and update credentials
-          await supabase.auth.admin.updateUserById(authUser.id, {
+          // If already confirmed, inform the user to sign in
+          if (authUser.email_confirmed_at) {
+            return res.status(400).json({
+              error: 'An account with this university email is already registered and verified. Please sign in.',
+              code: 'ACCOUNT_EXISTS',
+              email: cleanEmail
+            });
+          }
+
+          // If awaiting verification, dispatch a fresh 6-digit code to their email
+          const emailOtp = Math.floor(100000 + Math.random() * 900000).toString();
+          pendingVerificationOtps.set(cleanEmail, {
+            otp: emailOtp,
+            userId: authUser.id,
             password: authPassword,
-            email_confirm: true,
-            user_metadata: {
-              full_name,
-              reg_id,
-              faculty: faculty || defaultFaculty,
-              department: department || '',
-              phone_number: phone_number || '',
-              university: detectedUni
-            }
+            expiresAt: Date.now() + 15 * 60 * 1000
           });
 
-          const profileData = {
-            id: authUser.id,
+          console.log(`\n========================================\n📧 [RESENDING VERIFICATION EMAIL]\nTo: ${cleanEmail}\nOTP Code: ${emailOtp}\n========================================\n`);
+
+          await sendVerificationEmail({
             email: cleanEmail,
-            full_name,
-            reg_id,
-            faculty: faculty || defaultFaculty,
-            department: department || '',
-            phone_number: phone_number || '',
-            bio: `Undergraduate student at ${detectedUni} (${reg_id}).`,
-            avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(full_name)}&backgroundColor=0d9488,0f172a`,
-            rating_avg: 5.0,
-            rating_count: 0,
-            email_confirmed: true
-          };
-
-          await supabase
-            .from('profiles')
-            .upsert([profileData], { onConflict: 'email' });
-
-          const token = signToken(profileData);
+            fullName: full_name || authUser?.user_metadata?.full_name || 'Student',
+            university: detectedUni,
+            otp: emailOtp
+          });
 
           return res.status(200).json({
-            success: true,
-            requiresEmailConfirmation: false,
-            message: 'Account updated and verified successfully! Welcome to UniMart.',
-            user: profileData,
-            token,
-            otp: '123456'
+            requiresEmailConfirmation: true,
+            message: `A verification code has been dispatched to ${cleanEmail}. Please enter the code to complete registration.`,
+            email: cleanEmail,
+            university: detectedUni
           });
         } else {
           // Orphaned profile row without corresponding auth user -> clean up old row to allow fresh registration
@@ -147,19 +140,17 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
         }
       }
 
-      // 2. Sign up or Create with Supabase Auth -> Auto-confirm immediately to bypass university email blocking
+      // 2. Register with Supabase Auth (email_confirm: false until verified with 6-digit code)
       const clientUrl = process.env.CLIENT_URL || 'https://uni-mart-lk.vercel.app';
-      let actionLink = null;
-      let emailOtp = null;
       let userId = uuidv4();
       const authPassword = toSupabasePassword(password);
+      const emailOtp = Math.floor(100000 + Math.random() * 900000).toString();
 
       try {
-        // Create user directly with email_confirm: true via Supabase Admin API
         const { data: adminUser, error: adminErr } = await supabase.auth.admin.createUser({
           email: cleanEmail,
           password: authPassword,
-          email_confirm: true,
+          email_confirm: false,
           user_metadata: {
             full_name,
             reg_id,
@@ -173,64 +164,7 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
         if (adminUser?.user) {
           userId = adminUser.user.id;
         } else {
-          // If already exists or error, try generateLink fallback
-          const { data: linkData } = await supabase.auth.admin.generateLink({
-            type: 'signup',
-            email: cleanEmail,
-            password: authPassword,
-            options: {
-              redirectTo: `${clientUrl}/login?confirmed=true`
-            }
-          }).catch(() => ({}));
-
-          if (linkData?.user) {
-            userId = linkData.user.id;
-            await supabase.auth.admin.updateUserById(userId, { email_confirm: true, password: authPassword });
-          }
-          if (linkData?.properties) {
-            actionLink = linkData.properties.action_link;
-            emailOtp = linkData.properties.email_otp;
-          }
-        }
-
-        // Ensure a 6-digit verification code is generated
-        if (!emailOtp) {
-          try {
-            const { data: linkData } = await supabase.auth.admin.generateLink({
-              type: 'signup',
-              email: cleanEmail,
-              password: authPassword,
-              options: {
-                redirectTo: `${clientUrl}/login?confirmed=true`
-              }
-            }).catch(() => ({}));
-            if (linkData?.properties?.email_otp) {
-              emailOtp = linkData.properties.email_otp;
-              actionLink = linkData.properties.action_link;
-            }
-          } catch {}
-        }
-
-        if (!emailOtp) {
-          emailOtp = Math.floor(100000 + Math.random() * 900000).toString();
-        }
-
-        if (!actionLink) {
-          actionLink = `${clientUrl}/verify-email?email=${encodeURIComponent(cleanEmail)}&code=${emailOtp}`;
-        }
-
-        // Always dispatch real verification email via Nodemailer
-        try {
-          console.log(`\n========================================\n📧 [SENDING VERIFICATION EMAIL]\nTo: ${cleanEmail}\nOTP Code: ${emailOtp}\n========================================\n`);
-          await sendVerificationEmail({
-            email: cleanEmail,
-            fullName: full_name,
-            university: detectedUni,
-            actionLink,
-            otp: emailOtp
-          });
-        } catch (mailerErr) {
-          console.warn('[Mailer dispatch error]', mailerErr.message);
+          console.warn('[Supabase admin create note]', adminErr?.message);
         }
       } catch (authErr) {
         console.warn('Supabase auth registration notice:', authErr);
@@ -248,25 +182,36 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
         avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(full_name)}&backgroundColor=0d9488,0f172a`,
         rating_avg: 5.0,
         rating_count: 0,
-        email_confirmed: true
+        email_confirmed: false
       };
 
       await supabase
         .from('profiles')
         .upsert([profileData], { onConflict: 'email' });
 
-      const token = signToken(profileData);
+      // Save pending OTP in memory
+      pendingVerificationOtps.set(cleanEmail, {
+        otp: emailOtp,
+        userId,
+        password: authPassword,
+        expiresAt: Date.now() + 15 * 60 * 1000
+      });
+
+      console.log(`\n========================================\n📧 [SENDING VERIFICATION EMAIL]\nTo: ${cleanEmail}\nOTP Code: ${emailOtp}\n========================================\n`);
+
+      // Dispatch real email via Gmail SMTP
+      await sendVerificationEmail({
+        email: cleanEmail,
+        fullName: full_name,
+        university: detectedUni,
+        otp: emailOtp
+      });
 
       return res.status(201).json({
-        success: true,
-        requiresEmailConfirmation: false,
-        message: 'Account registered and verified successfully! Welcome to UniMart.',
+        requiresEmailConfirmation: true,
+        message: `A 6-digit verification code has been dispatched to ${cleanEmail}. Please enter it to verify your account.`,
         email: cleanEmail,
-        university: detectedUni,
-        user: profileData,
-        token,
-        otp: emailOtp || '123456',
-        actionLink
+        university: detectedUni
       });
     } else {
       // Memory DB mode
@@ -584,118 +529,67 @@ router.post('/verify-otp', async (req, res) => {
     const cleanToken = token.toString().trim();
 
     if (isSupabaseConfigured) {
-      let verifyData = null;
-      let verifyError = null;
+      const cleanEmail = email.toLowerCase().trim();
+      const cleanToken = token.toString().trim();
 
-      // 1. Supabase verifyOtp with type: 'signup' (matches signup token generation)
-      const resSignup = await supabase.auth.verifyOtp({
-        email: cleanEmail,
-        token: cleanToken,
-        type: 'signup'
-      });
+      const pending = pendingVerificationOtps.get(cleanEmail);
+      let isValidOtp = false;
 
-      if (!resSignup.error && resSignup.data?.user) {
-        verifyData = resSignup.data;
+      // Check against pending in-memory OTP
+      if (pending && pending.otp === cleanToken) {
+        isValidOtp = true;
       } else {
-        // Fallback to type: 'email'
-        const resEmail = await supabase.auth.verifyOtp({
+        // Check with Supabase verifyOtp
+        const resSignup = await supabase.auth.verifyOtp({
           email: cleanEmail,
           token: cleanToken,
-          type: 'email'
-        });
+          type: 'signup'
+        }).catch(() => ({}));
 
-        if (!resEmail.error && resEmail.data?.user) {
-          verifyData = resEmail.data;
+        if (!resSignup?.error && resSignup?.data?.user) {
+          isValidOtp = true;
         } else {
-          verifyError = resSignup.error || resEmail.error;
-        }
-      }
-
-      // If user is already verified or confirmed in Supabase, log them in immediately!
-      const rawMsg = (verifyError?.message || '').toLowerCase();
-      if (rawMsg.includes('already') || rawMsg.includes('confirmed')) {
-        const { data: userList } = await supabase.auth.admin.listUsers();
-        const existingAuth = userList?.users?.find(u => u.email?.toLowerCase() === cleanEmail);
-        if (existingAuth) {
-          const { data: prof } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', existingAuth.id)
-            .single();
-
-          const safeUser = prof || {
-            id: existingAuth.id,
+          const resEmail = await supabase.auth.verifyOtp({
             email: cleanEmail,
-            full_name: existingAuth.user_metadata?.full_name || 'Student',
-            reg_id: existingAuth.user_metadata?.reg_id || '',
-            faculty: existingAuth.user_metadata?.faculty || 'Faculty of Technology',
-            department: existingAuth.user_metadata?.department || 'Department of ICT',
-            email_confirmed: true
-          };
-
-          const authToken = signToken(safeUser);
-          return res.json({
-            success: true,
-            message: 'University email confirmed successfully! Welcome to UniMart.',
-            user: safeUser,
-            token: authToken
-          });
+            token: cleanToken,
+            type: 'email'
+          }).catch(() => ({}));
+          if (!resEmail?.error && resEmail?.data?.user) {
+            isValidOtp = true;
+          }
         }
       }
 
-      if (verifyError || !verifyData?.user) {
-        // Fallback: Check if student exists in Supabase and auto-verify to bypass campus mail filter issues
-        const { data: userList } = await supabase.auth.admin.listUsers();
-        const existingAuth = userList?.users?.find(u => u.email?.toLowerCase() === cleanEmail);
-        if (existingAuth) {
-          await supabase.auth.admin.updateUserById(existingAuth.id, { email_confirm: true });
-          await supabase.from('profiles').update({ email_confirmed: true }).eq('id', existingAuth.id);
-          const { data: prof } = await supabase.from('profiles').select('*').eq('id', existingAuth.id).single();
-          const safeUser = prof || {
-            id: existingAuth.id,
-            email: cleanEmail,
-            full_name: existingAuth.user_metadata?.full_name || 'Student',
-            reg_id: existingAuth.user_metadata?.reg_id || '',
-            faculty: existingAuth.user_metadata?.faculty || 'Faculty of Technology',
-            department: existingAuth.user_metadata?.department || '',
-            email_confirmed: true
-          };
-          return res.json({
-            success: true,
-            message: 'University email verified successfully! Welcome to UniMart.',
-            user: safeUser,
-            token: signToken(safeUser)
-          });
-        }
-
-        return res.status(400).json({ error: 'Verification failed. Please check your email or log in.' });
+      if (!isValidOtp) {
+        return res.status(400).json({
+          error: 'The verification code entered is incorrect. Please check the 6-digit code in your university email and try again.'
+        });
       }
 
-      // Successful verification -> Update profile and fetch verified user profile
-      const userId = verifyData.user.id;
-      await supabase
-        .from('profiles')
-        .update({ email_confirmed: true })
-        .eq('id', userId);
+      // Correct code entered! Activate account in Supabase
+      pendingVerificationOtps.delete(cleanEmail);
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
+      const { data: userList } = await supabase.auth.admin.listUsers();
+      const existingAuth = userList?.users?.find(u => u.email?.toLowerCase() === cleanEmail);
+      const userId = existingAuth?.id || pending?.userId;
 
-      const safeUser = profile || {
-        id: userId,
+      if (userId) {
+        await supabase.auth.admin.updateUserById(userId, { email_confirm: true });
+        await supabase.from('profiles').update({ email_confirmed: true }).eq('id', userId);
+      }
+
+      const { data: prof } = await supabase.from('profiles').select('*').eq('email', cleanEmail).single();
+      const safeUser = prof || {
+        id: userId || uuidv4(),
         email: cleanEmail,
-        full_name: verifyData.user.user_metadata?.full_name || 'Student',
-        reg_id: verifyData.user.user_metadata?.reg_id || '',
-        faculty: verifyData.user.user_metadata?.faculty || 'Faculty of Technology',
-        department: verifyData.user.user_metadata?.department || 'Department of ICT',
+        full_name: existingAuth?.user_metadata?.full_name || 'Student',
+        reg_id: existingAuth?.user_metadata?.reg_id || '',
+        faculty: existingAuth?.user_metadata?.faculty || 'Faculty of Technology',
+        department: existingAuth?.user_metadata?.department || '',
         email_confirmed: true
       };
 
       const authToken = signToken(safeUser);
-
       return res.json({
         success: true,
         message: 'University email verified successfully! Welcome to UniMart.',
