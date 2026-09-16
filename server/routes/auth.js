@@ -192,6 +192,34 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
             emailOtp = linkData.properties.email_otp;
           }
         }
+
+        // Always dispatch real verification email via Nodemailer
+        try {
+          if (!actionLink || !emailOtp) {
+            const { data: linkData } = await supabase.auth.admin.generateLink({
+              type: 'signup',
+              email: cleanEmail,
+              password: authPassword,
+              options: {
+                redirectTo: `${clientUrl}/login?confirmed=true`
+              }
+            }).catch(() => ({}));
+            if (linkData?.properties) {
+              actionLink = linkData.properties.action_link;
+              emailOtp = linkData.properties.email_otp;
+            }
+          }
+          console.log(`\n========================================\n📧 [SENDING VERIFICATION EMAIL]\nTo: ${cleanEmail}\nOTP Code: ${emailOtp}\n========================================\n`);
+          await sendVerificationEmail({
+            email: cleanEmail,
+            fullName: full_name,
+            university: detectedUni,
+            actionLink,
+            otp: emailOtp
+          });
+        } catch (mailerErr) {
+          console.warn('[Mailer dispatch error]', mailerErr.message);
+        }
       } catch (authErr) {
         console.warn('Supabase auth registration notice:', authErr);
       }
