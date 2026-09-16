@@ -154,9 +154,13 @@ export default function Register() {
         password
       });
 
-      addToast(`Registration initiated! Please check your university inbox for the verification code.`, 'success');
-      const codeParam = res?.otp ? `&code=${encodeURIComponent(res.otp)}` : '';
-      navigate(`/verify-email?email=${encodeURIComponent(email.trim())}${codeParam}`);
+      addToast(`Registration successful! Welcome to UniMart, ${fullName.trim()}.`, 'success');
+      if (res?.token) {
+        navigate('/');
+      } else {
+        const codeParam = res?.otp ? `&code=${encodeURIComponent(res.otp)}` : '';
+        navigate(`/verify-email?email=${encodeURIComponent(email.trim())}${codeParam}`);
+      }
     } catch (err) {
       setError(err.message || 'Registration failed. Please check your information and try again.');
     } finally {
