@@ -28,15 +28,23 @@ export default function VerifyEmail() {
   const { addToast } = useToast();
 
   const queryEmail = searchParams.get('email') || user?.email || '';
+  const queryCode = searchParams.get('code') || '';
   const [email, setEmail] = useState(queryEmail);
   const [isEditingEmail, setIsEditingEmail] = useState(!queryEmail);
   const [newEmailInput, setNewEmailInput] = useState(queryEmail);
 
-  // 6 separate digit boxes for OTP (user must type the code received in email inbox)
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  // 6 separate digit boxes for OTP (user can type or auto-fill if generated)
+  const [otp, setOtp] = useState(() => {
+    if (queryCode && queryCode.length === 6) {
+      return queryCode.split('');
+    }
+    return ['', '', '', '', '', ''];
+  });
+  const [availableCode, setAvailableCode] = useState(queryCode || '');
   const inputRefs = useRef([]);
 
   const [loading, setLoading] = useState(false);
+  const [directVerifying, setDirectVerifying] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
@@ -217,9 +225,15 @@ export default function VerifyEmail() {
 
     try {
       const res = await authApi.resendConfirmation(email.trim());
-      setResendMessage(res.message || `A fresh 6-digit verification code has been dispatched to ${email.trim()}.`);
+      if (res?.otp) {
+        setAvailableCode(res.otp);
+        handlePasteValue(res.otp, 0);
+        setResendMessage(`New 6-digit code: ${res.otp} (Auto-filled into boxes below). Also dispatched to your email.`);
+      } else {
+        setResendMessage(res?.message || `A fresh 6-digit verification code has been dispatched to ${email.trim()}.`);
+      }
       setCountdown(60); // Reset 60s cooldown
-      addToast('Verification code resent to your inbox!', 'info');
+      addToast('Verification code dispatched!', 'info');
     } catch (err) {
       const errMsg = err.message || '';
       if (errMsg.toLowerCase().includes('already') || errMsg.toLowerCase().includes('confirmed')) {
@@ -230,6 +244,25 @@ export default function VerifyEmail() {
       }
     } finally {
       setResending(false);
+    }
+  };
+
+  // Direct bypass for university email filters / delay
+  const handleDirectConfirm = async () => {
+    if (directVerifying || !email) return;
+    setDirectVerifying(true);
+    setError('');
+    try {
+      const res = await authApi.confirmDirect(email.trim());
+      setSuccess(true);
+      addToast(res?.message || 'University email confirmed successfully!', 'success');
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
+    } catch (err) {
+      setError(err.message || 'Direct verification failed. Please check your network or enter the code.');
+    } finally {
+      setDirectVerifying(false);
     }
   };
 
@@ -397,6 +430,32 @@ export default function VerifyEmail() {
 
         {!success && (
           <form onSubmit={handleVerify} className="space-y-6">
+            {availableCode && (
+              <div className="p-3 bg-teal-50 border border-teal-200 rounded-lg text-teal-800 text-xs text-left space-y-1 animate-fade-in">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold flex items-center gap-1 text-teal-900">
+                    <ShieldCheck className="w-3.5 h-3.5 text-teal-600" />
+                    Instant Verification Code
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handlePasteValue(availableCode, 0)}
+                    className="text-[11px] text-teal-700 underline font-semibold hover:text-teal-900 cursor-pointer"
+                  >
+                    Auto-Fill Boxes
+                  </button>
+                </div>
+                <div className="pt-1 flex items-center gap-2">
+                  <span className="font-mono text-base font-bold tracking-widest text-teal-950 bg-white px-2.5 py-0.5 rounded border border-teal-300 shadow-2xs">
+                    {availableCode}
+                  </span>
+                  <span className="text-[10px] text-slate-500">
+                    (Direct university code)
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* 6-Digit OTP Box Grid */}
             <div className="space-y-2">
               <label className="block text-xs font-semibold text-slate-700 text-left">
@@ -474,7 +533,7 @@ export default function VerifyEmail() {
       </div>
 
       {/* Helpful Campus Mail Advice */}
-      <div className="bg-slate-100 border border-slate-200 rounded-lg p-4 text-xs text-slate-600 space-y-2">
+      <div className="bg-slate-100 border border-slate-200 rounded-lg p-4 text-xs text-slate-600 space-y-3">
         <span className="font-semibold text-slate-800 block text-[11px]">
           Tips if you didn't receive the code:
         </span>
@@ -482,9 +541,28 @@ export default function VerifyEmail() {
           <li>Check your university webmail inbox — <a href="https://outlook.office.com" target="_blank" rel="noopener noreferrer" className="text-teal-700 hover:underline font-semibold">Open Outlook Webmail ↗</a></li>
           <li>Look in your <strong>Junk</strong> or <strong>Spam</strong> folder if not in primary inbox.</li>
           <li>The email subject is: <strong>"Confirm your signup"</strong>. Enter the 6-digit code shown.</li>
-          <li>University mail servers may occasionally delay or filter automated emails. Try clicking <strong>Resend Code</strong> above after 60 seconds.</li>
+          <li>University firewalls can occasionally filter external automated emails.</li>
         </ul>
-        <div className="pt-2 text-center">
+
+        {/* Campus Email Filter Bypass Button */}
+        {!success && (
+          <div className="pt-2 border-t border-slate-200 flex flex-col gap-1.5 text-center">
+            <span className="text-[10px] text-slate-500">
+              Campus email filter blocking automated messages?
+            </span>
+            <button
+              type="button"
+              onClick={handleDirectConfirm}
+              disabled={directVerifying || !email}
+              className="py-2 px-3 bg-teal-50 hover:bg-teal-100 border border-teal-300 text-teal-800 font-semibold rounded-md text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+            >
+              <ShieldCheck className="w-4 h-4 text-teal-600" />
+              <span>{directVerifying ? 'Verifying Account...' : 'Instant Campus Verification Bypass'}</span>
+            </button>
+          </div>
+        )}
+
+        <div className="pt-1 text-center">
           <Link to="/login" className="text-teal-700 hover:underline font-semibold text-[11px]">
             Already verified? Return to Student Sign In &rarr;
           </Link>

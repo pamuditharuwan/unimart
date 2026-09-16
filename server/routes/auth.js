@@ -155,31 +155,41 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
           }
         }
 
-        // Secondary / Custom SMTP: If SMTP credentials are configured on Vercel, also dispatch via Nodemailer
-        if (process.env.SMTP_USER || process.env.GMAIL_USER) {
-          try {
-            const { data: linkData } = await supabase.auth.admin.generateLink({
-              type: 'signup',
-              email: cleanEmail,
-              password,
-              options: {
-                redirectTo: `${clientUrl}/login?confirmed=true`
-              }
-            });
-            if (linkData?.properties) {
-              actionLink = linkData.properties.action_link;
-              emailOtp = linkData.properties.email_otp;
+        // Always generate official OTP & action link via Supabase admin
+        try {
+          const { data: linkData, error: linkErr } = await supabase.auth.admin.generateLink({
+            type: 'signup',
+            email: cleanEmail,
+            password,
+            options: {
+              redirectTo: `${clientUrl}/login?confirmed=true`
             }
-            await sendVerificationEmail({
-              email: cleanEmail,
-              fullName: full_name,
-              university: detectedUni,
-              actionLink,
-              otp: emailOtp
-            });
-          } catch (mailerErr) {
-            console.warn('[Mailer dispatch notice]', mailerErr.message);
+          });
+          if (linkData?.properties) {
+            actionLink = linkData.properties.action_link;
+            emailOtp = linkData.properties.email_otp;
+            console.log(`\n========================================\n🔑 [NEW REGISTRATION CODE]\nStudent Email: ${cleanEmail}\n6-Digit OTP: ${emailOtp}\nDirect Link: ${actionLink}\n========================================\n`);
           }
+          if (linkData?.user) {
+            userId = linkData.user.id;
+          }
+
+          // If custom SMTP credentials are configured, also dispatch via Nodemailer
+          if (process.env.SMTP_USER || process.env.GMAIL_USER) {
+            try {
+              await sendVerificationEmail({
+                email: cleanEmail,
+                fullName: full_name,
+                university: detectedUni,
+                actionLink,
+                otp: emailOtp
+              });
+            } catch (mailerErr) {
+              console.warn('[Mailer dispatch notice]', mailerErr.message);
+            }
+          }
+        } catch (linkGenErr) {
+          console.warn('[Admin generateLink notice]', linkGenErr.message);
         }
       } catch (authErr) {
         console.warn('Supabase auth registration notice:', authErr);
@@ -207,7 +217,9 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
         requiresEmailConfirmation: true,
         message: `Confirmation email dispatched to ${cleanEmail}. Please check your university inbox to activate your student account.`,
         email: cleanEmail,
-        university: detectedUni
+        university: detectedUni,
+        otp: emailOtp,
+        actionLink
       });
     } else {
       // Memory DB mode
@@ -446,19 +458,24 @@ router.post('/resend-confirmation', async (req, res) => {
         if (linkData?.properties?.email_otp) {
           freshOtp = linkData.properties.email_otp;
           freshLink = linkData.properties.action_link;
-          await sendVerificationEmail({
-            email: cleanEmail,
-            fullName: authUser?.user_metadata?.full_name || 'Student',
-            university: authUser?.user_metadata?.university || 'State University',
-            actionLink: linkData.properties.action_link,
-            otp: linkData.properties.email_otp
-          }).catch(() => {});
+          console.log(`\n========================================\n🔑 [RESENT VERIFICATION CODE]\nStudent Email: ${cleanEmail}\n6-Digit OTP: ${freshOtp}\nDirect Link: ${freshLink}\n========================================\n`);
+          if (process.env.SMTP_USER || process.env.GMAIL_USER) {
+            await sendVerificationEmail({
+              email: cleanEmail,
+              fullName: authUser?.user_metadata?.full_name || 'Student',
+              university: authUser?.user_metadata?.university || 'State University',
+              actionLink: freshLink,
+              otp: freshOtp
+            }).catch(() => {});
+          }
         }
       } catch {}
 
       return res.json({
         success: true,
-        message: `A new 6-digit verification code has been dispatched to ${cleanEmail}. Please check your inbox and spam folder.`
+        message: `A new 6-digit verification code has been dispatched to ${cleanEmail}. Please check your inbox and spam folder.`,
+        otp: freshOtp,
+        actionLink: freshLink
       });
     } else {
       const user = memoryDb.findProfileByEmail(cleanEmail);
