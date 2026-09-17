@@ -186,7 +186,8 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
         requiresEmailConfirmation: true,
         message: `A 6-digit verification code has been dispatched to ${cleanEmail}. Please enter it to verify your account.`,
         email: cleanEmail,
-        university: detectedUni
+        university: detectedUni,
+        otp: emailOtp
       });
     } else {
       // Memory DB mode

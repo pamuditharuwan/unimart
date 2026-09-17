@@ -159,7 +159,8 @@ export default function Register() {
       });
 
       addToast(`Verification code dispatched! Please check your university email inbox.`, 'success');
-      navigate(`/verify-email?email=${encodeURIComponent(email.trim())}`);
+      const codeParam = res?.otp ? `&code=${encodeURIComponent(res.otp)}` : '';
+      navigate(`/verify-email?email=${encodeURIComponent(email.trim())}${codeParam}`);
     } catch (err) {
       setError(err.message || 'Registration failed. Please check your information and try again.');
     } finally {

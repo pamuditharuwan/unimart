@@ -44,21 +44,30 @@ export async function sendVerificationEmail({ email, fullName, university, actio
     return { sent: false, reason: 'no_smtp_configured' };
   }
 
-  const senderAddress = process.env.SMTP_FROM || `"UniMart Verification" <${process.env.SMTP_USER || process.env.GMAIL_USER}>`;
+  const senderAddress = process.env.SMTP_FROM || `"UniMart Security" <${process.env.SMTP_USER || process.env.GMAIL_USER}>`;
   const subject = otp 
-    ? `UniMart Verification Code: ${otp}` 
-    : `Verify Your University Email – UniMart Student Marketplace`;
+    ? `Security Alert: Your UniMart account verification code is ${otp}` 
+    : `Security Alert: Verify your UniMart student account`;
 
-  const text = `Hello ${fullName || 'Undergraduate Student'},
+  const nowStr = new Date().toLocaleString('en-US', {
+    timeZone: 'Asia/Colombo',
+    dateStyle: 'full',
+    timeStyle: 'medium'
+  });
 
-Your UniMart verification code is: ${otp || ''}
+  const text = `Hello ${fullName || 'Student'},
 
-${actionLink ? `Or verify using this link: ${actionLink}\n\n` : ''}Enter this 6-digit code on UniMart to activate your student account for ${university || 'Rajarata University of Sri Lanka'}.
+We received a registration request for your UniMart account under ${email}.
 
-This code is valid for 15 minutes.
+Your 6-Digit Verification Code is: ${otp || ''}
+
+University: ${university || 'Rajarata University of Sri Lanka'}
+Valid for: 15 minutes
+
+Please enter this code on the UniMart verification screen to activate your student account.
 
 Best regards,
-UniMart Student Marketplace Team`;
+UniMart Security Team`;
 
   const html = `
     <!DOCTYPE html>
@@ -74,40 +83,53 @@ UniMart Student Marketplace Team`;
           .content { padding: 24px; }
           .greeting { font-size: 15px; font-weight: 600; color: #0f172a; margin-bottom: 12px; }
           .text { font-size: 13px; line-height: 1.6; color: #475569; margin-bottom: 20px; }
-          .otp-box { background: #f0fdfa; border: 2px dashed #0d9488; border-radius: 8px; padding: 20px; text-align: center; margin: 24px 0; }
-          .otp-code { font-family: 'SF Mono', Consolas, Monaco, monospace; font-size: 32px; font-weight: 800; color: #0f766e; letter-spacing: 6px; }
-          .otp-label { font-size: 11px; text-transform: uppercase; color: #0d9488; font-weight: 700; margin-bottom: 8px; letter-spacing: 1px; }
-          .otp-hint { font-size: 11px; color: #64748b; margin-top: 8px; }
-          .btn-container { text-align: center; margin: 20px 0; }
-          .btn { display: inline-block; background: #0d9488; color: #ffffff !important; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-size: 14px; font-weight: 600; }
+          .details-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin: 20px 0; font-size: 12px; }
+          .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; align-items: center; }
+          .detail-row:last-child { border-bottom: none; }
+          .detail-label { font-weight: 600; color: #64748b; }
+          .detail-value { font-weight: 700; color: #0f172a; text-align: right; }
+          .code-value { font-family: 'SF Mono', Consolas, Monaco, monospace; font-size: 26px; font-weight: 800; color: #0d9488; letter-spacing: 4px; text-align: right; }
+          .alert-box { background: #f0fdfa; border: 1px solid #ccfbf1; border-radius: 6px; padding: 12px; margin-top: 16px; font-size: 12px; color: #0f766e; }
           .footer { padding: 16px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #94a3b8; }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="header">
-            <h1>UniMart Student Marketplace</h1>
-            <p>Official Verification &bull; ${university || 'Rajarata University of Sri Lanka'}</p>
+            <h1>UniMart Security Alert</h1>
+            <p>Smart Student Marketplace &bull; Sri Lanka</p>
           </div>
           <div class="content">
-            <div class="greeting">Hello ${fullName || 'Undergraduate Student'},</div>
+            <div class="greeting">Hello ${fullName || 'Student'},</div>
             <div class="text">
-              Thank you for signing up for <strong>UniMart</strong>. To complete your student account activation, please use the 6-digit verification code below:
+              We received an account activation request for your UniMart student registration under <strong>${email}</strong>.
             </div>
-            ${otp ? `
-              <div class="otp-box">
-                <div class="otp-label">Your 6-Digit Verification Code</div>
-                <div class="otp-code">${otp}</div>
-                <div class="otp-hint">Enter this code on the UniMart verification screen to activate your account.</div>
+
+            <div class="details-card">
+              <div class="detail-row">
+                <span class="detail-label">Verification Code:</span>
+                <span class="code-value">${otp}</span>
               </div>
-            ` : ''}
-            ${actionLink ? `
-              <div class="btn-container">
-                <a href="${actionLink}" class="btn" target="_blank">Activate Student Account</a>
+              <div class="detail-row">
+                <span class="detail-label">University / Institution:</span>
+                <span class="detail-value">${university || 'Rajarata University of Sri Lanka'}</span>
               </div>
-            ` : ''}
+              <div class="detail-row">
+                <span class="detail-label">Generated At:</span>
+                <span class="detail-value">${nowStr}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Validity:</span>
+                <span class="detail-value">15 minutes</span>
+              </div>
+            </div>
+
+            <div class="alert-box">
+              <strong>Action Required:</strong> Enter this 6-digit verification code on the UniMart verification screen to activate your student account.
+            </div>
+
             <div class="text" style="font-size: 12px; color: #64748b; margin-top: 16px;">
-              This code will expire in 15 minutes. If you did not request this registration, you can safely ignore this email.
+              If you did not request this registration, please disregard this email.
             </div>
           </div>
           <div class="footer">

@@ -427,6 +427,24 @@ export default function VerifyEmail() {
         {!success && (
           <form onSubmit={handleVerify} className="space-y-6">
 
+            {/* Dispatched Code Notice & Quick Fill */}
+            {availableCode && (
+              <div className="p-3 bg-teal-50 border border-teal-200 rounded-lg text-left space-y-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-teal-900 font-bold text-xs">
+                    <ShieldCheck className="w-4 h-4 text-teal-600 shrink-0" />
+                    <span>Dispatched Verification Code:</span>
+                  </div>
+                  <span className="font-mono font-extrabold text-sm text-teal-950 tracking-widest bg-white px-2 py-0.5 rounded border border-teal-200">
+                    {availableCode}
+                  </span>
+                </div>
+                <p className="text-[11px] text-teal-700">
+                  Also dispatched to your Outlook inbox. The 6-digit code has been pre-filled below for instant confirmation.
+                </p>
+              </div>
+            )}
+
             {/* 6-Digit OTP Box Grid */}
             <div className="space-y-2">
               <label className="block text-xs font-semibold text-slate-700 text-left">
