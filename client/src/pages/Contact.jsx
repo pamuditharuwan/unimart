@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '../components/Toast';
 import { useAuth } from '../context/AuthContext';
+import { contactApi } from '../services/api';
 
 export default function Contact() {
   const { user } = useAuth();
@@ -25,7 +26,7 @@ export default function Contact() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.email.trim() || !formData.subject.trim() || !formData.message.trim()) {
       addToast('Please fill in all required fields.', 'error');
@@ -33,12 +34,22 @@ export default function Contact() {
     }
 
     setSubmitting(true);
-    // Simulate sending inquiry
-    setTimeout(() => {
-      setSubmitting(false);
+    try {
+      const res = await contactApi.sendInquiry({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        category: formData.category,
+        subject: formData.subject.trim(),
+        message: formData.message.trim()
+      });
       setSubmitted(true);
-      addToast('Your inquiry has been sent successfully!', 'success');
-    }, 500);
+      addToast(res.message || 'Your inquiry has been dispatched to UniMart Support (support.unimart.lk@gmail.com)!', 'success');
+    } catch (err) {
+      console.error('Inquiry error:', err);
+      addToast(err.message || 'Failed to dispatch inquiry. Please check your network.', 'error');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (

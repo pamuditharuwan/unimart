@@ -526,3 +526,13 @@ export const usersApi = {
     }
   }
 };
+
+// Contact & Support Inquiries API
+export const contactApi = {
+  sendInquiry: async (inquiryData) => {
+    return await request('/contact', {
+      method: 'POST',
+      body: JSON.stringify(inquiryData)
+    });
+  }
+};

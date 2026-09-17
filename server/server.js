@@ -13,6 +13,7 @@ import categoriesRoutes from './routes/categories.js';
 import messagesRoutes from './routes/messages.js';
 import reviewsRoutes from './routes/reviews.js';
 import usersRoutes from './routes/users.js';
+import contactRoutes from './routes/contact.js';
 import { isSupabaseConfigured, memoryDb } from './config/db.js';
 import { getAllowedDomains } from './middleware/domainCheck.js';
 
@@ -46,6 +47,7 @@ app.use(['/api/categories', '/categories'], categoriesRoutes);
 app.use(['/api/messages', '/messages'], messagesRoutes);
 app.use(['/api/reviews', '/reviews'], reviewsRoutes);
 app.use(['/api/users', '/users'], usersRoutes);
+app.use(['/api/contact', '/contact'], contactRoutes);
 
 // System Health & Info
 app.get(['/api/health', '/health'], (req, res) => {

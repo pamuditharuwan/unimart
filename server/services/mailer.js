@@ -330,3 +330,129 @@ export async function sendPasswordResetEmail({ email, fullName, university, acti
     return { sent: false, error: err.message };
   }
 }
+
+export async function sendInquiryEmail({ name, email, category, subject, message }) {
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.log('[Mailer] SMTP not configured for inquiry email.');
+    return { sent: false, reason: 'no_smtp_configured' };
+  }
+
+  const senderAddress = process.env.SMTP_FROM || `"UniMart Support Desk" <${process.env.SMTP_USER || process.env.GMAIL_USER || 'support.unimart.lk@gmail.com'}>`;
+  const supportEmail = 'support.unimart.lk@gmail.com';
+
+  const categoryMap = {
+    general: 'General Inquiry',
+    account: 'Account & Verification',
+    hardware: 'Academic Hardware',
+    skills: 'Student Skills / Services',
+    safety: 'Trust & Safety',
+    feedback: 'Platform Feedback & Suggestions'
+  };
+  const categoryName = categoryMap[category] || category || 'General Inquiry';
+
+  const nowStr = new Date().toLocaleString('en-US', {
+    timeZone: 'Asia/Colombo',
+    dateStyle: 'full',
+    timeStyle: 'medium'
+  });
+
+  const mailSubject = `[UniMart Inquiry - ${categoryName}] ${subject}`;
+
+  const text = `New Student Inquiry Received on UniMart:
+----------------------------------------
+Category: ${categoryName}
+Sender Name: ${name}
+Sender Email: ${email}
+Subject: ${subject}
+Received At: ${nowStr}
+----------------------------------------
+Message Description:
+${message}
+----------------------------------------
+You can reply directly to this email to contact the student (${email}).`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 24px; }
+          .container { max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+          .header { background: #0f172a; color: #ffffff; padding: 20px 24px; }
+          .header h1 { margin: 0; font-size: 20px; font-weight: 700; color: #5eead4; }
+          .header p { margin: 4px 0 0 0; font-size: 12px; color: #94a3b8; }
+          .badge { display: inline-block; background: #0d9488; color: #ffffff; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-top: 8px; text-transform: uppercase; }
+          .content { padding: 24px; }
+          .details-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin: 16px 0; font-size: 13px; }
+          .detail-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
+          .detail-row:last-child { border-bottom: none; }
+          .detail-label { font-weight: 600; color: #64748b; }
+          .detail-value { font-weight: 600; color: #0f172a; text-align: right; }
+          .message-box { background: #ffffff; border: 1px solid #cbd5e1; border-left: 4px solid #0d9488; border-radius: 4px; padding: 16px; margin-top: 16px; font-size: 13px; line-height: 1.6; color: #334155; white-space: pre-wrap; }
+          .reply-notice { background: #f0fdfa; border: 1px solid #ccfbf1; border-radius: 6px; padding: 12px; margin-top: 20px; font-size: 12px; color: #0f766e; }
+          .footer { padding: 16px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #94a3b8; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>New Student Inquiry</h1>
+            <p>UniMart Campus Support Desk &bull; Rajarata University</p>
+            <span class="badge">${categoryName}</span>
+          </div>
+          <div class="content">
+            <div class="details-card">
+              <div class="detail-row">
+                <span class="detail-label">Sender Name:</span>
+                <span class="detail-value">${name}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">University Email:</span>
+                <span class="detail-value">${email}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Subject:</span>
+                <span class="detail-value">${subject}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Submitted At:</span>
+                <span class="detail-value">${nowStr}</span>
+              </div>
+            </div>
+
+            <div style="font-size: 13px; font-weight: 700; color: #0f172a; margin-top: 20px;">
+              Inquiry Description:
+            </div>
+            <div class="message-box">${message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+
+            <div class="reply-notice">
+              💡 <strong>Direct Reply Available:</strong> Simply click "Reply" in your email client to respond directly to <strong>${email}</strong>.
+            </div>
+          </div>
+          <div class="footer">
+            UniMart &bull; Smart Student Marketplace
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  try {
+    const info = await transporter.sendMail({
+      from: senderAddress,
+      to: supportEmail,
+      replyTo: `"${name}" <${email}>`,
+      subject: mailSubject,
+      text,
+      html
+    });
+    console.log(`✅ [Mailer] Inquiry email dispatched to ${supportEmail} from ${email} (Message ID: ${info.messageId})`);
+    return { sent: true, messageId: info.messageId };
+  } catch (err) {
+    console.error(`❌ [Mailer] Failed to send inquiry email to ${supportEmail}:`, err.message);
+    return { sent: false, error: err.message };
+  }
+}
+
