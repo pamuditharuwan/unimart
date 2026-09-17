@@ -44,10 +44,10 @@ export async function sendVerificationEmail({ email, fullName, university, actio
     return { sent: false, reason: 'no_smtp_configured' };
   }
 
-  const senderAddress = process.env.SMTP_FROM || `"UniMart Security" <${process.env.SMTP_USER || process.env.GMAIL_USER}>`;
+  const senderAddress = process.env.SMTP_FROM || `"UniMart Student Marketplace" <${process.env.SMTP_USER || process.env.GMAIL_USER}>`;
   const subject = otp 
-    ? `Security Alert: Your UniMart account verification code is ${otp}` 
-    : `Security Alert: Verify your UniMart student account`;
+    ? `UniMart Verification Code: ${otp}` 
+    : `Verify your UniMart student account`;
 
   const nowStr = new Date().toLocaleString('en-US', {
     timeZone: 'Asia/Colombo',
@@ -57,7 +57,7 @@ export async function sendVerificationEmail({ email, fullName, university, actio
 
   const text = `Hello ${fullName || 'Student'},
 
-We received a registration request for your UniMart account under ${email}.
+Welcome to UniMart! We received a registration request for your student account under ${email}.
 
 Your 6-Digit Verification Code is: ${otp || ''}
 
@@ -67,7 +67,8 @@ Valid for: 15 minutes
 Please enter this code on the UniMart verification screen to activate your student account.
 
 Best regards,
-UniMart Security Team`;
+UniMart Campus Support
+support.unimart.lk@gmail.com`;
 
   const html = `
     <!DOCTYPE html>
@@ -96,13 +97,13 @@ UniMart Security Team`;
       <body>
         <div class="container">
           <div class="header">
-            <h1>UniMart Security Alert</h1>
-            <p>Smart Student Marketplace &bull; Sri Lanka</p>
+            <h1>UniMart Student Marketplace</h1>
+            <p>Rajarata University of Sri Lanka &bull; Student Verification</p>
           </div>
           <div class="content">
             <div class="greeting">Hello ${fullName || 'Student'},</div>
             <div class="text">
-              We received an account activation request for your UniMart student registration under <strong>${email}</strong>.
+              Welcome to UniMart! We received an account activation request for your student registration under <strong>${email}</strong>.
             </div>
 
             <div class="details-card">
@@ -144,6 +145,7 @@ UniMart Security Team`;
     const info = await transporter.sendMail({
       from: senderAddress,
       to: email,
+      replyTo: process.env.SMTP_USER || process.env.GMAIL_USER,
       subject,
       text,
       html

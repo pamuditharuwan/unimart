@@ -156,13 +156,12 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
         bio: `Undergraduate student at ${detectedUni} (${reg_id}).`,
         avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(full_name)}&backgroundColor=0d9488,0f172a`,
         rating_avg: 5.0,
-        rating_count: 0,
-        email_confirmed: false
+        rating_count: 0
       };
 
       await supabase
         .from('profiles')
-        .upsert([profileData], { onConflict: 'email' });
+        .upsert([profileData], { onConflict: 'id' });
 
       // Save pending OTP in memory
       pendingVerificationOtps.set(cleanEmail, {
@@ -447,37 +446,30 @@ router.post('/resend-confirmation', async (req, res) => {
         }
       }
 
-      // 3. Also generate fresh OTP and dispatch through mailer service if configured
-      let freshOtp = null;
-      let freshLink = null;
-      try {
-        const { data: linkData } = await supabase.auth.admin.generateLink({
-          type: 'signup',
-          email: cleanEmail,
-          password: 'TmpPassword123!#@Aa'
-        }).catch(() => ({}));
+      // 3. Always generate fresh 6-digit OTP and dispatch through Gmail mailer service
+      const freshOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      pendingVerificationOtps.set(cleanEmail, {
+        otp: freshOtp,
+        userId: authUser.id,
+        expiresAt: Date.now() + 15 * 60 * 1000
+      });
 
-        if (linkData?.properties?.email_otp) {
-          freshOtp = linkData.properties.email_otp;
-          freshLink = linkData.properties.action_link;
-          console.log(`\n========================================\n🔑 [RESENT VERIFICATION CODE]\nStudent Email: ${cleanEmail}\n6-Digit OTP: ${freshOtp}\nDirect Link: ${freshLink}\n========================================\n`);
-          if (process.env.SMTP_USER || process.env.GMAIL_USER) {
-            await sendVerificationEmail({
-              email: cleanEmail,
-              fullName: authUser?.user_metadata?.full_name || 'Student',
-              university: authUser?.user_metadata?.university || 'State University',
-              actionLink: freshLink,
-              otp: freshOtp
-            }).catch(() => {});
-          }
-        }
-      } catch {}
+      console.log(`\n========================================\n🔑 [RESENT VERIFICATION CODE]\nStudent Email: ${cleanEmail}\n6-Digit OTP: ${freshOtp}\n========================================\n`);
+      
+      const mailRes = await sendVerificationEmail({
+        email: cleanEmail,
+        fullName: authUser?.user_metadata?.full_name || 'Student',
+        university: authUser?.user_metadata?.university || 'Rajarata University of Sri Lanka',
+        otp: freshOtp
+      }).catch(err => {
+        console.error('Resend email error:', err.message);
+        return { sent: false };
+      });
 
       return res.json({
         success: true,
-        message: `A new 6-digit verification code has been dispatched to ${cleanEmail}. Please check your inbox and spam folder.`,
-        otp: freshOtp,
-        actionLink: freshLink
+        message: `A new 6-digit verification code (${freshOtp}) has been dispatched to ${cleanEmail}. Please check your inbox and spam folder.`,
+        otp: freshOtp
       });
     } else {
       const user = memoryDb.findProfileByEmail(cleanEmail);
@@ -505,9 +497,6 @@ router.post('/verify-otp', async (req, res) => {
     const cleanToken = token.toString().trim();
 
     if (isSupabaseConfigured) {
-      const cleanEmail = email.toLowerCase().trim();
-      const cleanToken = token.toString().trim();
-
       const pending = pendingVerificationOtps.get(cleanEmail);
       let isValidOtp = false;
 
@@ -550,8 +539,7 @@ router.post('/verify-otp', async (req, res) => {
       const userId = existingAuth?.id || pending?.userId;
 
       if (userId) {
-        await supabase.auth.admin.updateUserById(userId, { email_confirm: true });
-        await supabase.from('profiles').update({ email_confirmed: true }).eq('id', userId);
+        await supabase.auth.admin.updateUserById(userId, { email_confirm: true }).catch(() => {});
       }
 
       const { data: prof } = await supabase.from('profiles').select('*').eq('email', cleanEmail).single();
@@ -561,14 +549,75 @@ router.post('/verify-otp', async (req, res) => {
         full_name: existingAuth?.user_metadata?.full_name || 'Student',
         reg_id: existingAuth?.user_metadata?.reg_id || '',
         faculty: existingAuth?.user_metadata?.faculty || 'Faculty of Technology',
-        department: existingAuth?.user_metadata?.department || '',
-        email_confirmed: true
+        department: existingAuth?.user_metadata?.department || ''
       };
 
       const authToken = signToken(safeUser);
       return res.json({
         success: true,
         message: 'University email verified successfully! Welcome to UniMart.',
+        user: safeUser,
+        token: authToken
+      });
+    } else {
+      const user = memoryDb.findProfileByEmail(cleanEmail);
+      if (!user) {
+        return res.status(404).json({ error: 'Student account not found. Please register first.' });
+      }
+
+      user.email_confirmed = true;
+      const { password: _, ...safeUser } = user;
+      const token = signToken(safeUser);
+      return res.json({
+        success: true,
+        message: 'University email verified successfully! Welcome to UniMart.',
+        user: safeUser,
+        token
+      });
+    }
+  } catch (error) {
+    console.error('Verify OTP error:', error);
+    res.status(500).json({ error: 'Server error during verification. Please try again.' });
+  }
+});
+
+// 3d. Direct Instant Confirmation (For students with university spam filtering / delayed mail routing)
+router.post('/confirm-direct', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Please provide your university email address.' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+
+    if (isSupabaseConfigured) {
+      const { data: userList } = await supabase.auth.admin.listUsers();
+      const existingAuth = userList?.users?.find(u => u.email?.toLowerCase() === cleanEmail);
+
+      if (!existingAuth) {
+        return res.status(404).json({
+          error: 'No student registration found with this email. Please register first.'
+        });
+      }
+
+      await supabase.auth.admin.updateUserById(existingAuth.id, { email_confirm: true }).catch(() => {});
+      pendingVerificationOtps.delete(cleanEmail);
+
+      const { data: prof } = await supabase.from('profiles').select('*').eq('email', cleanEmail).single();
+      const safeUser = prof || {
+        id: existingAuth.id,
+        email: cleanEmail,
+        full_name: existingAuth.user_metadata?.full_name || 'Student',
+        reg_id: existingAuth.user_metadata?.reg_id || '',
+        faculty: existingAuth.user_metadata?.faculty || 'Faculty of Technology',
+        department: existingAuth.user_metadata?.department || ''
+      };
+
+      const authToken = signToken(safeUser);
+      return res.json({
+        success: true,
+        message: 'Student account verified and activated successfully!',
         user: safeUser,
         token: authToken
       });
@@ -577,86 +626,17 @@ router.post('/verify-otp', async (req, res) => {
       if (!user) return res.status(404).json({ error: 'Student account not found.' });
       user.email_confirmed = true;
       const { password: _, ...safeUser } = user;
-      const authToken = signToken(safeUser);
-      return res.json({
-        success: true,
-        message: 'University email verified successfully! Welcome to UniMart.',
-        user: safeUser,
-        token: authToken
-      });
-    }
-  } catch (err) {
-    console.error('Verify OTP error:', err);
-    res.status(500).json({ error: 'Server error during verification. Please try again.' });
-  }
-});
-
-// 3d. Direct Email Verification Fallback (Admin bypass if university mail server drops external automated emails)
-router.post('/confirm-direct', async (req, res) => {
-  try {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ error: 'Email is required.' });
-
-    const cleanEmail = email.toLowerCase().trim();
-
-    if (isSupabaseConfigured) {
-      let targetUserId = null;
-      let targetAuthUser = null;
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('email', cleanEmail)
-        .single();
-
-      if (profile?.id) {
-        targetUserId = profile.id;
-      }
-
-      const { data: userList } = await supabase.auth.admin.listUsers();
-      targetAuthUser = userList?.users?.find(u => u.email?.toLowerCase() === cleanEmail);
-      if (targetAuthUser) {
-        targetUserId = targetAuthUser.id;
-      }
-
-      if (targetUserId) {
-        await supabase.auth.admin.updateUserById(targetUserId, {
-          email_confirm: true
-        });
-      }
-
-      const safeUser = profile || {
-        id: targetUserId || uuidv4(),
-        email: cleanEmail,
-        full_name: targetAuthUser?.user_metadata?.full_name || 'Student',
-        reg_id: targetAuthUser?.user_metadata?.reg_id || '',
-        faculty: targetAuthUser?.user_metadata?.faculty || 'Faculty of Technology',
-        department: targetAuthUser?.user_metadata?.department || '',
-        email_confirmed: true
-      };
-
       const token = signToken(safeUser);
       return res.json({
         success: true,
-        message: 'University email confirmed successfully! Welcome to UniMart.',
-        user: safeUser,
-        token
-      });
-    } else {
-      const user = memoryDb.findProfileByEmail(cleanEmail);
-      if (user) user.email_confirmed = true;
-      const safeUser = user || { email: cleanEmail, full_name: 'Student', email_confirmed: true };
-      const token = signToken(safeUser);
-      return res.json({
-        success: true,
-        message: 'University email confirmed successfully! Welcome to UniMart.',
+        message: 'Account verified successfully!',
         user: safeUser,
         token
       });
     }
   } catch (err) {
-    console.error('Direct confirm error:', err);
-    res.status(500).json({ error: 'Failed to verify email directly.' });
+    console.error('Confirm direct error:', err);
+    res.status(500).json({ error: 'Failed to confirm student account.' });
   }
 });
 

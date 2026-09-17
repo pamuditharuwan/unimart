@@ -440,7 +440,7 @@ export default function VerifyEmail() {
                   </span>
                 </div>
                 <p className="text-[11px] text-teal-700">
-                  Also dispatched to your Outlook inbox. The 6-digit code has been pre-filled below for instant confirmation.
+                  Also dispatched to your university inbox. The 6-digit code has been pre-filled below for instant confirmation.
                 </p>
               </div>
             )}
@@ -496,27 +496,42 @@ export default function VerifyEmail() {
           </form>
         )}
 
-        {/* Resend Code Section with Countdown */}
+        {/* Resend Code Section & Instant Activation */}
         {!success && (
-          <div className="pt-2 border-t border-slate-100 flex flex-col items-center gap-2 text-xs text-slate-600">
+          <div className="pt-3 border-t border-slate-100 flex flex-col items-center gap-3 text-xs text-slate-600">
             <span className="text-[11px] text-slate-500">
-              Didn't receive the email in your student inbox?
+              Didn't receive the email? (Check Spam / Junk folder or activate instantly)
             </span>
-            <button
-              type="button"
-              onClick={handleResendCode}
-              disabled={countdown > 0 || resending || !email}
-              className="font-semibold text-teal-700 hover:text-teal-900 disabled:text-slate-400 disabled:hover:text-slate-400 flex items-center gap-1.5 transition-colors cursor-pointer disabled:cursor-not-allowed"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${resending ? 'animate-spin' : ''}`} />
-              <span>
-                {resending
-                  ? 'Sending new code...'
-                  : countdown > 0
-                  ? `Resend code in ${countdown}s`
-                  : 'Resend Code'}
-              </span>
-            </button>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={handleResendCode}
+                disabled={countdown > 0 || resending || !email}
+                className="font-semibold text-teal-700 hover:text-teal-900 disabled:text-slate-400 disabled:hover:text-slate-400 flex items-center gap-1.5 transition-colors cursor-pointer disabled:cursor-not-allowed"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${resending ? 'animate-spin' : ''}`} />
+                <span>
+                  {resending
+                    ? 'Sending new code...'
+                    : countdown > 0
+                    ? `Resend code in ${countdown}s`
+                    : 'Resend Code'}
+                </span>
+              </button>
+
+              <span className="text-slate-300">|</span>
+
+              <button
+                type="button"
+                onClick={handleDirectConfirm}
+                disabled={directVerifying || !email}
+                className="font-semibold text-teal-700 hover:text-teal-900 flex items-center gap-1.5 transition-colors cursor-pointer"
+                title="Bypass university email filtering delay"
+              >
+                <ShieldCheck className={`w-3.5 h-3.5 ${directVerifying ? 'animate-spin' : 'text-teal-600'}`} />
+                <span>{directVerifying ? 'Activating...' : 'Instant Campus Verification'}</span>
+              </button>
+            </div>
           </div>
         )}
       </div>
