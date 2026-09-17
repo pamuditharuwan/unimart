@@ -30,10 +30,15 @@ export default function Browse() {
 
   // Sync URL searchParams to local state when URL changes
   useEffect(() => {
-    if (searchParams.get('type')) setType(searchParams.get('type'));
-    if (searchParams.get('categoryId')) setCategoryId(searchParams.get('categoryId'));
-    if (searchParams.get('condition')) setCondition(searchParams.get('condition'));
-    if (searchParams.get('search')) setSearchQuery(searchParams.get('search'));
+    const urlType = searchParams.get('type') || 'all';
+    const urlCat = searchParams.get('categoryId') || '';
+    const urlCond = searchParams.get('condition') || 'all';
+    const urlSearch = searchParams.get('search') || '';
+
+    setType(urlType);
+    setCategoryId(urlCat);
+    setCondition(urlCond);
+    setSearchQuery(urlSearch);
   }, [searchParams]);
 
   // Fetch categories on mount
@@ -94,58 +99,22 @@ export default function Browse() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
-      {/* Header & Category Tabs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-300 pb-4">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900">Campus Catalog</h1>
-          <p className="text-xs text-slate-500">
-            Hardware items &amp; student services available on campus
-          </p>
-        </div>
-
-        {/* Type Toggle Tabs */}
-        <div className="flex items-center gap-1 border border-slate-300 rounded p-1 bg-white">
-          <button
-            onClick={() => {
-              setType('all');
-              setCategoryId('');
-            }}
-            className={`px-3 py-1 rounded text-xs font-semibold ${
-              type === 'all'
-                ? 'bg-[#0f172a] text-white'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            All Items
-          </button>
-          <button
-            onClick={() => {
-              setType('hardware');
-              setCategoryId('');
-            }}
-            className={`px-3 py-1 rounded text-xs font-semibold ${
-              type === 'hardware'
-                ? 'bg-[#0f172a] text-white'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            Academic Hardware
-          </button>
-          <button
-            onClick={() => {
-              setType('skill');
-              setCategoryId('');
-              setCondition('all');
-            }}
-            className={`px-3 py-1 rounded text-xs font-semibold ${
-              type === 'skill'
-                ? 'bg-[#0d9488] text-white'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            Student Skills
-          </button>
-        </div>
+      {/* Header */}
+      <div className="border-b border-slate-300 pb-4">
+        <h1 className="text-xl font-bold text-slate-900">
+          {type === 'hardware'
+            ? 'Academic Hardware & Prototyping'
+            : type === 'skill'
+            ? 'Student Skills & Digital Services'
+            : 'All Marketplace Listings'}
+        </h1>
+        <p className="text-xs text-slate-500 mt-0.5">
+          {type === 'hardware'
+            ? 'Microcontrollers, sensor modules, and electronics equipment available on campus'
+            : type === 'skill'
+            ? 'Peer student services including web design, graphic design, video editing, and audio production'
+            : 'Academic hardware & student digital services available on campus'}
+        </p>
       </div>
 
       {/* Search Bar & Sort Dropdown */}

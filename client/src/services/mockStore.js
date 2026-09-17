@@ -61,6 +61,7 @@ export const INITIAL_PROFILES = [
 ];
 
 export const INITIAL_LISTINGS = [
+  // --- 5 Academic Hardware Items ---
   {
     id: '11111111-1111-1111-1111-111111111111',
     user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
@@ -77,12 +78,13 @@ export const INITIAL_LISTINGS = [
     ],
     status: 'active',
     views: 45,
+    contact_phone: '0754567890',
     created_at: '2026-09-01T08:30:00Z'
   },
   {
     id: '22222222-2222-2222-2222-222222222222',
     user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'ESP32 NodeMCU WiFi + Bluetooth Dev Kit (CP2102)',
+    title: 'ESP32 NodeMCU WiFi + Bluetooth Dev Kit CP2102',
     description: 'Brand new in anti-static bag. ESP-WROOM-32 30-pin board with integrated antenna, micro-USB CP2102 programmer, and dual-core Xtensa 32-bit LX6 MCU. Ideal for IoT cloud projects, MQTT communication, and smart home coursework prototypes.',
     category_id: 1,
     item_type: 'hardware',
@@ -95,12 +97,13 @@ export const INITIAL_LISTINGS = [
     ],
     status: 'active',
     views: 62,
+    contact_phone: '0754567890',
     created_at: '2026-09-03T11:20:00Z'
   },
   {
     id: '33333333-3333-3333-3333-333333333333',
     user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'Sensor Bundle: HC-SR04 Ultrasonic + DHT22 Temp & Humidity',
+    title: 'Sensor Pack: HC-SR04 Ultrasonic + DHT22 Temp & Humidity',
     description: 'Working sensor pack for your robotics or weather station project. Includes ultrasonic distance sensor HC-SR04 and high-precision DHT22 (AM2302) digital humidity & temperature sensor. Jumper wires included.',
     category_id: 2,
     item_type: 'hardware',
@@ -113,6 +116,7 @@ export const INITIAL_LISTINGS = [
     ],
     status: 'active',
     views: 31,
+    contact_phone: '0754567890',
     created_at: '2026-09-05T14:10:00Z'
   },
   {
@@ -127,30 +131,34 @@ export const INITIAL_LISTINGS = [
     condition: 'used_like_new',
     location: 'FOT Computer Lab 01',
     images: [
-      '/images/items/oled-display.jpg'
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/OLED_display_module.jpg/800px-OLED_display_module.jpg'
     ],
     status: 'active',
     views: 28,
+    contact_phone: '0754567890',
     created_at: '2026-09-07T16:45:00Z'
   },
   {
     id: '55555555-5555-5555-5555-555555555555',
     user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'Modern Responsive Web Design & Coursework Frontend Coding',
-    description: 'Offering front-end web development services for undergraduate projects, student societies, or personal portfolios. Built using modern React.js, Tailwind CSS, or clean HTML5/CSS3. Fast turnaround, clean code, and fully mobile-friendly.',
-    category_id: 5,
-    item_type: 'skill',
-    price: 5000.00,
-    price_type: 'per_project',
-    condition: null,
-    location: 'Online / Meet at FOT Study Area',
+    title: 'Digital Multimeter (XL830L) with Test Probes & 9V Battery',
+    description: 'Compact digital multimeter with yellow protective holster. Measures AC/DC voltage, DC current, resistance, diode test, and continuity buzzer. Essential for troubleshooting circuit prototypes, checking sensor voltages, and verifying breadboard wiring in electronics lab.',
+    category_id: 3,
+    item_type: 'hardware',
+    price: 1450.00,
+    price_type: 'fixed',
+    condition: 'used_like_new',
+    location: 'FOT Electronics Lab 02 or Main Canteen',
     images: [
-      'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80'
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Digital_Multimeter.jpg/800px-Digital_Multimeter.jpg'
     ],
     status: 'active',
-    views: 74,
-    created_at: '2026-09-02T10:15:00Z'
+    views: 35,
+    contact_phone: '0754567890',
+    created_at: '2026-09-08T08:00:00Z'
   },
+
+  // --- 5 Student Skills Items ---
   {
     id: '66666666-6666-6666-6666-666666666666',
     user_id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
@@ -167,6 +175,7 @@ export const INITIAL_LISTINGS = [
     ],
     status: 'active',
     views: 89,
+    contact_phone: '0773456789',
     created_at: '2026-09-04T13:00:00Z'
   },
   {
@@ -185,6 +194,7 @@ export const INITIAL_LISTINGS = [
     ],
     status: 'active',
     views: 53,
+    contact_phone: '0773456789',
     created_at: '2026-09-06T15:30:00Z'
   },
   {
@@ -203,118 +213,30 @@ export const INITIAL_LISTINGS = [
     ],
     status: 'active',
     views: 40,
+    contact_phone: '0785678901',
     created_at: '2026-09-08T09:00:00Z'
   },
   {
-    id: 'aaaa1111-aaaa-1111-aaaa-111111111111',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'Raspberry Pi 4 Model B (4GB RAM) with Aluminum Armor Case & Fan',
-    description: 'Fully functional Raspberry Pi 4 Model B 4GB version used for a semester IoT edge AI project. Includes passive/active aluminum dual-fan armor heatsink case, official 5.1V 3A USB-C power supply, and 32GB SanDisk Ultra MicroSD card pre-loaded with Raspberry Pi OS. Perfect for computer vision or home automation coursework.',
-    category_id: 1,
-    item_type: 'hardware',
-    price: 18500.00,
-    price_type: 'fixed',
-    condition: 'used_like_new',
-    location: 'FOT Computer Lab 02 or Hostel Block B',
+    id: '99999999-9999-9999-9999-999999999999',
+    user_id: 'ac34aca7-870c-4646-ad1f-33d1dfb1c218',
+    title: 'Modern Responsive Web Design & Coursework Frontend Coding',
+    description: 'Offering front-end web development services for undergraduate projects, student societies, or personal portfolios. Built using modern React.js, Tailwind CSS, or clean HTML5/CSS3. Fast turnaround, clean code, and fully mobile-friendly.',
+    category_id: 5,
+    item_type: 'skill',
+    price: 5000.00,
+    price_type: 'per_project',
+    condition: null,
+    location: 'Online / Meet at FOT Study Area',
     images: [
-      'https://upload.wikimedia.org/wikipedia/commons/f/f1/Raspberry_Pi_4_Model_B_-_Side.jpg'
+      'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80'
     ],
     status: 'active',
-    views: 82,
-    created_at: '2026-09-09T10:00:00Z'
+    views: 74,
+    contact_phone: '0712345678',
+    created_at: '2026-09-02T10:15:00Z'
   },
   {
-    id: 'bbbb2222-bbbb-2222-bbbb-222222222222',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'SG90 Micro Servo Motors (Pack of 4) + PCA9685 16-Channel PWM Driver',
-    description: 'Robotics actuator pack. Includes 4 TowerPro SG90 9g micro servo motors with horns and mounting screws, plus an I2C PCA9685 16-channel 12-bit PWM servo motor driver module. Perfect for robotic arm or pan-tilt camera projects.',
-    category_id: 4,
-    item_type: 'hardware',
-    price: 2400.00,
-    price_type: 'fixed',
-    condition: 'brand_new',
-    location: 'FOT Robotics Workshop / Lab 01',
-    images: [
-      'https://upload.wikimedia.org/wikipedia/commons/4/4d/Tower_Pro_SG90_micro_servo_motor.jpg'
-    ],
-    status: 'active',
-    views: 47,
-    created_at: '2026-09-09T13:20:00Z'
-  },
-  {
-    id: 'cccc3333-cccc-3333-cccc-333333333333',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'L298N Dual H-Bridge Motor Driver Module for Smart Car Chassis',
-    description: 'Heavy duty dual H-bridge motor driver module capable of driving two DC motors or one 4-wire two-phase stepper motor. Includes onboard 5V regulator and large aluminum heatsink. Tested and fully operational in 2nd year robotics coursework.',
-    category_id: 4,
-    item_type: 'hardware',
-    price: 650.00,
-    price_type: 'fixed',
-    condition: 'used_good',
-    location: 'Faculty Library Lobby',
-    images: [
-      '/images/items/l298n-motor-driver.jpg'
-    ],
-    status: 'active',
-    views: 39,
-    created_at: '2026-09-10T09:40:00Z'
-  },
-  {
-    id: 'dddd4444-dddd-4444-dddd-444444444444',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'MB-102 Breadboard Power Supply (3.3V/5V) + 9V DC Battery Connector',
-    description: 'Plug-in dual voltage power supply module for standard 830-point and 400-point breadboards. Independent power rails switchable between 3.3V, 5V, or OFF via jumpers. Includes 9V DC battery snap connector with barrel jack.',
-    category_id: 3,
-    item_type: 'hardware',
-    price: 550.00,
-    price_type: 'fixed',
-    condition: 'brand_new',
-    location: 'Main Campus Canteen or FOT Lab',
-    images: [
-      '/images/items/mb102-power-supply.jpg'
-    ],
-    status: 'active',
-    views: 33,
-    created_at: '2026-09-10T15:15:00Z'
-  },
-  {
-    id: 'eeee5555-eeee-5555-eeee-555555555555',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'MQ-2 Gas & Flammable Smoke Sensor Module (Analog & Digital)',
-    description: 'High sensitivity gas sensor for detecting LPG, smoke, methane, butane, and alcohol. Dual output (AO analog output and DO digital potentiometer threshold output). Tested with Arduino and ESP32 in campus environmental sensing project.',
-    category_id: 2,
-    item_type: 'hardware',
-    price: 480.00,
-    price_type: 'fixed',
-    condition: 'used_like_new',
-    location: 'FOT Electronics Lab 01',
-    images: [
-      '/images/items/mq2-gas-sensor.jpg'
-    ],
-    status: 'active',
-    views: 29,
-    created_at: '2026-09-11T11:30:00Z'
-  },
-  {
-    id: 'ffff6666-ffff-6666-ffff-666666666666',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'STM32F103C8T6 ARM Cortex-M3 "Blue Pill" Board + ST-Link V2 Programmer',
-    description: 'Original 72MHz 32-bit ARM Cortex-M3 microcontroller development board with pre-soldered header pins. Includes ST-Link V2 USB debugger/programmer and 4-pin SWD jumper cable. Can be programmed with Arduino IDE, Keil, or STM32CubeIDE.',
-    category_id: 1,
-    item_type: 'hardware',
-    price: 1750.00,
-    price_type: 'fixed',
-    condition: 'brand_new',
-    location: 'ICT Department 2nd Floor Study Room',
-    images: [
-      'https://upload.wikimedia.org/wikipedia/commons/b/b0/Blue_Pill.jpg'
-    ],
-    status: 'active',
-    views: 51,
-    created_at: '2026-09-11T14:45:00Z'
-  },
-  {
-    id: 'aaaa7777-aaaa-7777-aaaa-777777777777',
+    id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     user_id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
     title: 'UI/UX Figma Design for Academic Presentation Slides & Mobile Wireframes',
     description: 'Clean, modern Figma user interface designs and interactive prototypes for student project presentations, research defense slides, and coursework apps. Deliverables include Figma source link, typography scale, component library, and PNG/SVG asset exports.',
@@ -329,385 +251,8 @@ export const INITIAL_LISTINGS = [
     ],
     status: 'active',
     views: 68,
+    contact_phone: '0773456789',
     created_at: '2026-09-08T16:00:00Z'
-  },
-  {
-    id: 'bbbb8888-bbbb-8888-bbbb-888888888888',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'LaTeX & Overleaf Formatting for Final Year Research Papers (IEEE Standard)',
-    description: 'Professional LaTeX document formatting for research papers, dissertation chapters, and technical symposium submissions following standard IEEE double-column format. Includes BibTeX bibliography compilation, equation formatting, and figure placement.',
-    category_id: 5,
-    item_type: 'skill',
-    price: 1800.00,
-    price_type: 'per_project',
-    condition: null,
-    location: 'Online / FOT Discussion Room',
-    images: [
-      'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&auto=format&fit=crop&q=80'
-    ],
-    status: 'active',
-    views: 55,
-    created_at: '2026-09-09T08:30:00Z'
-  },
-  {
-    id: 'cccc9999-cccc-9999-cccc-999999999999',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'Coursework Python Data Analysis & Matplotlib / Seaborn Chart Generation',
-    description: 'Assisting student project teams with Python data processing (Pandas, NumPy) and generating high-resolution scientific charts, bar graphs, heatmaps, and confusion matrices in Matplotlib and Seaborn for lab reports.',
-    category_id: 5,
-    item_type: 'skill',
-    price: 2200.00,
-    price_type: 'per_project',
-    condition: null,
-    location: 'ICT Lab 02 / WhatsApp',
-    images: [
-      'https://images.pexels.com/photos/186461/pexels-photo-186461.jpeg?auto=compress&cs=tinysrgb&w=800'
-    ],
-    status: 'active',
-    views: 49,
-    created_at: '2026-09-10T12:00:00Z'
-  },
-  {
-    id: 'dddd1010-dddd-1010-dddd-101010101010',
-    user_id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
-    title: 'Presentation Pitch Deck Design for Student Competitions & Lab Vivas',
-    description: 'Transforming boring bullet points into sleek, engaging PowerPoint / Google Slides presentations for hackathons, IEEE conferences, and project viva defenses. Custom graphics, data charts, and clean formatting included.',
-    category_id: 6,
-    item_type: 'skill',
-    price: 1500.00,
-    price_type: 'per_project',
-    condition: null,
-    location: 'Faculty Library Lobby',
-    images: [
-      'https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=800'
-    ],
-    status: 'active',
-    views: 64,
-    created_at: '2026-09-11T09:15:00Z'
-  },
-  {
-    id: 'eeee2020-eeee-2020-eeee-202020202020',
-    user_id: 'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44',
-    title: 'Student Portrait & Headshot Retouching for LinkedIn, CV & Uni Badges',
-    description: 'Professional color grading, subtle skin retouching, and background clean-up for student LinkedIn profiles, internship CVs, conference speaker bios, and student council badges using Photoshop and Lightroom.',
-    category_id: 7,
-    item_type: 'skill',
-    price: 800.00,
-    price_type: 'per_project',
-    condition: null,
-    location: 'FOT Common Room',
-    images: [
-      'https://images.pexels.com/photos/3777943/pexels-photo-3777943.jpeg?auto=compress&cs=tinysrgb&w=800'
-    ],
-    status: 'active',
-    views: 43,
-    created_at: '2026-09-11T16:30:00Z'
-  },
-  {
-    id: 'ffff3030-ffff-3030-ffff-303030303030',
-    user_id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
-    title: 'Custom Vector Technical Diagram & Circuit Schematics Illustration',
-    description: 'Creating crisp, publication-ready vector circuit diagrams, architectural flowcharts, and system block diagrams using Adobe Illustrator for student project reports and IEEE conference papers.',
-    category_id: 6,
-    item_type: 'skill',
-    price: 1400.00,
-    price_type: 'per_project',
-    condition: null,
-    location: 'Online / Canteen',
-    images: [
-      'https://images.pexels.com/photos/256381/pexels-photo-256381.jpeg?auto=compress&cs=tinysrgb&w=800'
-    ],
-    status: 'active',
-    views: 37,
-    created_at: '2026-09-12T10:00:00Z'
-  },
-  {
-    id: '10101010-aaaa-4444-aaaa-111111111111',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'Digital Multimeter (XL830L) with Test Probes & 9V Battery',
-    description: 'Compact digital multimeter with yellow protective holster. Measures AC/DC voltage, DC current, resistance, diode test, and continuity buzzer. Essential for troubleshooting circuit prototypes, checking sensor voltages, and verifying breadboard wiring in electronics lab.',
-    category_id: 3,
-    item_type: 'hardware',
-    price: 1450.00,
-    price_type: 'fixed',
-    condition: 'used_like_new',
-    location: 'FOT Electronics Lab 02 or Main Canteen',
-    images: [
-      'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80'
-    ],
-    status: 'active',
-    views: 35,
-    created_at: '2026-09-12T11:00:00Z'
-  },
-  {
-    id: '10101010-bbbb-4444-bbbb-222222222222',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'LoRa SX1278 433MHz Long Range Wireless Transceiver Module (Pair)',
-    description: 'Two SX1278 433MHz LoRa wireless transceiver modules with external spring antennas and pre-soldered header pins. Features SPI communication, ultra-long range (up to 3km line-of-sight), and low power consumption. Perfect for campus remote telemetry and agricultural IoT projects.',
-    category_id: 1,
-    item_type: 'hardware',
-    price: 2600.00,
-    price_type: 'fixed',
-    condition: 'brand_new',
-    location: 'ICT Department 2nd Floor Study Room',
-    images: [
-      'https://upload.wikimedia.org/wikipedia/commons/a/af/LoRa_Module.jpg'
-    ],
-    status: 'active',
-    views: 42,
-    created_at: '2026-09-12T13:30:00Z'
-  },
-  {
-    id: '10101010-cccc-4444-cccc-333333333333',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'RFID-RC522 13.56MHz Reader/Writer Kit + S50 White Card & Keychain Tag',
-    description: 'MFRC522 RFID reader/writer module operating at 13.56MHz SPI interface. Includes one blank S50 RFID smart card and one blue keychain RFID fob. Tested with Arduino Uno and ESP32 for campus automated student attendance prototype.',
-    category_id: 2,
-    item_type: 'hardware',
-    price: 680.00,
-    price_type: 'fixed',
-    condition: 'brand_new',
-    location: 'Faculty Library Lobby',
-    images: [
-      'https://upload.wikimedia.org/wikipedia/commons/e/ec/RFID-RC522.jpg'
-    ],
-    status: 'active',
-    views: 58,
-    created_at: '2026-09-12T15:00:00Z'
-  },
-  {
-    id: '10101010-dddd-4444-dddd-444444444444',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: '24MHz 8-Channel USB Logic Analyzer for Digital Protocol Debugging',
-    description: 'USB logic analyzer with 8 digital channels supporting up to 24MHz sampling rate. Compatible with PulseView and Saleae software on Windows/Linux. Decodes I2C, SPI, UART, and 1-Wire packets in real time. Comes with USB cable and 10-pin Dupont test clip cable.',
-    category_id: 3,
-    item_type: 'hardware',
-    price: 1950.00,
-    price_type: 'fixed',
-    condition: 'used_like_new',
-    location: 'FOT Electronics Workshop / Lab 02',
-    images: [
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Saleae_Logic_Analyzer.jpg/640px-Saleae_Logic_Analyzer.jpg'
-    ],
-    status: 'active',
-    views: 44,
-    created_at: '2026-09-13T09:30:00Z'
-  },
-  {
-    id: '10101010-eeee-4444-eeee-555555555555',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'Adjustable 60W Temperature-Controlled Soldering Iron Kit with Stand & Solder',
-    description: 'Fast-heating 60W soldering iron with adjustable temperature dial (200°C - 450°C). Comes with metallic safety stand, cleaning sponge, 5 interchangeable tip profiles, and a spool of 0.8mm lead-free rosin core solder wire. Ideal for soldering headers onto PCBs and custom shields.',
-    category_id: 3,
-    item_type: 'hardware',
-    price: 2150.00,
-    price_type: 'fixed',
-    condition: 'used_good',
-    location: 'FOT Ground Floor Lobby / Canteen',
-    images: [
-      'https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=800&auto=format&fit=crop&q=80'
-    ],
-    status: 'active',
-    views: 39,
-    created_at: '2026-09-13T11:15:00Z'
-  },
-  {
-    id: '10101010-ffff-4444-ffff-666666666666',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'MPU-6050 6-Axis Accelerometer & Gyroscope Motion Sensor Module (I2C)',
-    description: 'High precision 3-axis gyroscope and 3-axis accelerometer sensor with onboard Digital Motion Processor (DMP). Communicates over standard I2C. Headers pre-soldered for direct breadboard mounting. Perfect for gesture tracking, drone stabilization, or robotics balance projects.',
-    category_id: 2,
-    item_type: 'hardware',
-    price: 550.00,
-    price_type: 'fixed',
-    condition: 'brand_new',
-    location: 'FOT Computer Lab 01',
-    images: [
-      'https://upload.wikimedia.org/wikipedia/commons/2/23/MPU-6050.jpg'
-    ],
-    status: 'active',
-    views: 61,
-    created_at: '2026-09-13T14:40:00Z'
-  },
-  {
-    id: '20202020-aaaa-5555-aaaa-111111111111',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'Custom PCB Layout Design & Schematic Capture in EasyEDA / Altium',
-    description: 'Designing professional double-sided printed circuit board layouts from your project schematics. Routing optimization, DRC verification, silkscreen labeling, and exporting manufacturing-ready Gerber files, drill files, and BOM. Ideal for 2nd/3rd year hardware projects.',
-    category_id: 5,
-    item_type: 'skill',
-    price: 2500.00,
-    price_type: 'per_project',
-    condition: null,
-    location: 'FOT Electronics Lab 02 or WhatsApp',
-    images: [
-      'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=80'
-    ],
-    status: 'active',
-    views: 52,
-    created_at: '2026-09-12T12:00:00Z'
-  },
-  {
-    id: '20202020-bbbb-5555-bbbb-222222222222',
-    user_id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
-    title: '3D CAD Mechanical Enclosure & Component Modeling in SolidWorks / Fusion 360',
-    description: 'Custom 3D CAD design for project casing, sensor brackets, robot chassis, and snap-fit enclosures. Deliverables include editable STEP/IGES files and clean watertight STL files ready for 3D printing on campus.',
-    category_id: 6,
-    item_type: 'skill',
-    price: 3000.00,
-    price_type: 'per_project',
-    condition: null,
-    location: 'FOT Discussion Room / Online',
-    images: [
-      'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?w=800&auto=format&fit=crop&q=80'
-    ],
-    status: 'active',
-    views: 66,
-    created_at: '2026-09-12T14:15:00Z'
-  },
-  {
-    id: '20202020-cccc-5555-cccc-333333333333',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'Embedded C & Arduino Code Debugging, Logic Optimization & Sensor Calibration',
-    description: 'Troubleshooting memory leaks, timer interrupt conflicts, I2C/SPI communication errors, and sensor reading fluctuations in your Arduino/ESP32 code. In-person code review and live debugging sessions available in the lab.',
-    category_id: 5,
-    item_type: 'skill',
-    price: 1200.00,
-    price_type: 'hourly',
-    condition: null,
-    location: 'FOT Computer Lab 02',
-    images: [
-      'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80'
-    ],
-    status: 'active',
-    views: 71,
-    created_at: '2026-09-13T08:45:00Z'
-  },
-  {
-    id: '20202020-dddd-5555-dddd-444444444444',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'MATLAB & Simulink Mathematical Modeling & Dynamic System Simulation',
-    description: 'Assisting with MATLAB script automation, matrix operations, control systems analysis (Bode plots, root locus), and Simulink block diagram modeling for engineering coursework and assignment submissions.',
-    category_id: 5,
-    item_type: 'skill',
-    price: 2200.00,
-    price_type: 'per_project',
-    condition: null,
-    location: 'Faculty Library Study Area',
-    images: [
-      'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800&auto=format&fit=crop&q=80'
-    ],
-    status: 'active',
-    views: 48,
-    created_at: '2026-09-13T10:20:00Z'
-  },
-  {
-    id: '20202020-eeee-5555-eeee-555555555555',
-    user_id: 'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44',
-    title: 'Academic English Proofreading & Technical Style Editing for Project Reports',
-    description: 'Comprehensive grammar check, vocabulary enhancement, tense consistency, and academic flow refinement for undergraduate dissertations, project proposals, and research papers. Tracked changes returned in Microsoft Word.',
-    category_id: 5,
-    item_type: 'skill',
-    price: 1000.00,
-    price_type: 'hourly',
-    condition: null,
-    location: 'Library Lobby or Email Transfer',
-    images: [
-      'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&auto=format&fit=crop&q=80'
-    ],
-    status: 'active',
-    views: 59,
-    created_at: '2026-09-13T13:10:00Z'
-  },
-  {
-    id: '20202020-ffff-5555-ffff-666666666666',
-    user_id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
-    title: 'Mobile App UI Wireframing & Interactive Prototype in Figma for HCI Coursework',
-    description: 'Designing user-centric mobile screen wireframes, color themes, icon sets, and clickable user flow transitions in Figma. Meets HCI evaluation criteria and usability inspection standards.',
-    category_id: 6,
-    item_type: 'skill',
-    price: 2400.00,
-    price_type: 'per_project',
-    condition: null,
-    location: 'ICT Department Study Room',
-    images: [
-      'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=800&auto=format&fit=crop&q=80'
-    ],
-    status: 'active',
-    views: 63,
-    created_at: '2026-09-13T15:30:00Z'
-  },
-  {
-    id: '20202020-1111-5555-1111-777777777777',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'Database ERD Design, 3NF Normalization & SQL Query Optimization',
-    description: 'Expert guidance on designing Entity-Relationship Diagrams (Crow\'s Foot notation in Draw.io), normalizing relational schemas to BCNF/3NF, writing complex PostgreSQL queries, and indexing for fast performance.',
-    category_id: 5,
-    item_type: 'skill',
-    price: 1800.00,
-    price_type: 'per_project',
-    condition: null,
-    location: 'FOT Computer Lab 02',
-    images: [
-      'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=800&auto=format&fit=crop&q=80'
-    ],
-    status: 'active',
-    views: 54,
-    created_at: '2026-09-13T17:00:00Z'
-  },
-  {
-    id: '20202020-2222-5555-2222-888888888888',
-    user_id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
-    title: 'Student Society Event Poster, Banner & Social Media Announcement Design',
-    description: 'High-impact promotional graphics for student batch trips, welcome ceremonies, tech hackathons, and webinars. Formatted for Instagram square, Facebook banner, and A3 print resolution.',
-    category_id: 6,
-    item_type: 'skill',
-    price: 1500.00,
-    price_type: 'per_project',
-    condition: null,
-    location: 'Campus Canteen or Drive link',
-    images: [
-      'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=800&auto=format&fit=crop&q=80'
-    ],
-    status: 'active',
-    views: 60,
-    created_at: '2026-09-14T09:15:00Z'
-  },
-  {
-    id: '20202020-3333-5555-3333-999999999999',
-    user_id: 'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44',
-    title: 'Academic Demonstration Video Voiceover Narration (Sinhala / English)',
-    description: 'Crisp, studio-grade voiceover narration for final project demo videos, academic walkthroughs, and conference teasers. Recorded with studio condenser microphone, noise gated, and normalized to standard broadcast loudness.',
-    category_id: 8,
-    item_type: 'skill',
-    price: 1500.00,
-    price_type: 'per_project',
-    condition: null,
-    location: 'Digital WAV/MP3 Delivery',
-    images: [
-      'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=800&auto=format&fit=crop&q=80'
-    ],
-    status: 'active',
-    views: 41,
-    created_at: '2026-09-14T11:45:00Z'
-  },
-  {
-    id: '20202020-4444-5555-4444-aaaaaaaaaaaa',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'Git & GitHub Collaboration Mentoring, Merge Conflict Resolution & Branching',
-    description: 'One-on-one session to organize your group project repository: Git feature-branch workflows, setting up GitHub Projects sprint boards, resolving scary merge conflicts, and preparing clean commit histories for supervisor inspection.',
-    category_id: 5,
-    item_type: 'skill',
-    price: 800.00,
-    price_type: 'hourly',
-    condition: null,
-    location: 'ICT Department Open Lab',
-    images: [
-      'https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=800&auto=format&fit=crop&q=80'
-    ],
-    status: 'active',
-    views: 77,
-    created_at: '2026-09-14T14:00:00Z'
   }
 ];
 
@@ -803,14 +348,14 @@ class ClientStore {
     }
 
     // Initialize or synchronize listings with latest additions
-    const cachedListings = this.load('unimart_listings_v6', null);
+    const cachedListings = this.load('unimart_listings_v7', null);
     if (!cachedListings) {
       this.listings = INITIAL_LISTINGS;
-      this.save('unimart_listings_v6', this.listings);
+      this.save('unimart_listings_v7', this.listings);
     } else {
       const nonSeedListings = cachedListings.filter(c => !INITIAL_LISTINGS.some(s => s.id === c.id));
       this.listings = [...INITIAL_LISTINGS, ...nonSeedListings];
-      this.save('unimart_listings_v6', this.listings);
+      this.save('unimart_listings_v7', this.listings);
     }
 
     this.messages = this.load('unimart_messages', INITIAL_MESSAGES);
