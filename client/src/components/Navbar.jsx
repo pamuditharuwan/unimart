@@ -99,6 +99,16 @@ export default function Navbar() {
             >
               All Items
             </Link>
+            <Link
+              to="/contact"
+              className={`px-2.5 py-1.5 rounded text-sm ${
+                isActive('/contact')
+                  ? 'bg-slate-800 text-teal-400 font-semibold'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              Contact
+            </Link>
             {isAuthenticated && (
               <Link
                 to="/messages"
@@ -222,6 +232,13 @@ export default function Navbar() {
             className="block py-1.5 text-slate-300 hover:text-teal-400"
           >
             Browse All Items
+          </Link>
+          <Link
+            to="/contact"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block py-1.5 text-slate-300 hover:text-teal-400"
+          >
+            Contact Support
           </Link>
 
           {isAuthenticated ? (

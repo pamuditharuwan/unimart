@@ -72,6 +72,11 @@ export default function Footer() {
                   Post an Item or Service
                 </Link>
               </li>
+              <li>
+                <Link to="/contact" className="hover:text-teal-400">
+                  Contact Support & Team Info
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
