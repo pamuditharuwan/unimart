@@ -32,3 +32,7 @@ Thumbs.db
 scratch_*.js
 check_images.js
 test_candidates.js
+
+# Local Defense & Submission Kits (Local only, not in git)
+docs/
+submission_kit/
