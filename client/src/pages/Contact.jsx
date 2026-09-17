@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
 import { 
   Mail, 
-  MapPin, 
-  Phone, 
   Send, 
   HelpCircle, 
-  ShieldCheck, 
-  Users, 
-  GraduationCap, 
   CheckCircle2, 
-  Clock 
+  Clock,
+  MessageSquare,
+  Sparkles
 } from 'lucide-react';
 import { useToast } from '../components/Toast';
 import { useAuth } from '../context/AuthContext';
@@ -36,12 +33,12 @@ export default function Contact() {
     }
 
     setSubmitting(true);
-    // Simulate sending message / ticket
+    // Simulate sending inquiry
     setTimeout(() => {
       setSubmitting(false);
       setSubmitted(true);
-      addToast('Your inquiry has been sent to the UniMart support team!', 'success');
-    }, 600);
+      addToast('Your inquiry has been sent successfully!', 'success');
+    }, 500);
   };
 
   return (
@@ -50,27 +47,19 @@ export default function Contact() {
         
         {/* Header Banner */}
         <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-teal-950 text-white rounded-2xl p-8 shadow-md border border-slate-800">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 text-xs font-semibold border border-teal-500/30">
-                <Users className="w-3.5 h-3.5" />
-                Group 05 • Sudo Six
-              </div>
-              <h1 className="text-3xl font-extrabold tracking-tight">Contact UniMart Support</h1>
-              <p className="text-slate-300 text-sm max-w-xl leading-relaxed">
-                Have questions regarding student verification, academic hardware listings, or peer service offerings? Reach out to our campus development team.
-              </p>
+          <div className="max-w-2xl space-y-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 text-xs font-semibold border border-teal-500/30">
+              <Sparkles className="w-3.5 h-3.5" />
+              Help & Support Center
             </div>
-            <div className="bg-slate-800/80 backdrop-blur rounded-xl p-4 border border-slate-700 text-xs space-y-2 shrink-0">
-              <div className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Academic Affiliation</div>
-              <div className="text-white font-medium">Faculty of Technology</div>
-              <div className="text-teal-400">Rajarata University of Sri Lanka</div>
-              <div className="text-slate-400 text-[11px]">Skill Development Project I (ICT 1108)</div>
-            </div>
+            <h1 className="text-3xl font-extrabold tracking-tight">Contact Us</h1>
+            <p className="text-slate-300 text-sm leading-relaxed">
+              Have questions regarding student listings, account verification, or platform features? Fill out the form below and our support team will get in touch.
+            </p>
           </div>
         </div>
 
-        {/* Main Grid: Form & Info Cards */}
+        {/* Main Grid: Form & Contact Info */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* Left 2 Columns: Contact Form */}
@@ -82,7 +71,7 @@ export default function Contact() {
                 </div>
                 <h3 className="text-2xl font-bold text-slate-800">Message Received!</h3>
                 <p className="text-slate-600 text-sm max-w-md mx-auto">
-                  Thank you for contacting UniMart. A representative from the Group 05 project team will review your inquiry.
+                  Thank you for reaching out. We have received your inquiry and will reply to your university email address shortly.
                 </p>
                 <button
                   onClick={() => {
@@ -105,7 +94,7 @@ export default function Contact() {
                 <div>
                   <h2 className="text-xl font-bold text-slate-900">Send an Inquiry</h2>
                   <p className="text-slate-500 text-xs mt-0.5">
-                    Fill out the form below and our campus team will get back to you.
+                    Please provide your contact details and description of your request.
                   </p>
                 </div>
 
@@ -149,11 +138,11 @@ export default function Contact() {
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                       className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition bg-white"
                     >
-                      <option value="general">General Campus Question</option>
-                      <option value="verification">Email Verification & OTP Assistance</option>
-                      <option value="listing">Hardware / Skill Listing Issue</option>
-                      <option value="bug">Bug Report / Technical Support</option>
-                      <option value="safety">Campus Exchange Safety Concern</option>
+                      <option value="general">General Inquiry</option>
+                      <option value="verification">Verification & OTP Help</option>
+                      <option value="listing">Hardware / Skill Listing Support</option>
+                      <option value="bug">Technical Issue / Bug Report</option>
+                      <option value="feedback">Feedback & Suggestions</option>
                     </select>
                   </div>
 
@@ -164,7 +153,7 @@ export default function Contact() {
                     <input
                       type="text"
                       required
-                      placeholder="e.g. Question about Arduino component listing"
+                      placeholder="e.g. Question about listing verification"
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                       className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
@@ -198,65 +187,59 @@ export default function Contact() {
             )}
           </div>
 
-          {/* Right Column: Contact Details & Campus Safety */}
+          {/* Right Column: Clean Support Info */}
           <div className="space-y-6">
             
-            {/* Campus Info Card */}
+            {/* Support Email Card */}
             <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
               <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-teal-600" />
-                Campus Headquarters
+                <Mail className="w-4 h-4 text-teal-600" />
+                Customer Support
               </h3>
-              <div className="space-y-3 text-xs text-slate-600">
-                <div>
-                  <div className="font-semibold text-slate-800">Faculty Location:</div>
-                  <div>Faculty of Technology</div>
-                  <div>Rajarata University of Sri Lanka</div>
-                  <div>Mihintale, Anuradhapura</div>
-                </div>
-
-                <div className="pt-2 border-t border-slate-100">
-                  <div className="font-semibold text-slate-800">Support Mail:</div>
-                  <a href="mailto:support.unimart.lk@gmail.com" className="text-teal-600 hover:underline">
-                    support.unimart.lk@gmail.com
-                  </a>
-                </div>
-
-                <div className="pt-2 border-t border-slate-100">
-                  <div className="font-semibold text-slate-800">Project Supervisor:</div>
-                  <div>Mr. Nandika Tennakoon</div>
-                  <div className="text-slate-500">Lecturer (Temporary), Dept. of ICT</div>
-                  <a href="mailto:nandikat@tec.rjt.ac.lk" className="text-teal-600 hover:underline">
-                    nandikat@tec.rjt.ac.lk
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Campus Exchange Policy */}
-            <div className="bg-amber-50 rounded-2xl border border-amber-200 p-6 shadow-sm space-y-3">
-              <div className="flex items-center gap-2 text-amber-900 font-bold text-sm">
-                <ShieldCheck className="w-4 h-4 text-amber-700" />
-                Campus Safety Guideline
-              </div>
-              <p className="text-xs text-amber-800 leading-relaxed">
-                UniMart strictly enforces **hand-to-hand exchanges** within university premises. Always inspect hardware components or digital deliverable samples in public campus zones such as **FOT Electronics Labs**, the **Main Library Lobby**, or the **Campus Canteen**.
+              <p className="text-xs text-slate-600 leading-relaxed">
+                For direct inquiries, account assistance, or platform inquiries, email our support team directly.
               </p>
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
+                <span className="text-[11px] text-slate-500 uppercase font-semibold block mb-0.5">Email Us</span>
+                <a 
+                  href="mailto:support.unimart.lk@gmail.com" 
+                  className="text-sm font-semibold text-teal-700 hover:underline break-all"
+                >
+                  support.unimart.lk@gmail.com
+                </a>
+              </div>
             </div>
 
-            {/* Project Team */}
+            {/* Operating Hours Card */}
             <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-3">
               <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
-                <GraduationCap className="w-4 h-4 text-teal-600" />
-                Project Group 05 (Sudo Six)
+                <Clock className="w-4 h-4 text-teal-600" />
+                Response Time
               </div>
-              <ul className="text-xs text-slate-600 space-y-1.5">
-                <li>• S. H. M. P. R. Sooryarathna (ITT/2024/104)</li>
-                <li>• B. G. M. S. S. Gajanayaka (ITT/2024/039)</li>
-                <li>• S. M. M. E. W. M. K. Wijerathna (ITT/2024/120)</li>
-                <li>• K. R. I. A. Bandara (ITT/2024/019)</li>
-                <li>• M. M. R. T. Abeywickrama (ITT/2024/006)</li>
-                <li>• R. M. K. Madhushani (ITT/2024/064)</li>
+              <div className="text-xs text-slate-600 space-y-2 leading-relaxed">
+                <p>Support inquiries are typically reviewed within <strong>24 hours</strong> on weekdays.</p>
+                <div className="pt-2 border-t border-slate-100 flex justify-between text-slate-500">
+                  <span>Support Hours:</span>
+                  <span className="font-medium text-slate-700">Mon - Fri, 8:00 AM - 6:00 PM</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick FAQ Card */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-3">
+              <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+                <HelpCircle className="w-4 h-4 text-teal-600" />
+                Quick Assistance
+              </div>
+              <ul className="text-xs text-slate-600 space-y-2.5">
+                <li className="flex items-start gap-2">
+                  <span className="text-teal-600 font-bold">•</span>
+                  <span><strong>Student Verification:</strong> Only valid university email addresses can post items or message sellers.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-teal-600 font-bold">•</span>
+                  <span><strong>Posting Listings:</strong> Hardware and skill services can be published instantly from your profile.</span>
+                </li>
               </ul>
             </div>
 

@@ -107,7 +107,7 @@ export default function Navbar() {
                   : 'text-slate-300 hover:text-white hover:bg-slate-800'
               }`}
             >
-              Contact
+              Contact Us
             </Link>
             {isAuthenticated && (
               <Link
@@ -238,7 +238,7 @@ export default function Navbar() {
             onClick={() => setMobileMenuOpen(false)}
             className="block py-1.5 text-slate-300 hover:text-teal-400"
           >
-            Contact Support
+            Contact Us
           </Link>
 
           {isAuthenticated ? (
