@@ -4,7 +4,12 @@
 // ==========================================================
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
-dotenv.config();
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 function getTransporter() {
   const host = process.env.SMTP_HOST;
@@ -40,7 +45,20 @@ export async function sendVerificationEmail({ email, fullName, university, actio
   }
 
   const senderAddress = process.env.SMTP_FROM || `"UniMart Verification" <${process.env.SMTP_USER || process.env.GMAIL_USER}>`;
-  const subject = `Verify Your University Email – UniMart Student Marketplace`;
+  const subject = otp 
+    ? `UniMart Verification Code: ${otp}` 
+    : `Verify Your University Email – UniMart Student Marketplace`;
+
+  const text = `Hello ${fullName || 'Undergraduate Student'},
+
+Your UniMart verification code is: ${otp || ''}
+
+${actionLink ? `Or verify using this link: ${actionLink}\n\n` : ''}Enter this 6-digit code on UniMart to activate your student account for ${university || 'Rajarata University of Sri Lanka'}.
+
+This code is valid for 15 minutes.
+
+Best regards,
+UniMart Student Marketplace Team`;
 
   const html = `
     <!DOCTYPE html>
@@ -50,51 +68,50 @@ export async function sendVerificationEmail({ email, fullName, university, actio
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 24px; }
           .container { max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-          .header { background: #0d9488; color: #ffffff; padding: 24px; text-align: center; }
-          .header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
-          .header p { margin: 4px 0 0 0; font-size: 12px; opacity: 0.9; }
+          .header { background: #0f172a; color: #ffffff; padding: 20px 24px; text-align: left; }
+          .header h1 { margin: 0; font-size: 20px; font-weight: 700; color: #5eead4; }
+          .header p { margin: 4px 0 0 0; font-size: 12px; color: #94a3b8; }
           .content { padding: 24px; }
           .greeting { font-size: 15px; font-weight: 600; color: #0f172a; margin-bottom: 12px; }
           .text { font-size: 13px; line-height: 1.6; color: #475569; margin-bottom: 20px; }
-          .btn-container { text-align: center; margin: 24px 0; }
-          .btn { display: inline-block; background: #0d9488; color: #ffffff !important; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-size: 14px; font-weight: 600; box-shadow: 0 2px 4px rgba(13,148,136,0.2); }
-          .otp-box { background: #f0fdfa; border: 1px dashed #0d9488; border-radius: 6px; padding: 16px; text-align: center; margin: 20px 0; }
-          .otp-code { font-family: monospace; font-size: 24px; font-weight: 700; color: #0f766e; letter-spacing: 4px; }
-          .otp-label { font-size: 11px; text-transform: uppercase; color: #0d9488; font-weight: 600; margin-bottom: 4px; }
+          .otp-box { background: #f0fdfa; border: 2px dashed #0d9488; border-radius: 8px; padding: 20px; text-align: center; margin: 24px 0; }
+          .otp-code { font-family: 'SF Mono', Consolas, Monaco, monospace; font-size: 32px; font-weight: 800; color: #0f766e; letter-spacing: 6px; }
+          .otp-label { font-size: 11px; text-transform: uppercase; color: #0d9488; font-weight: 700; margin-bottom: 8px; letter-spacing: 1px; }
+          .otp-hint { font-size: 11px; color: #64748b; margin-top: 8px; }
+          .btn-container { text-align: center; margin: 20px 0; }
+          .btn { display: inline-block; background: #0d9488; color: #ffffff !important; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-size: 14px; font-weight: 600; }
           .footer { padding: 16px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #94a3b8; }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="header">
-            <h1>UniMart</h1>
-            <p>Smart Student Marketplace &bull; Sri Lanka</p>
+            <h1>UniMart Student Marketplace</h1>
+            <p>Official Verification &bull; ${university || 'Rajarata University of Sri Lanka'}</p>
           </div>
           <div class="content">
             <div class="greeting">Hello ${fullName || 'Undergraduate Student'},</div>
             <div class="text">
-              Thank you for signing up for <strong>UniMart</strong> &ndash; the verified peer-to-peer campus marketplace for <strong>${university || 'Sri Lankan State Universities'}</strong>.
-              <br><br>
-              Please activate your student account by clicking the button below:
+              Thank you for signing up for <strong>UniMart</strong>. To complete your student account activation, please use the 6-digit verification code below:
             </div>
+            ${otp ? `
+              <div class="otp-box">
+                <div class="otp-label">Your 6-Digit Verification Code</div>
+                <div class="otp-code">${otp}</div>
+                <div class="otp-hint">Enter this code on the UniMart verification screen to activate your account.</div>
+              </div>
+            ` : ''}
             ${actionLink ? `
               <div class="btn-container">
                 <a href="${actionLink}" class="btn" target="_blank">Activate Student Account</a>
               </div>
             ` : ''}
-            ${otp ? `
-              <div class="otp-box">
-                <div class="otp-label">Or enter this 6-digit code on UniMart</div>
-                <div class="otp-code">${otp}</div>
-              </div>
-            ` : ''}
-            <div class="text" style="font-size: 12px; color: #64748b;">
-              If the button doesn't work, copy and paste this verification URL into your browser:<br>
-              <a href="${actionLink}" style="color: #0d9488; word-break: break-all;">${actionLink}</a>
+            <div class="text" style="font-size: 12px; color: #64748b; margin-top: 16px;">
+              This code will expire in 15 minutes. If you did not request this registration, you can safely ignore this email.
             </div>
           </div>
           <div class="footer">
-            UniMart &bull; Built for Sri Lankan University Students
+            UniMart &bull; Verified Student Marketplace &bull; ICT 1108
           </div>
         </div>
       </body>
@@ -106,6 +123,7 @@ export async function sendVerificationEmail({ email, fullName, university, actio
       from: senderAddress,
       to: email,
       subject,
+      text,
       html
     });
     console.log(`✅ [Mailer] Confirmation email dispatched successfully to ${email} (Message ID: ${info.messageId})`);
