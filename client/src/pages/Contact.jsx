@@ -106,7 +106,7 @@ export default function Contact() {
                     <input
                       type="text"
                       required
-                      placeholder="e.g. Pamuditha Ruwan"
+                      placeholder="e.g. Kasun Bandara"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
@@ -120,7 +120,7 @@ export default function Contact() {
                     <input
                       type="email"
                       required
-                      placeholder="e.g. itt2024104@tec.rjt.ac.lk"
+                      placeholder="e.g. student@student.rjt.ac.lk"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"

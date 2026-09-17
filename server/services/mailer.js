@@ -133,7 +133,7 @@ UniMart Security Team`;
             </div>
           </div>
           <div class="footer">
-            UniMart &bull; Verified Student Marketplace &bull; ICT 1108
+            UniMart &bull; Verified Student Marketplace
           </div>
         </div>
       </body>
@@ -232,7 +232,7 @@ export async function sendLoginNotificationEmail({ email, fullName, university, 
             </div>
           </div>
           <div class="footer">
-            UniMart &bull; Verified Student Marketplace &bull; ICT 1108
+            UniMart &bull; Verified Student Marketplace
           </div>
         </div>
       </body>
@@ -316,7 +316,7 @@ export async function sendPasswordResetEmail({ email, fullName, university, acti
             </div>
           </div>
           <div class="footer">
-            UniMart &bull; Verified Student Marketplace &bull; ICT 1108
+            UniMart &bull; Verified Student Marketplace
           </div>
         </div>
       </body>

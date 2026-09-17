@@ -3,7 +3,7 @@
 
 **Department of Information and Communication Technology**  
 **Faculty of Technology – Rajarata University of Sri Lanka**  
-*Skill Development Project I – ICT 1108 | BICT (Honors)*  
+*Skill Development Project I | BICT (Honors)*  
 *Group 05 – Sudo Six*  
 *Supervisor: Mr. Nandika Tennakoon, Lecturer (Temp.)*
 
@@ -105,4 +105,4 @@ unimart_web/
 - **Student Member 05** (BICT Honors &bull; Rajarata University)
 - **Student Member 06** (BICT Honors &bull; Rajarata University)
 
-**Coursework Module:** ICT 1108: Skill Development Project I, Department of Information and Communication Technology, Faculty of Technology, Rajarata University of Sri Lanka.
+**Academic Project:** Skill Development Project I, Department of Information and Communication Technology, Faculty of Technology, Rajarata University of Sri Lanka.
