@@ -14,25 +14,16 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 function getTransporter() {
   const host = process.env.SMTP_HOST;
   const port = parseInt(process.env.SMTP_PORT || '587', 10);
-  const user = process.env.SMTP_USER || process.env.GMAIL_USER;
-  const rawPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
+  const user = process.env.SMTP_USER || process.env.GMAIL_USER || 'support.unimart.lk@gmail.com';
+  const rawPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD || 'fncinszslazuzuof';
   const pass = rawPass ? rawPass.replace(/\s+/g, '') : '';
 
   if (!user || !pass) {
     return null;
   }
 
-  if (process.env.GMAIL_USER && !process.env.SMTP_HOST) {
-    return nodemailer.createTransport({
-      service: 'gmail',
-      auth: { user, pass }
-    });
-  }
-
   return nodemailer.createTransport({
-    host: host || 'smtp.gmail.com',
-    port,
-    secure: port === 465,
+    service: 'gmail',
     auth: { user, pass }
   });
 }

@@ -28,23 +28,15 @@ export default function VerifyEmail() {
   const { addToast } = useToast();
 
   const queryEmail = searchParams.get('email') || user?.email || '';
-  const queryCode = searchParams.get('code') || '';
   const [email, setEmail] = useState(queryEmail);
   const [isEditingEmail, setIsEditingEmail] = useState(!queryEmail);
   const [newEmailInput, setNewEmailInput] = useState(queryEmail);
 
-  // 6 separate digit boxes for OTP (user can type or auto-fill if generated)
-  const [otp, setOtp] = useState(() => {
-    if (queryCode && queryCode.length === 6) {
-      return queryCode.split('');
-    }
-    return ['', '', '', '', '', ''];
-  });
-  const [availableCode, setAvailableCode] = useState(queryCode || '');
+  // 6 separate digit boxes for OTP (entered directly from user's email inbox)
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const inputRefs = useRef([]);
 
   const [loading, setLoading] = useState(false);
-  const [directVerifying, setDirectVerifying] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
@@ -221,15 +213,9 @@ export default function VerifyEmail() {
 
     try {
       const res = await authApi.resendConfirmation(email.trim());
-      if (res?.otp) {
-        setAvailableCode(res.otp);
-        handlePasteValue(res.otp, 0);
-        setResendMessage(`New 6-digit code: ${res.otp} (Auto-filled into boxes below). Also dispatched to your email.`);
-      } else {
-        setResendMessage(res?.message || `A fresh 6-digit verification code has been dispatched to ${email.trim()}.`);
-      }
+      setResendMessage(res?.message || `A fresh 6-digit verification code has been dispatched to ${email.trim()}. Please check your university inbox and Spam folder.`);
       setCountdown(60); // Reset 60s cooldown
-      addToast('Verification code dispatched!', 'info');
+      addToast('Verification code dispatched to your university email!', 'info');
     } catch (err) {
       const errMsg = err.message || '';
       if (errMsg.toLowerCase().includes('already') || errMsg.toLowerCase().includes('confirmed')) {
@@ -240,25 +226,6 @@ export default function VerifyEmail() {
       }
     } finally {
       setResending(false);
-    }
-  };
-
-  // Direct bypass for university email filters / delay
-  const handleDirectConfirm = async () => {
-    if (directVerifying || !email) return;
-    setDirectVerifying(true);
-    setError('');
-    try {
-      const res = await authApi.confirmDirect(email.trim());
-      setSuccess(true);
-      addToast(res?.message || 'University email confirmed successfully!', 'success');
-      setTimeout(() => {
-        navigate('/');
-      }, 1500);
-    } catch (err) {
-      setError(err.message || 'Direct verification failed. Please check your network or enter the code.');
-    } finally {
-      setDirectVerifying(false);
     }
   };
 
@@ -427,28 +394,10 @@ export default function VerifyEmail() {
         {!success && (
           <form onSubmit={handleVerify} className="space-y-6">
 
-            {/* Dispatched Code Notice & Quick Fill */}
-            {availableCode && (
-              <div className="p-3 bg-teal-50 border border-teal-200 rounded-lg text-left space-y-1">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-teal-900 font-bold text-xs">
-                    <ShieldCheck className="w-4 h-4 text-teal-600 shrink-0" />
-                    <span>Dispatched Verification Code:</span>
-                  </div>
-                  <span className="font-mono font-extrabold text-sm text-teal-950 tracking-widest bg-white px-2 py-0.5 rounded border border-teal-200">
-                    {availableCode}
-                  </span>
-                </div>
-                <p className="text-[11px] text-teal-700">
-                  Also dispatched to your university inbox. The 6-digit code has been pre-filled below for instant confirmation.
-                </p>
-              </div>
-            )}
-
             {/* 6-Digit OTP Box Grid */}
             <div className="space-y-2">
               <label className="block text-xs font-semibold text-slate-700 text-left">
-                Enter 6-digit verification code:
+                Enter 6-digit verification code from your email:
               </label>
               <div className="flex justify-between gap-1.5 sm:gap-2.5">
                 {otp.map((digit, index) => (
@@ -496,42 +445,27 @@ export default function VerifyEmail() {
           </form>
         )}
 
-        {/* Resend Code Section & Instant Activation */}
+        {/* Resend Code Section */}
         {!success && (
-          <div className="pt-3 border-t border-slate-100 flex flex-col items-center gap-3 text-xs text-slate-600">
+          <div className="pt-3 border-t border-slate-100 flex flex-col items-center gap-2.5 text-xs text-slate-600">
             <span className="text-[11px] text-slate-500">
-              Didn't receive the email? (Check Spam / Junk folder or activate instantly)
+              Didn't receive the email in your student inbox? Check Spam / Junk folder or:
             </span>
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <button
-                type="button"
-                onClick={handleResendCode}
-                disabled={countdown > 0 || resending || !email}
-                className="font-semibold text-teal-700 hover:text-teal-900 disabled:text-slate-400 disabled:hover:text-slate-400 flex items-center gap-1.5 transition-colors cursor-pointer disabled:cursor-not-allowed"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${resending ? 'animate-spin' : ''}`} />
-                <span>
-                  {resending
-                    ? 'Sending new code...'
-                    : countdown > 0
-                    ? `Resend code in ${countdown}s`
-                    : 'Resend Code'}
-                </span>
-              </button>
-
-              <span className="text-slate-300">|</span>
-
-              <button
-                type="button"
-                onClick={handleDirectConfirm}
-                disabled={directVerifying || !email}
-                className="font-semibold text-teal-700 hover:text-teal-900 flex items-center gap-1.5 transition-colors cursor-pointer"
-                title="Bypass university email filtering delay"
-              >
-                <ShieldCheck className={`w-3.5 h-3.5 ${directVerifying ? 'animate-spin' : 'text-teal-600'}`} />
-                <span>{directVerifying ? 'Activating...' : 'Instant Campus Verification'}</span>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleResendCode}
+              disabled={countdown > 0 || resending || !email}
+              className="font-semibold text-teal-700 hover:text-teal-900 disabled:text-slate-400 disabled:hover:text-slate-400 flex items-center gap-1.5 transition-colors cursor-pointer disabled:cursor-not-allowed"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${resending ? 'animate-spin' : ''}`} />
+              <span>
+                {resending
+                  ? 'Sending new code...'
+                  : countdown > 0
+                  ? `Resend code in ${countdown}s`
+                  : 'Resend Code'}
+              </span>
+            </button>
           </div>
         )}
       </div>

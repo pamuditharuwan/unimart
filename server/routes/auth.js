@@ -183,10 +183,9 @@ router.post('/register', enforceUniversityDomain, async (req, res) => {
 
       return res.status(201).json({
         requiresEmailConfirmation: true,
-        message: `A 6-digit verification code has been dispatched to ${cleanEmail}. Please enter it to verify your account.`,
+        message: `A 6-digit verification code has been dispatched to ${cleanEmail}. Please check your university email inbox.`,
         email: cleanEmail,
-        university: detectedUni,
-        otp: emailOtp
+        university: detectedUni
       });
     } else {
       // Memory DB mode
@@ -468,8 +467,7 @@ router.post('/resend-confirmation', async (req, res) => {
 
       return res.json({
         success: true,
-        message: `A new 6-digit verification code (${freshOtp}) has been dispatched to ${cleanEmail}. Please check your inbox and spam folder.`,
-        otp: freshOtp
+        message: `A new 6-digit verification code has been dispatched to ${cleanEmail}. Please check your inbox and spam folder.`
       });
     } else {
       const user = memoryDb.findProfileByEmail(cleanEmail);
