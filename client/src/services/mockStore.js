@@ -61,198 +61,195 @@ export const INITIAL_PROFILES = [
 ];
 
 export const INITIAL_LISTINGS = [
-  // --- 5 Academic Hardware Items ---
   {
-    id: '11111111-1111-1111-1111-111111111111',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'Arduino Uno R3 Original + 830-Point Breadboard & Jumpers',
-    description: 'Gently used original Arduino Uno R3 development board tested in university lab coursework. Package includes blue high-speed USB cable, a full-sized 830-point solderless breadboard, and 65 male-to-male flexible jumper wires. Tested and fully functional. Can test together in the lab before taking it!',
-    category_id: 1,
-    item_type: 'hardware',
-    price: 2800.00,
-    price_type: 'fixed',
-    condition: 'used_like_new',
-    location: 'FOT Electronics Lab 02 or Main Canteen',
-    images: [
-      'https://upload.wikimedia.org/wikipedia/commons/3/38/Arduino_Uno_-_R3.jpg'
+    "id": "11111111-1111-1111-1111-111111111111",
+    "user_id": "c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33",
+    "title": "Arduino Uno R3 Original + 830-Point Breadboard & Jumpers",
+    "description": "Gently used original Arduino Uno R3 development board tested in university lab coursework. Package includes blue high-speed USB cable, a full-sized 830-point solderless breadboard, and 65 male-to-male flexible jumper wires. Tested and fully functional. Can test together in the lab before taking it!",
+    "category_id": 1,
+    "item_type": "hardware",
+    "price": 2800,
+    "price_type": "fixed",
+    "condition": "used_like_new",
+    "location": "FOT Electronics Lab 02 or Main Canteen",
+    "images": [
+      "https://upload.wikimedia.org/wikipedia/commons/3/38/Arduino_Uno_-_R3.jpg"
     ],
-    status: 'active',
-    views: 45,
-    contact_phone: '0754567890',
-    created_at: '2026-09-01T08:30:00Z'
+    "status": "active",
+    "views": 45,
+    "contact_phone": "0754567890",
+    "created_at": "2026-09-01T08:30:00Z"
   },
   {
-    id: '22222222-2222-2222-2222-222222222222',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'ESP32 NodeMCU WiFi + Bluetooth Dev Kit CP2102',
-    description: 'Brand new in anti-static bag. ESP-WROOM-32 30-pin board with integrated antenna, micro-USB CP2102 programmer, and dual-core Xtensa 32-bit LX6 MCU. Ideal for IoT cloud projects, MQTT communication, and smart home coursework prototypes.',
-    category_id: 1,
-    item_type: 'hardware',
-    price: 2200.00,
-    price_type: 'fixed',
-    condition: 'brand_new',
-    location: 'ICT Department Lobby / Hostel Block B',
-    images: [
-      'https://upload.wikimedia.org/wikipedia/commons/f/f8/ESP32.jpg'
+    "id": "22222222-2222-2222-2222-222222222222",
+    "user_id": "c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33",
+    "title": "ESP32 NodeMCU WiFi + Bluetooth Dev Kit CP2102",
+    "description": "Brand new in anti-static bag. ESP-WROOM-32 30-pin board with integrated antenna, micro-USB CP2102 programmer, and dual-core Xtensa 32-bit LX6 MCU. Ideal for IoT cloud projects, MQTT communication, and smart home coursework prototypes.",
+    "category_id": 1,
+    "item_type": "hardware",
+    "price": 2200,
+    "price_type": "fixed",
+    "condition": "brand_new",
+    "location": "ICT Department Lobby / Hostel Block B",
+    "images": [
+      "https://upload.wikimedia.org/wikipedia/commons/f/f8/ESP32.jpg"
     ],
-    status: 'active',
-    views: 62,
-    contact_phone: '0754567890',
-    created_at: '2026-09-03T11:20:00Z'
+    "status": "active",
+    "views": 62,
+    "contact_phone": "0754567890",
+    "created_at": "2026-09-03T11:20:00Z"
   },
   {
-    id: '33333333-3333-3333-3333-333333333333',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'Sensor Pack: HC-SR04 Ultrasonic + DHT22 Temp & Humidity',
-    description: 'Working sensor pack for your robotics or weather station project. Includes ultrasonic distance sensor HC-SR04 and high-precision DHT22 (AM2302) digital humidity & temperature sensor. Jumper wires included.',
-    category_id: 2,
-    item_type: 'hardware',
-    price: 1500.00,
-    price_type: 'negotiable',
-    condition: 'used_good',
-    location: 'Faculty Library Lobby',
-    images: [
-      'https://upload.wikimedia.org/wikipedia/commons/2/20/HC_SR04_Ultrasonic_sensor_1480322_3_4_HDR_Enhancer.jpg'
+    "id": "33333333-3333-3333-3333-333333333333",
+    "user_id": "c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33",
+    "title": "Sensor Pack: HC-SR04 Ultrasonic + DHT22 Temp & Humidity",
+    "description": "Working sensor pack for your robotics or weather station project. Includes ultrasonic distance sensor HC-SR04 and high-precision DHT22 (AM2302) digital humidity & temperature sensor. Jumper wires included.",
+    "category_id": 2,
+    "item_type": "hardware",
+    "price": 1500,
+    "price_type": "negotiable",
+    "condition": "used_good",
+    "location": "Faculty Library Lobby",
+    "images": [
+      "https://upload.wikimedia.org/wikipedia/commons/2/20/HC_SR04_Ultrasonic_sensor_1480322_3_4_HDR_Enhancer.jpg"
     ],
-    status: 'active',
-    views: 31,
-    contact_phone: '0754567890',
-    created_at: '2026-09-05T14:10:00Z'
+    "status": "active",
+    "views": 31,
+    "contact_phone": "0754567890",
+    "created_at": "2026-09-05T14:10:00Z"
   },
   {
-    id: '44444444-4444-4444-4444-444444444444',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: '0.96 inch I2C OLED Display Module (128x64 Blue/Yellow)',
-    description: 'Crisp 0.96 inch graphic OLED screen with 4-pin I2C interface (VCC, GND, SCL, SDA). Pre-soldered header pins, ready for instant breadboard use. Compatible with Adafruit SSD1306 and U8g2 libraries.',
-    category_id: 4,
-    item_type: 'hardware',
-    price: 950.00,
-    price_type: 'fixed',
-    condition: 'used_like_new',
-    location: 'FOT Computer Lab 01',
-    images: [
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/OLED_display_module.jpg/800px-OLED_display_module.jpg'
+    "id": "44444444-4444-4444-4444-444444444444",
+    "user_id": "c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33",
+    "title": "0.96 inch I2C OLED Display Module (128x64 Blue/Yellow)",
+    "description": "Crisp 0.96 inch graphic OLED screen with 4-pin I2C interface (VCC, GND, SCL, SDA). Pre-soldered header pins, ready for instant breadboard use. Compatible with Adafruit SSD1306 and U8g2 libraries.",
+    "category_id": 4,
+    "item_type": "hardware",
+    "price": 950,
+    "price_type": "fixed",
+    "condition": "used_like_new",
+    "location": "FOT Computer Lab 01",
+    "images": [
+      "/images/items/oled-display.jpg"
     ],
-    status: 'active',
-    views: 28,
-    contact_phone: '0754567890',
-    created_at: '2026-09-07T16:45:00Z'
+    "status": "active",
+    "views": 28,
+    "contact_phone": "0754567890",
+    "created_at": "2026-09-07T16:45:00Z"
   },
   {
-    id: '55555555-5555-5555-5555-555555555555',
-    user_id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
-    title: 'Digital Multimeter (XL830L) with Test Probes & 9V Battery',
-    description: 'Compact digital multimeter with yellow protective holster. Measures AC/DC voltage, DC current, resistance, diode test, and continuity buzzer. Essential for troubleshooting circuit prototypes, checking sensor voltages, and verifying breadboard wiring in electronics lab.',
-    category_id: 3,
-    item_type: 'hardware',
-    price: 1450.00,
-    price_type: 'fixed',
-    condition: 'used_like_new',
-    location: 'FOT Electronics Lab 02 or Main Canteen',
-    images: [
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Digital_Multimeter.jpg/800px-Digital_Multimeter.jpg'
+    "id": "55555555-5555-5555-5555-555555555555",
+    "user_id": "c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33",
+    "title": "Raspberry Pi 4 Model B (4GB RAM) with Armor Heatsink Case",
+    "description": "Fully functional Raspberry Pi 4 Model B 4GB version used for a semester IoT edge AI project. Includes passive/active aluminum dual-fan armor heatsink case, official 5.1V 3A USB-C power supply, and 32GB MicroSD card. Perfect for computer vision or IoT edge computing.",
+    "category_id": 1,
+    "item_type": "hardware",
+    "price": 16500,
+    "price_type": "fixed",
+    "condition": "used_like_new",
+    "location": "FOT Computer Lab 02 or Hostel Block B",
+    "images": [
+      "https://upload.wikimedia.org/wikipedia/commons/f/f1/Raspberry_Pi_4_Model_B_-_Side.jpg"
     ],
-    status: 'active',
-    views: 35,
-    contact_phone: '0754567890',
-    created_at: '2026-09-08T08:00:00Z'
-  },
-
-  // --- 5 Student Skills Items ---
-  {
-    id: '66666666-6666-6666-6666-666666666666',
-    user_id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
-    title: 'Academic Project Video Editing & Presentation Showcase Reels',
-    description: 'Professional video editing for final year demonstrations, conference poster presentations, and society promotions. Clean cuts, cinematic transitions, audio balancing, voiceover synchronization, and subtitle generation using Premiere Pro.',
-    category_id: 7,
-    item_type: 'skill',
-    price: 3500.00,
-    price_type: 'per_project',
-    condition: null,
-    location: 'FOT Discussion Room / WhatsApp',
-    images: [
-      'https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&w=800'
-    ],
-    status: 'active',
-    views: 89,
-    contact_phone: '0773456789',
-    created_at: '2026-09-04T13:00:00Z'
+    "status": "active",
+    "views": 82,
+    "contact_phone": "0754567890",
+    "created_at": "2026-09-08T08:00:00Z"
   },
   {
-    id: '77777777-7777-7777-7777-777777777777',
-    user_id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
-    title: 'Graphic Design for Student Event Posters, Logos & UI Mockups',
-    description: 'Custom graphic designs for university clubs, symposium announcements, sports meets, and project UI wireframes in Figma. Deliverables provided in high-res PNG, PDF, and source files.',
-    category_id: 6,
-    item_type: 'skill',
-    price: 2000.00,
-    price_type: 'per_project',
-    condition: null,
-    location: 'Campus Canteen or Digital Transfer',
-    images: [
-      'https://images.pexels.com/photos/1762851/pexels-photo-1762851.jpeg?auto=compress&cs=tinysrgb&w=800'
+    "id": "66666666-6666-6666-6666-666666666666",
+    "user_id": "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
+    "title": "Academic Project Video Editing & Presentation Showcase Reels",
+    "description": "Professional video editing for final year demonstrations, conference poster presentations, and society promotions. Clean cuts, cinematic transitions, audio balancing, voiceover synchronization, and subtitle generation using Premiere Pro.",
+    "category_id": 7,
+    "item_type": "skill",
+    "price": 3500,
+    "price_type": "per_project",
+    "condition": null,
+    "location": "FOT Discussion Room / WhatsApp",
+    "images": [
+      "https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&w=800"
     ],
-    status: 'active',
-    views: 53,
-    contact_phone: '0773456789',
-    created_at: '2026-09-06T15:30:00Z'
+    "status": "active",
+    "views": 89,
+    "contact_phone": "0773456789",
+    "created_at": "2026-09-04T13:00:00Z"
   },
   {
-    id: '88888888-8888-8888-8888-888888888888',
-    user_id: 'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44',
-    title: 'Audio Noise Reduction, Voiceover Mastering & Podcast Editing',
-    description: 'Removing room echo, microphone hiss, fan background noise, and balancing dialogue audio for project presentation videos and university podcasts. Experience using Audacity and Adobe Audition.',
-    category_id: 8,
-    item_type: 'skill',
-    price: 1200.00,
-    price_type: 'hourly',
-    condition: null,
-    location: 'ICT Department Common Room',
-    images: [
-      'https://images.pexels.com/photos/164938/pexels-photo-164938.jpeg?auto=compress&cs=tinysrgb&w=800'
+    "id": "77777777-7777-7777-7777-777777777777",
+    "user_id": "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
+    "title": "Graphic Design for Student Event Posters, Logos & UI Mockups",
+    "description": "Custom graphic designs for university clubs, symposium announcements, sports meets, and project UI wireframes in Figma. Deliverables provided in high-res PNG, PDF, and source files.",
+    "category_id": 6,
+    "item_type": "skill",
+    "price": 2000,
+    "price_type": "per_project",
+    "condition": null,
+    "location": "Campus Canteen or Digital Transfer",
+    "images": [
+      "https://images.pexels.com/photos/1762851/pexels-photo-1762851.jpeg?auto=compress&cs=tinysrgb&w=800"
     ],
-    status: 'active',
-    views: 40,
-    contact_phone: '0785678901',
-    created_at: '2026-09-08T09:00:00Z'
+    "status": "active",
+    "views": 53,
+    "contact_phone": "0773456789",
+    "created_at": "2026-09-06T15:30:00Z"
   },
   {
-    id: '99999999-9999-9999-9999-999999999999',
-    user_id: 'ac34aca7-870c-4646-ad1f-33d1dfb1c218',
-    title: 'Modern Responsive Web Design & Coursework Frontend Coding',
-    description: 'Offering front-end web development services for undergraduate projects, student societies, or personal portfolios. Built using modern React.js, Tailwind CSS, or clean HTML5/CSS3. Fast turnaround, clean code, and fully mobile-friendly.',
-    category_id: 5,
-    item_type: 'skill',
-    price: 5000.00,
-    price_type: 'per_project',
-    condition: null,
-    location: 'Online / Meet at FOT Study Area',
-    images: [
-      'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80'
+    "id": "88888888-8888-8888-8888-888888888888",
+    "user_id": "d3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44",
+    "title": "Audio Noise Reduction, Voiceover Mastering & Podcast Editing",
+    "description": "Removing room echo, microphone hiss, fan background noise, and balancing dialogue audio for project presentation videos and university podcasts. Experience using Audacity and Adobe Audition.",
+    "category_id": 8,
+    "item_type": "skill",
+    "price": 1200,
+    "price_type": "hourly",
+    "condition": null,
+    "location": "ICT Department Common Room",
+    "images": [
+      "https://images.pexels.com/photos/164938/pexels-photo-164938.jpeg?auto=compress&cs=tinysrgb&w=800"
     ],
-    status: 'active',
-    views: 74,
-    contact_phone: '0712345678',
-    created_at: '2026-09-02T10:15:00Z'
+    "status": "active",
+    "views": 40,
+    "contact_phone": "0785678901",
+    "created_at": "2026-09-08T09:00:00Z"
   },
   {
-    id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-    user_id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
-    title: 'UI/UX Figma Design for Academic Presentation Slides & Mobile Wireframes',
-    description: 'Clean, modern Figma user interface designs and interactive prototypes for student project presentations, research defense slides, and coursework apps. Deliverables include Figma source link, typography scale, component library, and PNG/SVG asset exports.',
-    category_id: 6,
-    item_type: 'skill',
-    price: 2500.00,
-    price_type: 'per_project',
-    condition: null,
-    location: 'Online / FOT Study Area',
-    images: [
-      'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=800'
+    "id": "99999999-9999-9999-9999-999999999999",
+    "user_id": "ac34aca7-870c-4646-ad1f-33d1dfb1c218",
+    "title": "Modern Responsive Web Design & Coursework Frontend Coding",
+    "description": "Offering front-end web development services for undergraduate projects, student societies, or personal portfolios. Built using modern React.js, Tailwind CSS, or clean HTML5/CSS3. Fast turnaround, clean code, and fully mobile-friendly.",
+    "category_id": 5,
+    "item_type": "skill",
+    "price": 5000,
+    "price_type": "per_project",
+    "condition": null,
+    "location": "Online / Meet at FOT Study Area",
+    "images": [
+      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80"
     ],
-    status: 'active',
-    views: 68,
-    contact_phone: '0773456789',
-    created_at: '2026-09-08T16:00:00Z'
+    "status": "active",
+    "views": 74,
+    "contact_phone": "0712345678",
+    "created_at": "2026-09-02T10:15:00Z"
+  },
+  {
+    "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "user_id": "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
+    "title": "UI/UX Figma Design for Academic Presentation Slides & Mobile Wireframes",
+    "description": "Clean, modern Figma user interface designs and interactive prototypes for student project presentations, research defense slides, and coursework apps. Deliverables include Figma source link, typography scale, component library, and PNG/SVG asset exports.",
+    "category_id": 6,
+    "item_type": "skill",
+    "price": 2500,
+    "price_type": "per_project",
+    "condition": null,
+    "location": "Online / FOT Study Area",
+    "images": [
+      "https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=800"
+    ],
+    "status": "active",
+    "views": 68,
+    "contact_phone": "0773456789",
+    "created_at": "2026-09-08T16:00:00Z"
   }
 ];
 
@@ -348,14 +345,14 @@ class ClientStore {
     }
 
     // Initialize or synchronize listings with latest additions
-    const cachedListings = this.load('unimart_listings_v7', null);
+    const cachedListings = this.load('unimart_listings_v8', null);
     if (!cachedListings) {
       this.listings = INITIAL_LISTINGS;
-      this.save('unimart_listings_v7', this.listings);
+      this.save('unimart_listings_v8', this.listings);
     } else {
       const nonSeedListings = cachedListings.filter(c => !INITIAL_LISTINGS.some(s => s.id === c.id));
       this.listings = [...INITIAL_LISTINGS, ...nonSeedListings];
-      this.save('unimart_listings_v7', this.listings);
+      this.save('unimart_listings_v8', this.listings);
     }
 
     this.messages = this.load('unimart_messages', INITIAL_MESSAGES);
@@ -448,7 +445,7 @@ class ClientStore {
   createListing(listingData) {
     const newL = { ...listingData, id: Math.random().toString(36).substring(2, 15) };
     this.listings.unshift(newL);
-    this.save('unimart_listings_v4', this.listings);
+    this.save('unimart_listings_v8', this.listings);
     return this.getListingById(newL.id);
   }
 
@@ -456,7 +453,7 @@ class ClientStore {
     const idx = this.listings.findIndex(l => l.id === id);
     if (idx !== -1) {
       this.listings[idx] = { ...this.listings[idx], ...updates };
-      this.save('unimart_listings_v4', this.listings);
+      this.save('unimart_listings_v8', this.listings);
       return this.getListingById(id);
     }
     return null;
@@ -464,7 +461,7 @@ class ClientStore {
 
   deleteListing(id) {
     this.listings = this.listings.filter(l => l.id !== id);
-    this.save('unimart_listings_v4', this.listings);
+    this.save('unimart_listings_v8', this.listings);
     return true;
   }
 

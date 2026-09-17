@@ -48,8 +48,10 @@ export default function ListingCard({ listing }) {
           className="w-full h-full object-cover"
           loading="lazy"
           onError={(e) => {
+            if (e.target.dataset.failed) return;
+            e.target.dataset.failed = 'true';
             e.target.src = isHardware
-              ? 'https://upload.wikimedia.org/wikipedia/commons/3/38/Arduino_Uno_-_R3.jpg'
+              ? '/images/items/oled-display.jpg'
               : 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80';
           }}
         />
