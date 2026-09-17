@@ -251,7 +251,7 @@ export default function Home() {
       <div className="bg-slate-100 border border-slate-300 rounded p-4 text-xs text-slate-600">
         <h3 className="font-bold text-slate-800 text-xs mb-1">About UniMart</h3>
         <p className="leading-relaxed">
-          UniMart is a student marketplace built by <strong>Group 05</strong>. Key features include university email domain verification, a campus-only hand-to-hand exchange model (no online payment gateways), direct peer ratings, and a unified account system for buyers and sellers.
+          UniMart is a verified student marketplace engineered by <strong>Sudo Six</strong>. Designed exclusively for university undergraduates, it facilitates trusted peer-to-peer exchanges for academic hardware and technical skills through university email authentication, transparent peer reviews, and secure on-campus meetups.
         </p>
       </div>
     </div>

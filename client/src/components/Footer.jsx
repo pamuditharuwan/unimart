@@ -34,7 +34,7 @@ export default function Footer() {
               <div className="flex items-center gap-2 text-white font-bold text-base">
                 <span>UniMart</span>
                 <span className="text-[10px] bg-slate-800 text-teal-300 border border-slate-700 px-1.5 py-0.5 rounded font-mono">
-                  Group 05
+                  Sudo Six
                 </span>
               </div>
               <p className="text-slate-400 text-xs leading-relaxed">
