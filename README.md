@@ -6,7 +6,7 @@
 *Skill Development Project I | BICT (Honors)*  
 *Group 05 – Sudo Six*  
 
-🌐 ** [https://uni-mart-lk.vercel.app/](https://uni-mart-lk.vercel.app/)
+🌐 [https://uni-mart-lk.vercel.app/](https://uni-mart-lk.vercel.app/)
 
 ---
 
@@ -94,14 +94,3 @@ unimart_web/
 └── README.md                  # Project documentation & setup instructions
 ```
 
-
-## 👥 Project Team (Group 05 – Sudo Six)
-
-- **Student Member 01** (BICT Honors &bull; Rajarata University)
-- **Student Member 02** (BICT Honors &bull; Rajarata University)
-- **Student Member 03** (BICT Honors &bull; Rajarata University)
-- **Student Member 04** (BICT Honors &bull; Rajarata University)
-- **Student Member 05** (BICT Honors &bull; Rajarata University)
-- **Student Member 06** (BICT Honors &bull; Rajarata University)
-
-**Academic Project:** Skill Development Project I, Department of Information and Communication Technology, Faculty of Technology, Rajarata University of Sri Lanka.
