@@ -5,9 +5,8 @@
 **Faculty of Technology – Rajarata University of Sri Lanka**  
 *Skill Development Project I | BICT (Honors)*  
 *Group 05 – Sudo Six*  
-*Supervisor: Mr. Nandika Tennakoon, Lecturer (Temp.)*
 
-🌐 **Live Deployment:** [https://uni-mart-lk.vercel.app/](https://uni-mart-lk.vercel.app/)
+🌐 ** [https://uni-mart-lk.vercel.app/](https://uni-mart-lk.vercel.app/)
 
 ---
 
